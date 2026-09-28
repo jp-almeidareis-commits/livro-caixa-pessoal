@@ -13,10 +13,20 @@
     --ink: #0F172A;
     --ink-soft: #64748B;
     --red: #DC2626;
-    --green: #16A34A;
+    --green: #15803D;
     --brass: #D97706;
     --cream: #FFFFFF;
     --body-bg: #F8FAFC;
+    --input-bg: #FFFFFF;
+    --brass-bg: #FFFBEB;
+    --brass-border: #FDE68A;
+    --brass-text: #B45309;
+    --ok-bg: #F0FDF4;
+    --danger-bg: #FEF2F2;
+    --badge-green: #15803D;
+    --badge-brass: #B45309;
+    --badge-gray: #64748B;
+    color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -31,6 +41,13 @@
       --brass: #FBBF24;
       --cream: #1E293B;
       --body-bg: #0F172A;
+      --input-bg: #0F172A;
+      --brass-bg: #2B2410;
+      --brass-border: #6B5314;
+      --brass-text: #FBBF24;
+      --ok-bg: #12301E;
+      --danger-bg: #3A1618;
+      color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
@@ -45,6 +62,13 @@
     --brass: #FBBF24;
     --cream: #1E293B;
     --body-bg: #0F172A;
+    --input-bg: #0F172A;
+    --brass-bg: #2B2410;
+    --brass-border: #6B5314;
+    --brass-text: #FBBF24;
+    --ok-bg: #12301E;
+    --danger-bg: #3A1618;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   body {
@@ -66,7 +90,7 @@
   .cover .eyebrow { font-size: 11px; letter-spacing: 0.04em; color: #94A3B8; margin: 0 0 4px; font-weight: 500; }
   .cover h1 { font-family: inherit; font-weight: 600; font-size: 22px; margin: 0; letter-spacing: -0.01em; }
   .body-panel { border: 1px solid var(--line); border-top: none; border-radius: 0 0 10px 10px; background: var(--paper); }
-  .save-error { background: #FEF2F2; color: var(--red); padding: 8px 16px; font-size: 13px; }
+  .save-error { background: var(--danger-bg); color: var(--red); padding: 8px 16px; font-size: 13px; }
 
   .year-row { display: flex; gap: 8px; padding: 12px 12px 0; }
   .year-btn { font-size: 12px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
@@ -94,20 +118,20 @@
 
   .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
   .btn { font-size: 13px; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; }
-  .btn-primary { background: var(--cover); color: #fff; }
+  .btn-primary { background: var(--cover); color: #fff; border-color: var(--line); }
   .btn-outline { background: transparent; border-color: var(--line); color: var(--ink); }
   .btn-brass { background: transparent; border-color: var(--line); color: var(--ink-soft); }
   .btn-submit { background: var(--cover); color: #fff; font-weight: 600; width: 100%; }
 
   .panel { border: 1px solid var(--line); background: var(--paper); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
-  .panel.brass { border-color: #FDE68A; background: #FFFBEB; }
+  .panel.brass { border-color: var(--brass-border); background: var(--brass-bg); }
   .panel-title { font-size: 12px; font-weight: 600; color: var(--ink); margin: 0 0 8px; }
-  .panel.brass .panel-title { color: #B45309; }
+  .panel.brass .panel-title { color: var(--brass-text); }
 
   form.grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   form.grid.cols-6-md { grid-template-columns: 1fr; }
   @media (min-width: 640px) { form.grid.cols-6-md { grid-template-columns: repeat(6, 1fr); } }
-  .field { font-size: 13px; padding: 8px; border-radius: 6px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-family: inherit; width: 100%; }
+  .field { font-size: 13px; padding: 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--input-bg); color: var(--ink); font-family: inherit; width: 100%; }
   label.field-label { font-size: 11px; color: var(--ink-soft); display: block; }
   label.field-label .field { margin-top: 2px; }
   .span-1 { grid-column: span 1; } .span-2 { grid-column: span 2; } .span-3 { grid-column: span 3; }
@@ -126,9 +150,9 @@
   tfoot tr:first-of-type { border-top: 1px solid var(--ink); }
   .badge { padding: 2px 8px; border-radius: 999px; font-size: 10px; color: #fff; display: inline-block; }
   .muted { color: var(--ink-soft); }
-  .green { color: var(--green); } .red { color: var(--red); } .brass-text { color: #B45309; }
+  .green { color: var(--green); } .red { color: var(--red); } .brass-text { color: var(--brass-text); }
   .bold { font-weight: 700; }
-  .note-input { font-size: 11px; padding: 3px 6px; border-radius: 4px; border: 1px solid var(--line); background: #fff; width: 100%; font-family: inherit; }
+  .note-input { font-size: 11px; padding: 3px 6px; border-radius: 4px; border: 1px solid var(--line); background: var(--input-bg); color: var(--ink); width: 100%; font-family: inherit; }
   .del-btn { background: none; border: none; cursor: pointer; color: var(--ink-soft); padding: 2px; }
   .table-wrap { overflow-x: auto; }
   .naoprevisto-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
@@ -263,8 +287,33 @@ function getPlannedItemsForMonth(items, year, month) {
     if (p.mode === "pontual") return p.month === key;
     if (p.startMonth && key < p.startMonth) return false;
     if (p.endMonth && key > p.endMonth) return false;
+    // Meta recorrente arquivada: deixa de valer a partir do mês de corte (meses anteriores ficam intactos).
+    if (p.archivedFrom && key >= p.archivedFrom) return false;
     return true;
+  }).map((p) => {
+    // Ajuste "só neste mês": p.overrides = { "2026-10": 620 } troca o valor apenas naquele mês.
+    const ov = p.overrides ? p.overrides[key] : undefined;
+    return (ov !== undefined && ov !== null) ? { ...p, baseValue: p.value, value: Number(ov), overridden: true } : p;
   });
+}
+
+function monthLabel(key) {
+  return `${MESES[Number(key.slice(5, 7)) - 1]}/${key.slice(2, 4)}`;
+}
+
+// Mês de planejamento (chave YYYY-MM) a que uma data pertence, respeitando a competência excepcional.
+function planKeyForDate(dateStr) {
+  if (!dateStr) return currentMonthKey;
+  if (dateStr >= "2026-08-27" && dateStr <= "2026-09-30") return "2026-09";
+  if (dateStr >= "2026-08-01" && dateStr <= "2026-08-26") return "2026-08";
+  return dateStr.slice(0, 7);
+}
+
+// Metas de um tipo que estão valendo no mês da data informada (é o que o seletor "Meta" deve oferecer).
+function plannedActiveForDate(dateStr, type) {
+  const key = planKeyForDate(dateStr);
+  const [y, m] = key.split("-").map(Number);
+  return getPlannedItemsForMonth(state.plannedItems, y, m - 1).filter((p) => p.type === type);
 }
 
 // Data "de caixa" de um lançamento: pra cartão de crédito com vencimento definido, o que importa
@@ -321,6 +370,8 @@ let state = {
   filtroStatus: "todos",
   showCatManager: false,
   showGoalsManager: false,
+  showArchived: false,
+  editingOverride: null,
   saveError: false,
 };
 
@@ -551,6 +602,61 @@ function deletePlannedGroup(groupId) {
   persist(); render();
 }
 
+// Ajusta o valor de uma meta SÓ num mês (os demais meses continuam com o valor base).
+function setMonthOverride(itemId, monthKey, value) {
+  const v = Number(value);
+  if (!isFinite(v) || v < 0) return;
+  state.plannedItems = state.plannedItems.map((p) => {
+    if (p.id !== itemId) return p;
+    const overrides = { ...(p.overrides || {}) };
+    if (v === p.value) delete overrides[monthKey]; else overrides[monthKey] = v;
+    const next = { ...p, overrides };
+    if (Object.keys(overrides).length === 0) delete next.overrides;
+    return next;
+  });
+  persist();
+}
+
+function clearMonthOverride(itemId, monthKey) {
+  state.plannedItems = state.plannedItems.map((p) => {
+    if (p.id !== itemId || !p.overrides) return p;
+    const overrides = { ...p.overrides };
+    delete overrides[monthKey];
+    const next = { ...p, overrides };
+    if (Object.keys(overrides).length === 0) delete next.overrides;
+    return next;
+  });
+  persist();
+}
+
+// Arquiva uma meta: some da lista de metas e do seletor; o histórico dos meses já vividos é preservado.
+function archivePlannedItem(id, ctxKey) {
+  const p = state.plannedItems.find((x) => x.id === id);
+  if (!p) return;
+  const patch = { archived: true };
+  let msg;
+  if (p.mode === "pontual") {
+    msg = `Arquivar "${p.description}"?\n\nEla continua aparecendo em ${monthLabel(p.month)} (histórico), mas some da lista de metas e do seletor de meta dos outros meses.`;
+  } else {
+    let cut = addMonthsToKey(ctxKey, 1);
+    if (p.startMonth && cut < p.startMonth) cut = p.startMonth;
+    patch.archivedFrom = cut;
+    msg = `Arquivar "${p.description}"?\n\nEla deixa de valer a partir de ${monthLabel(cut)}. ${monthLabel(ctxKey)} e os meses anteriores continuam iguais.`;
+  }
+  if (!confirm(msg)) return;
+  state.plannedItems = state.plannedItems.map((x) => (x.id === id ? { ...x, ...patch } : x));
+  persist(); render();
+}
+
+function unarchivePlannedItem(id) {
+  state.plannedItems = state.plannedItems.map((x) => {
+    if (x.id !== id) return x;
+    const { archived, archivedFrom, ...rest } = x;
+    return rest;
+  });
+  persist(); render();
+}
+
 function updatePlannedItemValue(id, value) {
   state.plannedItems = state.plannedItems.map((p) => (p.id === id ? { ...p, value: Number(value) || 0 } : p));
 }
@@ -625,13 +731,15 @@ function catById(id) {
 // Sugere uma meta pra etiquetar o lançamento: primeiro olha se essa descrição já foi
 // etiquetada antes (ex: "Ração" sempre virou "Pets"); se não achar, e só existir UMA meta
 // naquela categoria+tipo, sugere ela — sem forçar nada, o campo continua editável.
-function suggestPlannedItemId(description, type, categoryId) {
+function suggestPlannedItemId(description, type, categoryId, dateStr) {
+  const ativas = plannedActiveForDate(dateStr, type);
+  const activeIds = new Set(ativas.map((p) => p.id));
   const norm = description.trim().toLowerCase();
   if (norm) {
-    const prior = [...state.transactions].reverse().find((t) => t.type === type && t.plannedItemId && t.description.trim().toLowerCase() === norm);
+    const prior = [...state.transactions].reverse().find((t) => t.type === type && t.plannedItemId && activeIds.has(t.plannedItemId) && t.description.trim().toLowerCase() === norm);
     if (prior) return prior.plannedItemId;
   }
-  const sameCat = state.plannedItems.filter((p) => p.type === type && p.categoryId === categoryId);
+  const sameCat = ativas.filter((p) => p.categoryId === categoryId);
   if (sameCat.length === 1) return sameCat[0].id;
   return "";
 }
@@ -878,7 +986,7 @@ function render() {
   if (state.showForm) {
     html += `<form class="grid cols-6-md panel" id="tx-form" style="margin-bottom:16px;">`;
     if (editingTxId) {
-      html += `<p class="panel-title span-6" style="grid-column:span 6;color:${C.brass}">✏️ Editando lançamento</p>`;
+      html += `<p class="panel-title span-6" style="grid-column:span 6;color:var(--brass-text)">✏️ Editando lançamento</p>`;
     }
     html += `<select class="field span-1" id="tx-type"><option value="despesa" ${form.type === "despesa" ? "selected" : ""}>Despesa</option><option value="receita" ${form.type === "receita" ? "selected" : ""}>Receita</option></select>`;
     html += `<input type="date" class="field span-1" id="tx-date" min="2026-01-01" max="2027-12-31" value="${form.date}" />`;
@@ -887,9 +995,14 @@ function render() {
     categoriesForType(form.type).forEach((c) => { html += `<option value="${c.id}" ${form.categoryId === c.id ? "selected" : ""}>${c.name}</option>`; });
     html += `</select>`;
     html += `<input type="number" step="0.01" min="0" class="field span-1" id="tx-value" placeholder="Valor" value="${form.value}" />`;
-    html += `<label class="field-label span-2">Meta (opcional)<select class="field" id="tx-meta"><option value="">— Não previsto —</option>`;
-    state.plannedItems.filter((p) => p.type === form.type).forEach((p) => {
-      html += `<option value="${p.id}" ${form.plannedItemId === p.id ? "selected" : ""}>${esc(p.description)}</option>`;
+    const metasVigentes = plannedActiveForDate(form.date, form.type);
+    const metaAtual = state.plannedItems.find((p) => p.id === form.plannedItemId);
+    const listaMetasForm = [...metasVigentes];
+    const foraDeVigencia = !!(metaAtual && !metasVigentes.some((p) => p.id === metaAtual.id));
+    if (foraDeVigencia) listaMetasForm.push(metaAtual); // mantém a etiqueta atual visível ao editar lançamento antigo
+    html += `<label class="field-label span-2">Meta (opcional) — vigentes em ${monthLabel(planKeyForDate(form.date))}<select class="field" id="tx-meta"><option value="">— Não previsto —</option>`;
+    listaMetasForm.forEach((p) => {
+      html += `<option value="${p.id}" ${form.plannedItemId === p.id ? "selected" : ""}>${esc(p.description)}${foraDeVigencia && p.id === metaAtual.id ? " (fora de vigência neste mês)" : ""}</option>`;
     });
     html += `</select></label>`;
     html += `<label class="span-2" style="font-size:11px;color:${C.inkSoft};display:flex;align-items:center;gap:5px;"><input type="checkbox" id="tx-cartao" ${form.isCartao ? "checked" : ""} /> 💳 É cartão de crédito?</label>`;
@@ -926,12 +1039,27 @@ function render() {
   if (state.showGoalsManager) {
     html += `<div class="panel brass">`;
     html += `<p class="panel-title">Suas metas (planejado) — editáveis</p>`;
-    html += `<div class="table-wrap"><table><thead><tr><th>Descrição</th><th style="text-align:left">Vigência</th><th>Valor</th><th></th></tr></thead><tbody>`;
-    state.plannedItems.forEach((p) => {
-      const vig = p.mode === "pontual" ? `só em ${p.month}` : `desde ${p.startMonth}${p.endMonth ? ` até ${p.endMonth}` : ""}`;
-      html += `<tr><td style="color:${p.type === "receita" ? C.green : C.ink}">${esc(p.description)}</td><td style="text-align:left" class="muted">${vig}</td>`;
+    const qtdArq = state.plannedItems.filter((p) => p.archived).length;
+    const listaMetas = state.plannedItems.filter((p) => state.showArchived || !p.archived);
+    html += `<p class="hint" style="margin-top:0;">O valor aqui é o <strong>valor base</strong> (vale para todos os meses). Pra mudar a meta só de um mês, abra o mês, clique em <strong>Ver os lançamentos</strong> e use o ✏️ ao lado do valor planejado. Use 📦 pra arquivar metas que não se aplicam mais.</p>`;
+    if (qtdArq > 0) {
+      html += `<label style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:8px;color:var(--ink-soft);"><input type="checkbox" data-action="toggle-show-archived" ${state.showArchived ? "checked" : ""} /> Mostrar arquivadas (${qtdArq})</label>`;
+    }
+    html += `<div class="table-wrap"><table><thead><tr><th>Descrição</th><th style="text-align:left">Vigência</th><th>Valor base</th><th></th></tr></thead><tbody>`;
+    if (listaMetas.length === 0) {
+      html += `<tr><td colspan="4" class="muted" style="text-align:center;padding:12px;">Nenhuma meta ativa.</td></tr>`;
+    }
+    listaMetas.forEach((p) => {
+      let vig = p.mode === "pontual" ? `só em ${p.month}` : `desde ${p.startMonth}${p.endMonth ? ` até ${p.endMonth}` : ""}`;
+      if (p.archivedFrom) vig += ` · arquivada a partir de ${p.archivedFrom}`;
+      const nOv = p.overrides ? Object.keys(p.overrides).length : 0;
+      if (nOv > 0) vig += ` · ${nOv} mês(es) ajustado(s)`;
+      html += `<tr style="${p.archived ? "opacity:.6;" : ""}"><td style="color:${p.type === "receita" ? C.green : C.ink}">${p.archived ? "📦 " : ""}${esc(p.description)}</td><td style="text-align:left" class="muted">${vig}</td>`;
       html += `<td><input type="number" step="0.01" class="note-input" style="width:90px;text-align:right;" data-action="edit-goal-value" data-id="${p.id}" value="${p.value}" /></td>`;
-      html += `<td>${p.groupId ? `<button class="del-btn" data-action="del-goal-group" data-groupid="${p.groupId}" title="Excluir parcelamento todo">🗑️×</button>` : `<button class="del-btn" data-action="del-goal" data-id="${p.id}">🗑️</button>`}</td></tr>`;
+      const arqBtn = p.archived
+        ? `<button class="del-btn" data-action="unarchive-goal" data-id="${p.id}" title="Desarquivar">↩️</button>`
+        : `<button class="del-btn" data-action="archive-goal" data-id="${p.id}" title="Arquivar">📦</button>`;
+      html += `<td style="white-space:nowrap;">${arqBtn}${p.groupId ? `<button class="del-btn" data-action="del-goal-group" data-groupid="${p.groupId}" title="Excluir parcelamento todo">🗑️×</button>` : `<button class="del-btn" data-action="del-goal" data-id="${p.id}">🗑️</button>`}</td></tr>`;
     });
     html += `</tbody></table></div>`;
 
@@ -1024,11 +1152,15 @@ function render() {
         }
         h += `<div class="table-wrap" style="margin-top:10px;"><table><thead><tr><th style="text-align:left">Item</th><th>Planejado</th><th>Atualizado</th><th>Realizado</th><th>Diferença</th><th title="Trava o Atualizado no valor lançado, mesmo abaixo da meta">Fechado?</th><th style="text-align:left">Observação</th></tr></thead><tbody>`;
         if (rowsFiltradas.length === 0) {
-          h += `<tr><td colspan="6" class="muted" style="text-align:center;padding:12px;">Nenhum item nesse filtro.</td></tr>`;
+          h += `<tr><td colspan="7" class="muted" style="text-align:center;padding:12px;">Nenhum item nesse filtro.</td></tr>`;
         }
         rowsFiltradas.forEach((r) => {
-          h += `<tr><td style="text-align:left;color:${C.ink}">${esc(r.description)}${!r.lancado ? ` <span class="italic brass-text">(ainda não lançado)</span>` : ""}${r.finalizado ? ` <span class="badge" style="background:${C.green}">✓ fechado</span>` : ""}</td>`;
-          h += `<td class="muted">${brl(r.value)}</td>`;
+          h += `<tr><td style="text-align:left;color:${C.ink}">${esc(r.description)}${!r.lancado ? ` <span class="italic brass-text">(ainda não lançado)</span>` : ""}${r.finalizado ? ` <span class="badge" style="background:var(--badge-green)">✓ fechado</span>` : ""} <button class="del-btn" data-action="archive-goal" data-id="${r.id}" data-month="${monthComparison.key}" title="Arquivar meta (deixa de valer a partir do mês seguinte)">📦</button></td>`;
+          if (state.editingOverride === `${monthComparison.key}|${r.id}`) {
+            h += `<td style="white-space:nowrap;"><input type="number" step="0.01" min="0" class="note-input" id="ov-input" style="width:90px;text-align:right;" value="${r.value}" title="Novo valor da meta só para ${monthLabel(monthComparison.key)}" /> <button class="del-btn" data-action="ov-save" title="Salvar (só neste mês)">✓</button><button class="del-btn" data-action="ov-cancel" title="Cancelar">✕</button></td>`;
+          } else {
+            h += `<td class="muted" style="white-space:nowrap;">${brl(r.value)}${r.overridden ? ` <span class="badge" style="background:var(--badge-brass)" title="Valor base: ${brl(r.baseValue)}">só este mês</span>` : ""} <button class="del-btn" data-action="ov-edit" data-id="${r.id}" data-month="${monthComparison.key}" title="Editar a meta só deste mês">✏️</button>${r.overridden ? `<button class="del-btn" data-action="ov-reset" data-id="${r.id}" data-month="${monthComparison.key}" title="Voltar ao valor base (${brl(r.baseValue)})">↺</button>` : ""}</td>`;
+          }
           h += `<td class="${r.finalizado ? "bold green" : r.excedida ? "bold brass-text" : "muted"}">${brl(r.atualizado)}</td>`;
           h += `<td style="color:${r.lancado ? C.ink : C.inkSoft}">${r.lancado ? brl(r.realizado) : "—"}</td>`;
           h += `<td class="bold" style="color:${!r.lancado ? C.inkSoft : r.favoravel ? C.green : C.red}">${r.lancado ? `${r.diff >= 0 ? "+" : ""}${brl(r.diff)}` : "—"}</td>`;
@@ -1062,7 +1194,7 @@ function render() {
         let h = `<p class="panel-title" style="margin:${isReceita ? "0" : "14px"} 0 6px;">${isReceita ? "📈 Receitas" : "📉 Despesas"} não previstas (${list.length})</p>`;
         list.forEach((t) => {
           const cat = catById(t.categoryId);
-          h += `<div class="naoprevisto-row"><span>${esc(t.description)}${cat ? ` <span class="muted">(${cat.name})</span>` : ""}${t.isCartao ? ` <span class="badge" style="background:${C.brass}">💳 cartão${t.dueDate ? " · vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</span>`;
+          h += `<div class="naoprevisto-row"><span>${esc(t.description)}${cat ? ` <span class="muted">(${cat.name})</span>` : ""}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳 cartão${t.dueDate ? " · vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</span>`;
           h += `<span style="display:flex;align-items:center;gap:8px;"><span style="color:${isReceita ? C.green : C.red}">${isReceita ? "+" : "-"}${brl(t.value)}</span>`;
           h += `<button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button>`;
           h += `<button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></span></div>`;
@@ -1111,9 +1243,9 @@ function render() {
         const cat = catById(t.categoryId);
         const meta = t.plannedItemId ? state.plannedItems.find((p) => p.id === t.plannedItemId) : null;
         html += `<tr><td style="text-align:left">${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</td>`;
-        html += `<td style="text-align:left">${esc(t.description)}${meta ? ` <span class="badge" style="background:${C.green}">🏷️ ${esc(meta.description)}</span>` : ""}</td>`;
-        html += `<td style="text-align:left"><span class="badge" style="background:${cat ? cat.color : C.inkSoft}">${cat ? cat.name : "—"}</span></td>`;
-        html += `<td style="text-align:left">${t.isCartao ? `<span class="badge" style="background:${C.brass}">💳${t.dueDate ? " " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</td>`;
+        html += `<td style="text-align:left">${esc(t.description)}${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}</td>`;
+        html += `<td style="text-align:left"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span></td>`;
+        html += `<td style="text-align:left">${t.isCartao ? `<span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</td>`;
         html += `<td style="color:${t.type === "receita" ? C.green : C.red}">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</td>`;
         html += `<td><button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button> <button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></td></tr>`;
       });
@@ -1161,15 +1293,15 @@ function render() {
           const label = k === "sem-data" ? "Sem data de vencimento definida" : `Vence em ${new Date(k + "T00:00:00").toLocaleDateString("pt-BR")}`;
           const total = porVencimento[k].reduce((s, t) => s + Number(t.value), 0);
           const reconciliado = !!state.reconciliados[k];
-          html += `<div style="margin-top:10px;padding:8px 10px;border:1px solid ${reconciliado ? C.green : venceForaDoMsAtual ? C.brass : "var(--line)"};border-radius:6px;background:${reconciliado ? "#F0FDF4" : "transparent"};">`;
+          html += `<div style="margin-top:10px;padding:8px 10px;border:1px solid ${reconciliado ? C.green : venceForaDoMsAtual ? C.brass : "var(--line)"};border-radius:6px;background:${reconciliado ? "var(--ok-bg)" : "transparent"};">`;
           html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">`;
-          html += `<span style="font-weight:700;color:${C.ink}">${reconciliado ? "✅" : ""} ${label} — total ${brl(total)} ${reconciliado ? "<span class=\"badge\" style=\"background:" + C.green + "\">conferido</span>" : ""}${venceForaDoMsAtual ? ` <span class="badge" style="background:${C.brass}">📆 impacta a fatura de ${mesVencLabel}</span>` : ""}</span>`;
+          html += `<span style="font-weight:700;color:${C.ink}">${reconciliado ? "✅" : ""} ${label} — total ${brl(total)} ${reconciliado ? "<span class=\"badge\" style=\"background:var(--badge-green)\">conferido</span>" : ""}${venceForaDoMsAtual ? ` <span class="badge" style="background:var(--badge-brass)">📆 impacta a fatura de ${mesVencLabel}</span>` : ""}</span>`;
           html += `<button class="btn ${reconciliado ? "btn-outline" : "btn-primary"}" style="font-size:11px;padding:4px 8px;" data-action="toggle-reconciliado" data-key="${k}">${reconciliado ? "Reabrir" : "✓ Confirmar reconciliação"}</button>`;
           html += `</div>`;
           if (!reconciliado) {
             porVencimento[k].forEach((t) => {
               const consumidoOutroMs = !(t.date >= pStart0 && t.date <= pEnd0);
-              html += `<div class="naoprevisto-row"><span>${esc(t.description)}${consumidoOutroMs ? ` <span class="badge" style="background:${C.inkSoft}">🕐 consumido em ${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</span>` : ""}</span><span class="red">-${brl(t.value)}</span></div>`;
+              html += `<div class="naoprevisto-row"><span>${esc(t.description)}${consumidoOutroMs ? ` <span class="badge" style="background:var(--badge-gray)">🕐 consumido em ${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</span>` : ""}</span><span class="red">-${brl(t.value)}</span></div>`;
             });
           }
           html += `</div>`;
@@ -1195,7 +1327,7 @@ function render() {
       visibleTx.forEach((t) => {
         const cat = catById(t.categoryId);
         html += `<tr><td>${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</td><td style="text-align:left">${esc(t.description)}</td>`;
-        html += `<td style="text-align:left"><span class="badge" style="background:${cat ? cat.color : C.inkSoft}">${cat ? cat.name : "—"}</span></td>`;
+        html += `<td style="text-align:left"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span></td>`;
         html += `<td class="red">${t.type === "despesa" ? brl(t.value) : ""}</td><td class="green">${t.type === "receita" ? brl(t.value) : ""}</td>`;
         html += `<td class="bold" style="color:${t.balance >= 0 ? C.green : C.red}">${brl(t.balance)}</td>`;
         html += `<td><button class="del-btn" data-action="del-tx" data-id="${t.id}">🗑️</button></td></tr>`;
@@ -1279,6 +1411,15 @@ function render() {
   attachListeners();
 }
 
+function saveOverrideFromInput() {
+  if (!state.editingOverride) return;
+  const input = document.getElementById("ov-input");
+  const [monthKey, itemId] = state.editingOverride.split("|");
+  if (input) setMonthOverride(itemId, monthKey, input.value);
+  state.editingOverride = null;
+  render();
+}
+
 let listenersInitialized = false;
 
 function attachListeners() {
@@ -1303,6 +1444,12 @@ function attachListeners() {
       else if (action === "import-backup") { document.getElementById("import-file-input").click(); }
       else if (action === "cancel-edit-tx") { cancelEditTransaction(); }
       else if (action === "edit-tx") { startEditTransaction(el.dataset.id); }
+      else if (action === "ov-edit") { state.editingOverride = `${el.dataset.month}|${el.dataset.id}`; render(); }
+      else if (action === "ov-cancel") { state.editingOverride = null; render(); }
+      else if (action === "ov-save") { saveOverrideFromInput(); }
+      else if (action === "ov-reset") { clearMonthOverride(el.dataset.id, el.dataset.month); render(); }
+      else if (action === "archive-goal") { archivePlannedItem(el.dataset.id, el.dataset.month || (state.showAll ? currentMonthKey : `${state.selectedYear}-${pad2(state.selectedMonth + 1)}`)); }
+      else if (action === "unarchive-goal") { unarchivePlannedItem(el.dataset.id); }
       else if (action === "del-cat") { deleteCategory(el.dataset.id); }
       else if (action === "del-goal") { deletePlannedItem(el.dataset.id); }
       else if (action === "del-goal-group") { deletePlannedGroup(el.dataset.groupid); }
@@ -1323,6 +1470,17 @@ function attachListeners() {
   app.querySelectorAll('[data-action="toggle-finalizado"]').forEach((chk) => {
     chk.addEventListener("change", () => toggleFinalizado(chk.dataset.notekey));
   });
+  app.querySelectorAll('[data-action="toggle-show-archived"]').forEach((chk) => {
+    chk.addEventListener("change", () => { state.showArchived = chk.checked; render(); });
+  });
+  const ovInput = document.getElementById("ov-input");
+  if (ovInput) {
+    ovInput.focus(); ovInput.select();
+    ovInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); saveOverrideFromInput(); }
+      else if (e.key === "Escape") { state.editingOverride = null; render(); }
+    });
+  }
   const filtroCatSelect = document.getElementById("filtro-categoria");
   if (filtroCatSelect) {
     filtroCatSelect.addEventListener("change", (e) => { state.filtroCategoria = e.target.value; render(); });
@@ -1340,16 +1498,24 @@ function attachListeners() {
     txForm.addEventListener("submit", addTransaction);
     document.getElementById("tx-type").addEventListener("change", (e) => { form.type = e.target.value; form.categoryId = categoriesForType(e.target.value)[0]?.id || ""; form.plannedItemId = ""; render(); });
     document.getElementById("tx-date").addEventListener("input", (e) => { form.date = e.target.value; });
+    document.getElementById("tx-date").addEventListener("change", (e) => {
+      form.date = e.target.value;
+      // Trocou a data → o mês de planejamento pode mudar: recalcula quais metas estão vigentes.
+      const ativas = plannedActiveForDate(form.date, form.type);
+      if (form.plannedItemId && !ativas.some((p) => p.id === form.plannedItemId)) form.plannedItemId = "";
+      if (!form.plannedItemId) form.plannedItemId = suggestPlannedItemId(form.description, form.type, form.categoryId, form.date);
+      render();
+    });
     document.getElementById("tx-desc").addEventListener("input", (e) => { form.description = e.target.value; });
     document.getElementById("tx-desc").addEventListener("blur", () => {
       if (!form.plannedItemId) {
-        const suggestion = suggestPlannedItemId(form.description, form.type, form.categoryId);
+        const suggestion = suggestPlannedItemId(form.description, form.type, form.categoryId, form.date);
         if (suggestion) { form.plannedItemId = suggestion; render(); }
       }
     });
     document.getElementById("tx-cat").addEventListener("change", (e) => {
       form.categoryId = e.target.value;
-      if (!form.plannedItemId) { form.plannedItemId = suggestPlannedItemId(form.description, form.type, form.categoryId); }
+      if (!form.plannedItemId) { form.plannedItemId = suggestPlannedItemId(form.description, form.type, form.categoryId, form.date); }
       render();
     });
     document.getElementById("tx-value").addEventListener("input", (e) => { form.value = e.target.value; });
