@@ -373,6 +373,8 @@ let state = {
   showArchived: false,
   editingOverride: null,
   editingVigencia: null,
+  fechamentos: {},
+  showReportFor: null,
   saveError: false,
 };
 
@@ -469,6 +471,7 @@ async function loadData() {
       state.notes = parsed.notes && typeof parsed.notes === "object" ? parsed.notes : {};
       state.finalizados = parsed.finalizados && typeof parsed.finalizados === "object" ? parsed.finalizados : {};
       state.reconciliados = parsed.reconciliados && typeof parsed.reconciliados === "object" ? parsed.reconciliados : {};
+      state.fechamentos = parsed.fechamentos && typeof parsed.fechamentos === "object" ? parsed.fechamentos : {};
       state.plannedItems = Array.isArray(parsed.plannedItems) ? parsed.plannedItems : [];
     } else {
       // primeiro acesso: cria a linha vazia desse usuário
@@ -478,6 +481,7 @@ async function loadData() {
       state.notes = {};
       state.finalizados = {};
       state.reconciliados = {};
+      state.fechamentos = {};
       await persist();
     }
   } catch (e) {
@@ -487,6 +491,7 @@ async function loadData() {
     state.notes = {};
     state.finalizados = {};
     state.reconciliados = {};
+    state.fechamentos = {};
     state.loadError = true;
   } finally {
     state.loading = false;
@@ -500,6 +505,7 @@ async function persist() {
     const payload = {
       transactions: state.transactions, categories: state.categories, notes: state.notes,
       plannedItems: state.plannedItems, finalizados: state.finalizados, reconciliados: state.reconciliados,
+      fechamentos: state.fechamentos,
     };
     const { error } = await sb.from("app_state").upsert({ user_id: currentUser.id, data: payload, updated_at: new Date().toISOString() });
     state.saveError = !!error;
@@ -508,10 +514,94 @@ async function persist() {
   }
 }
 
+// Fechamento do mês: guarda uma fotografia dos totais (planejado/atualizado/realizado e as
+// maiores diferenças) no momento da confirmação. Não trava lançamentos — se algo for corrigido
+// depois, o relatório do fechamento continua mostrando o que foi visto naquele dia, e os
+// números "ao vivo" do painel seguem recalculando normalmente a partir daí.
+function closeMonth(year, month) {
+  const key = `${year}-${pad2(month + 1)}`;
+  const mc = getMonthComparison(year, month);
+  if (!mc) return;
+  if (!confirm(`Confirmar fechamento de ${monthLabel(key)}?\n\nIsso grava uma fotografia dos números de hoje (planejado, atualizado e realizado). Você ainda pode editar lançamentos depois, mas o relatório desse fechamento fica guardado do jeito que está agora.`)) return;
+  const topDiffs = [...mc.rows].filter((r) => r.lancado).sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff)).slice(0, 8)
+    .map((r) => ({ description: r.description, type: r.type, meta: r.value, realizado: r.realizado, diff: r.diff }));
+  const pendentes = mc.rows.filter((r) => !r.lancado).map((r) => ({ description: r.description, type: r.type, meta: r.value }));
+  state.fechamentos[key] = {
+    closedAt: new Date().toISOString(),
+    totalPlanejadoReceita: mc.totalPlanejadoReceita, totalPlanejadoDespesa: mc.totalPlanejadoDespesa,
+    totalAtualizadoReceita: mc.totalAtualizadoReceita, totalAtualizadoDespesa: mc.totalAtualizadoDespesa,
+    totalRealizadoReceita: mc.totalRealizadoReceita, totalRealizadoDespesa: mc.totalRealizadoDespesa,
+    naoPrevistosReceita: mc.naoPrevistosReceita, naoPrevistosDespesa: mc.naoPrevistosDespesa,
+    qtdNaoPrevistos: mc.naoPrevistos.length, topDiffs, pendentes,
+  };
+  persist(); render();
+}
+
+function reopenMonth(key) {
+  if (!confirm(`Reabrir ${monthLabel(key)}? O relatório gravado desse fechamento será apagado (os lançamentos em si não são afetados).`)) return;
+  delete state.fechamentos[key];
+  persist(); render();
+}
+
+// Relatório de fechamento em texto simples — dá pra copiar e colar aqui no chat sem precisar
+// exportar a base inteira. Usa a fotografia gravada quando o mês está fechado; senão, usa os
+// números ao vivo (prefixados como "até agora").
+function generateMonthReportText(year, month) {
+  const key = `${year}-${pad2(month + 1)}`;
+  const fech = state.fechamentos[key];
+  const mc = getMonthComparison(year, month);
+  const emFechamento = !!fech;
+  const d = (v) => brl(v);
+  let out = `RELATÓRIO — ${monthLabel(key)}\n`;
+  out += emFechamento ? `Fechado em ${new Date(fech.closedAt).toLocaleDateString("pt-BR")}\n` : `(mês ainda aberto — números até agora)\n`;
+  out += `\n`;
+  const src = emFechamento ? fech : {
+    totalPlanejadoReceita: mc.totalPlanejadoReceita, totalPlanejadoDespesa: mc.totalPlanejadoDespesa,
+    totalAtualizadoReceita: mc.totalAtualizadoReceita, totalAtualizadoDespesa: mc.totalAtualizadoDespesa,
+    totalRealizadoReceita: mc.totalRealizadoReceita, totalRealizadoDespesa: mc.totalRealizadoDespesa,
+    naoPrevistosReceita: mc.naoPrevistosReceita, naoPrevistosDespesa: mc.naoPrevistosDespesa,
+    qtdNaoPrevistos: mc.naoPrevistos.length,
+    topDiffs: [...mc.rows].filter((r) => r.lancado).sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff)).slice(0, 8)
+      .map((r) => ({ description: r.description, type: r.type, meta: r.value, realizado: r.realizado, diff: r.diff })),
+    pendentes: mc.rows.filter((r) => !r.lancado).map((r) => ({ description: r.description, type: r.type, meta: r.value })),
+  };
+  out += `PLANEJADO   receitas ${d(src.totalPlanejadoReceita)}  despesas ${d(src.totalPlanejadoDespesa)}  saldo ${d(src.totalPlanejadoReceita - src.totalPlanejadoDespesa)}\n`;
+  out += `ATUALIZADO  receitas ${d(src.totalAtualizadoReceita)}  despesas ${d(src.totalAtualizadoDespesa)}  saldo ${d(src.totalAtualizadoReceita - src.totalAtualizadoDespesa)}\n`;
+  out += `REALIZADO   receitas ${d(src.totalRealizadoReceita)}  despesas ${d(src.totalRealizadoDespesa)}  saldo ${d(src.totalRealizadoReceita - src.totalRealizadoDespesa)}\n`;
+  out += `\nNão previstos: ${src.qtdNaoPrevistos} lançamento(s), receita ${d(src.naoPrevistosReceita)} / despesa ${d(src.naoPrevistosDespesa)}\n`;
+  if (src.topDiffs.length) {
+    out += `\nMaiores diferenças (meta x realizado):\n`;
+    src.topDiffs.forEach((r) => { out += `  ${r.type === "receita" ? "[R]" : "[D]"} ${r.description}: meta ${d(r.meta)} → real ${d(r.realizado)} (${r.diff >= 0 ? "+" : ""}${d(r.diff)})\n`; });
+  }
+  if (src.pendentes.length) {
+    out += `\nAinda não lançado:\n`;
+    src.pendentes.forEach((r) => { out += `  ${r.type === "receita" ? "[R]" : "[D]"} ${r.description}: ${d(r.meta)}\n`; });
+  }
+  return out;
+}
+
 // ================= AÇÕES =================
+// Mês fechado trava os lançamentos daquele período (reversível só reabrindo o mês).
+function isMonthKeyClosed(key) {
+  return !!state.fechamentos[key];
+}
+function isDateLocked(dateStr) {
+  return isMonthKeyClosed(planKeyForDate(dateStr));
+}
+function lockedAlert(dateStr) {
+  const key = planKeyForDate(dateStr);
+  alert(`${monthLabel(key)} está fechado. Reabra o mês (botão "↩️ Reabrir mês") para poder editar, excluir ou lançar algo nessa data.`);
+}
+
 function addTransaction(e) {
   e.preventDefault();
   if (!form.description.trim() || !form.value || Number(form.value) <= 0) return;
+  if (editingTxId) {
+    const original = state.transactions.find((t) => t.id === editingTxId);
+    if ((original && isDateLocked(original.date)) || isDateLocked(form.date)) { lockedAlert((original && isDateLocked(original.date)) ? original.date : form.date); return; }
+  } else if (isDateLocked(form.date)) {
+    lockedAlert(form.date); return;
+  }
   const extra = { isCartao: !!form.isCartao, dueDate: form.isCartao ? (form.dueDate || null) : null, plannedItemId: form.plannedItemId || null };
   if (editingTxId) {
     state.transactions = state.transactions.map((t) =>
@@ -532,6 +622,7 @@ function addTransaction(e) {
 function startEditTransaction(id) {
   const t = state.transactions.find((tx) => tx.id === id);
   if (!t) return;
+  if (isDateLocked(t.date)) { lockedAlert(t.date); return; }
   form = { date: t.date, description: t.description, type: t.type, categoryId: t.categoryId, value: String(t.value), isCartao: !!t.isCartao, dueDate: t.dueDate || "", plannedItemId: t.plannedItemId || "" };
   editingTxId = id;
   state.showForm = true;
@@ -547,6 +638,8 @@ function cancelEditTransaction() {
 }
 
 function deleteTransaction(id) {
+  const t = state.transactions.find((tx) => tx.id === id);
+  if (t && isDateLocked(t.date)) { lockedAlert(t.date); return; }
   state.transactions = state.transactions.filter((t) => t.id !== id);
   if (editingTxId === id) cancelEditTransaction();
   persist(); render();
@@ -631,6 +724,31 @@ function clearMonthOverride(itemId, monthKey) {
 }
 
 // Arquiva uma meta: some da lista de metas e do seletor; o histórico dos meses já vividos é preservado.
+// Clamping: se a data de hoje cair fora do período do mês em vista, usa a borda do período
+// (por ex. editando um mês passado ou futuro, não faz sentido lançar com a data de hoje).
+function clampDateToPeriod(dateStr, year, month) {
+  const { start, end } = getPeriodBounds(year, month);
+  if (dateStr < start) return start;
+  if (dateStr > end) return end;
+  return dateStr;
+}
+
+// Lança uma meta de um clique só, pelo valor planejado (ótimo pra parcelas de cartão, cujo
+// valor já é certo). Fica marcada como cartão automaticamente quando a descrição sugere isso.
+function quickLaunchPlannedItem(id, year, month) {
+  const p = state.plannedItems.find((x) => x.id === id);
+  if (!p) return;
+  const key = `${year}-${pad2(month + 1)}`;
+  if (isMonthKeyClosed(key)) { alert(`${monthLabel(key)} está fechado. Reabra o mês pra poder lançar.`); return; }
+  const date = clampDateToPeriod(todayISO, year, month);
+  const looksCartao = /parcela/i.test(p.description) || /cart[aã]o/i.test(p.description);
+  state.transactions.push({
+    id: uid(), date, description: p.description, type: p.type, categoryId: p.categoryId,
+    value: p.value, isCartao: looksCartao, dueDate: null, plannedItemId: p.id,
+  });
+  persist(); render();
+}
+
 function archivePlannedItem(id, ctxKey) {
   const p = state.plannedItems.find((x) => x.id === id);
   if (!p) return;
@@ -1122,10 +1240,31 @@ function render() {
 
   // Planejado x Realizado / tabela ANO — receitas e despesas em tabelas separadas
   if (monthComparison) {
+    const mcKey = monthComparison.key;
+    const fechamento = state.fechamentos[mcKey];
     html += `<div class="panel">`;
-    html += `<p class="panel-title">Planejado × Realizado — ${MESES[state.selectedMonth]}/${String(state.selectedYear).slice(2)}</p>`;
+    html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">`;
+    html += `<p class="panel-title" style="margin:0;">Planejado × Realizado — ${MESES[state.selectedMonth]}/${String(state.selectedYear).slice(2)}`;
+    if (fechamento) html += ` <span class="badge" style="background:var(--badge-green);">✅ fechado em ${new Date(fechamento.closedAt).toLocaleDateString("pt-BR")}</span>`;
+    html += `</p>`;
+    html += `<div style="display:flex;gap:6px;flex-wrap:wrap;">`;
+    html += `<button class="btn btn-outline" style="font-size:11px;padding:5px 9px;" data-action="toggle-report" data-key="${mcKey}">📄 ${state.showReportFor === mcKey ? "Fechar relatório" : "Ver relatório"}</button>`;
+    html += fechamento
+      ? `<button class="btn btn-outline" style="font-size:11px;padding:5px 9px;" data-action="reopen-month" data-key="${mcKey}">↩️ Reabrir mês</button>`
+      : `<button class="btn btn-primary" style="font-size:11px;padding:5px 9px;" data-action="close-month" data-year="${state.selectedYear}" data-month="${state.selectedMonth}">✅ Confirmar fechamento do mês</button>`;
+    html += `</div></div>`;
     if (state.selectedYear === 2026 && state.selectedMonth === 8) {
       html += `<p class="hint">Competência excepcional: de 27/08 a 30/09/2026, com saldo inicial zerado (início oficial do sistema).</p>`;
+    }
+    if (state.showReportFor === mcKey) {
+      const reportText = generateMonthReportText(state.selectedYear, state.selectedMonth);
+      html += `<div class="panel" style="background:var(--input-bg);margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <p class="panel-title" style="margin:0;">Relatório — cole aqui no chat se quiser que eu analise</p>
+          <button class="btn btn-primary" style="font-size:11px;padding:5px 9px;" data-action="copy-report" data-key="${mcKey}">📋 Copiar</button>
+        </div>
+        <textarea id="report-text" readonly style="width:100%;min-height:220px;font-family:inherit;font-size:11px;padding:8px;border-radius:6px;border:1px solid var(--line);background:var(--input-bg);color:var(--ink);" onclick="this.select()">${esc(reportText)}</textarea>
+      </div>`;
     }
 
     // Filtro de categoria e status, aplicados às linhas das tabelas de Receitas/Despesas abaixo
@@ -1185,11 +1324,13 @@ function render() {
           h += `<tr><td colspan="7" class="muted" style="text-align:center;padding:12px;">Nenhum item nesse filtro.</td></tr>`;
         }
         rowsFiltradas.forEach((r) => {
-          h += `<tr><td style="text-align:left;color:${C.ink}">${esc(r.description)}${!r.lancado ? ` <span class="italic brass-text">(ainda não lançado)</span>` : ""}${r.finalizado ? ` <span class="badge" style="background:var(--badge-green)">✓ fechado</span>` : ""} <button class="del-btn" data-action="archive-goal" data-id="${r.id}" data-month="${monthComparison.key}" title="Arquivar meta (deixa de valer a partir do mês seguinte)">📦</button></td>`;
+          h += `<tr><td style="text-align:left;color:${C.ink}">${esc(r.description)}${!r.lancado ? ` <span class="italic brass-text">(ainda não lançado)</span> ${isMonthKeyClosed(monthComparison.key) ? "" : `<button class="del-btn" data-action="quick-launch" data-id="${r.id}" data-year="${state.selectedYear}" data-month="${state.selectedMonth}" title="Lançar agora pelo valor da meta (${brl(r.value)})">⚡ Lançar</button>`}` : ""}${r.finalizado ? ` <span class="badge" style="background:var(--badge-green)">✓ fechado</span>` : ""} <button class="del-btn" data-action="archive-goal" data-id="${r.id}" data-month="${monthComparison.key}" title="Arquivar meta (deixa de valer a partir do mês seguinte)">📦</button></td>`;
           if (state.editingOverride === `${monthComparison.key}|${r.id}`) {
             h += `<td style="white-space:nowrap;"><input type="number" step="0.01" min="0" class="note-input" id="ov-input" style="width:90px;text-align:right;" value="${r.value}" title="Novo valor da meta só para ${monthLabel(monthComparison.key)}" /> <button class="del-btn" data-action="ov-save" title="Salvar (só neste mês)">✓</button><button class="del-btn" data-action="ov-cancel" title="Cancelar">✕</button></td>`;
           } else {
-            h += `<td class="muted" style="white-space:nowrap;">${brl(r.value)}${r.overridden ? ` <span class="badge" style="background:var(--badge-brass)" title="Valor base: ${brl(r.baseValue)}">só este mês</span>` : ""} <button class="del-btn" data-action="ov-edit" data-id="${r.id}" data-month="${monthComparison.key}" title="Editar a meta só deste mês">✏️</button>${r.overridden ? `<button class="del-btn" data-action="ov-reset" data-id="${r.id}" data-month="${monthComparison.key}" title="Voltar ao valor base (${brl(r.baseValue)})">↺</button>` : ""}</td>`;
+            h += `<td class="muted" style="white-space:nowrap;">${brl(r.value)}${r.overridden ? ` <span class="badge" style="background:var(--badge-brass)" title="Valor base: ${brl(r.baseValue)}">só este mês</span>` : ""} ${isMonthKeyClosed(monthComparison.key)
+              ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
+              : `<button class="del-btn" data-action="ov-edit" data-id="${r.id}" data-month="${monthComparison.key}" title="Editar a meta só deste mês">✏️</button>${r.overridden ? `<button class="del-btn" data-action="ov-reset" data-id="${r.id}" data-month="${monthComparison.key}" title="Voltar ao valor base (${brl(r.baseValue)})">↺</button>` : ""}`}</td>`;
           }
           h += `<td class="${r.finalizado ? "bold green" : r.excedida ? "bold brass-text" : "muted"}">${brl(r.atualizado)}</td>`;
           h += `<td style="color:${r.lancado ? C.ink : C.inkSoft}">${r.lancado ? brl(r.realizado) : "—"}</td>`;
@@ -1226,8 +1367,12 @@ function render() {
           const cat = catById(t.categoryId);
           h += `<div class="naoprevisto-row"><span>${esc(t.description)}${cat ? ` <span class="muted">(${cat.name})</span>` : ""}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳 cartão${t.dueDate ? " · vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</span>`;
           h += `<span style="display:flex;align-items:center;gap:8px;"><span style="color:${isReceita ? C.green : C.red}">${isReceita ? "+" : "-"}${brl(t.value)}</span>`;
-          h += `<button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button>`;
-          h += `<button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></span></div>`;
+          if (isDateLocked(t.date)) {
+            h += `<span class="muted" title="Mês fechado — reabra para editar">🔒</span></span></div>`;
+          } else {
+            h += `<button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button>`;
+            h += `<button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></span></div>`;
+          }
         });
         const total = list.reduce((s, t) => s + Number(t.value), 0);
         h += `<div class="naoprevisto-row" style="border-bottom:none;border-top:1px solid var(--line);margin-top:2px;padding-top:6px;"><span class="bold">Subtotal</span><span class="bold ${isReceita ? "green" : "red"}">${isReceita ? "+" : "-"}${brl(total)}</span></div>`;
@@ -1277,7 +1422,9 @@ function render() {
         html += `<td style="text-align:left"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span></td>`;
         html += `<td style="text-align:left">${t.isCartao ? `<span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</td>`;
         html += `<td style="color:${t.type === "receita" ? C.green : C.red}">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</td>`;
-        html += `<td><button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button> <button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></td></tr>`;
+        html += `<td>${isDateLocked(t.date)
+          ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
+          : `<button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button> <button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button>`}</td></tr>`;
       });
       html += `</tbody></table></div>`;
     }
@@ -1360,7 +1507,7 @@ function render() {
         html += `<td style="text-align:left"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span></td>`;
         html += `<td class="red">${t.type === "despesa" ? brl(t.value) : ""}</td><td class="green">${t.type === "receita" ? brl(t.value) : ""}</td>`;
         html += `<td class="bold" style="color:${t.balance >= 0 ? C.green : C.red}">${brl(t.balance)}</td>`;
-        html += `<td><button class="del-btn" data-action="del-tx" data-id="${t.id}">🗑️</button></td></tr>`;
+        html += `<td>${isDateLocked(t.date) ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>` : `<button class="del-btn" data-action="del-tx" data-id="${t.id}">🗑️</button>`}</td></tr>`;
       });
       html += `</tbody></table></div>`;
     }
@@ -1445,6 +1592,7 @@ function saveOverrideFromInput() {
   if (!state.editingOverride) return;
   const input = document.getElementById("ov-input");
   const [monthKey, itemId] = state.editingOverride.split("|");
+  if (isMonthKeyClosed(monthKey)) { alert(`${monthLabel(monthKey)} está fechado. Reabra o mês pra poder ajustar a meta.`); state.editingOverride = null; render(); return; }
   if (input) setMonthOverride(itemId, monthKey, input.value);
   state.editingOverride = null;
   render();
@@ -1474,7 +1622,7 @@ function attachListeners() {
       else if (action === "import-backup") { document.getElementById("import-file-input").click(); }
       else if (action === "cancel-edit-tx") { cancelEditTransaction(); }
       else if (action === "edit-tx") { startEditTransaction(el.dataset.id); }
-      else if (action === "ov-edit") { state.editingOverride = `${el.dataset.month}|${el.dataset.id}`; render(); }
+      else if (action === "ov-edit") { if (isMonthKeyClosed(el.dataset.month)) { alert(`${monthLabel(el.dataset.month)} está fechado. Reabra o mês pra poder ajustar a meta.`); } else { state.editingOverride = `${el.dataset.month}|${el.dataset.id}`; render(); } }
       else if (action === "ov-cancel") { state.editingOverride = null; render(); }
       else if (action === "ov-save") { saveOverrideFromInput(); }
       else if (action === "ov-reset") { clearMonthOverride(el.dataset.id, el.dataset.month); render(); }
@@ -1483,6 +1631,19 @@ function attachListeners() {
       else if (action === "vig-save") { saveVigencia(el.dataset.id); }
       else if (action === "archive-goal") { archivePlannedItem(el.dataset.id, el.dataset.month || (state.showAll ? currentMonthKey : `${state.selectedYear}-${pad2(state.selectedMonth + 1)}`)); }
       else if (action === "unarchive-goal") { unarchivePlannedItem(el.dataset.id); }
+      else if (action === "quick-launch") { quickLaunchPlannedItem(el.dataset.id, Number(el.dataset.year), Number(el.dataset.month)); }
+      else if (action === "close-month") { closeMonth(Number(el.dataset.year), Number(el.dataset.month)); }
+      else if (action === "reopen-month") { reopenMonth(el.dataset.key); }
+      else if (action === "toggle-report") { state.showReportFor = state.showReportFor === el.dataset.key ? null : el.dataset.key; render(); }
+      else if (action === "copy-report") {
+        const ta = document.getElementById("report-text");
+        if (ta) {
+          ta.select();
+          navigator.clipboard?.writeText(ta.value).then(() => {
+            el.textContent = "✅ Copiado!"; setTimeout(() => { el.textContent = "📋 Copiar"; }, 1500);
+          }).catch(() => { document.execCommand("copy"); });
+        }
+      }
       else if (action === "del-cat") { deleteCategory(el.dataset.id); }
       else if (action === "del-goal") { deletePlannedItem(el.dataset.id); }
       else if (action === "del-goal-group") { deletePlannedGroup(el.dataset.groupid); }
