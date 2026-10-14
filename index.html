@@ -92,6 +92,18 @@
   .body-panel { border: 1px solid var(--line); border-top: none; border-radius: 0 0 10px 10px; background: var(--paper); }
   .save-error { background: var(--danger-bg); color: var(--red); padding: 8px 16px; font-size: 13px; }
 
+  .tab-nav { display: flex; gap: 8px; padding: 14px 0 0; }
+  .tab-nav-btn { font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 8px 8px 0 0; border: 1px solid var(--line); border-bottom: none; background: var(--paper); color: var(--ink-soft); cursor: pointer; font-family: inherit; }
+  .tab-nav-btn.active { background: var(--cream); color: var(--ink); }
+  .report-nav { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px; border-bottom: 1px solid var(--line); }
+  .report-nav-btn { font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
+  .report-nav-btn.active { background: var(--cover); color: #fff; border-color: var(--cover); }
+  .kpi-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--paper); }
+  .kpi-card .kpi-label { font-size: 12px; color: var(--ink-soft); margin: 0 0 6px; }
+  .kpi-card .kpi-value { font-size: 22px; font-weight: 700; margin: 0; }
+  .progress-track { height: 10px; border-radius: 6px; background: var(--paper-dark); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 6px; }
+
   .year-row { display: flex; gap: 8px; padding: 12px 12px 0; }
   .year-btn { font-size: 12px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
   .year-btn.active { background: var(--cover); color: #fff; border-color: var(--cover); }
@@ -281,6 +293,14 @@ function addMonthsToKey(key, n) {
   return `${y}-${pad2(m)}`;
 }
 
+function addDaysToDate(dateStr, n) {
+  const d = new Date(dateStr + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+
 function getPlannedItemsForMonth(items, year, month) {
   const key = `${year}-${pad2(month + 1)}`;
   return items.filter((p) => {
@@ -375,13 +395,29 @@ let state = {
   editingVigencia: null,
   fechamentos: {},
   showReportFor: null,
+  cartoes: [],
+  loans: [],
+  reservaAportes: [],
+  activeTab: "planejamento",
+  reportTab: "geral",
+  showCardManager: false,
+  showLoanManager: false,
+  reportCatMonth: null,
+  reportCalMonth: null,
   saveError: false,
 };
+
+const DEFAULT_CARTOES = [];
+
+let newCard = { nome: "", cor: "#8A05BE", vencimentoDia: 10 };
+let newLoan = { nome: "", parcela: "", parcelasTotais: "", taxaJurosMensal: "" };
+let newPagamento = {}; // por empréstimo: { [loanId]: { date, valor } }
+let newAporte = { date: new Date().toISOString().slice(0, 10), valor: "", nota: "" };
 
 const todayISO = new Date().toISOString().slice(0, 10);
 const currentMonthKey = todayISO.slice(0, 7);
 
-let form = { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, dueDate: "", plannedItemId: "" };
+let form = { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix" };
 let editingTxId = null;
 let newCat = { name: "", type: "despesa" };
 let goalForm = {
@@ -472,6 +508,9 @@ async function loadData() {
       state.finalizados = parsed.finalizados && typeof parsed.finalizados === "object" ? parsed.finalizados : {};
       state.reconciliados = parsed.reconciliados && typeof parsed.reconciliados === "object" ? parsed.reconciliados : {};
       state.fechamentos = parsed.fechamentos && typeof parsed.fechamentos === "object" ? parsed.fechamentos : {};
+      state.cartoes = Array.isArray(parsed.cartoes) ? parsed.cartoes : DEFAULT_CARTOES;
+      state.loans = Array.isArray(parsed.loans) ? parsed.loans : [];
+      state.reservaAportes = Array.isArray(parsed.reservaAportes) ? parsed.reservaAportes : [];
       state.plannedItems = Array.isArray(parsed.plannedItems) ? parsed.plannedItems : [];
     } else {
       // primeiro acesso: cria a linha vazia desse usuário
@@ -482,6 +521,9 @@ async function loadData() {
       state.finalizados = {};
       state.reconciliados = {};
       state.fechamentos = {};
+      state.cartoes = DEFAULT_CARTOES;
+      state.loans = [];
+      state.reservaAportes = [];
       await persist();
     }
   } catch (e) {
@@ -492,6 +534,9 @@ async function loadData() {
     state.finalizados = {};
     state.reconciliados = {};
     state.fechamentos = {};
+    state.cartoes = DEFAULT_CARTOES;
+    state.loans = [];
+    state.reservaAportes = [];
     state.loadError = true;
   } finally {
     state.loading = false;
@@ -505,13 +550,145 @@ async function persist() {
     const payload = {
       transactions: state.transactions, categories: state.categories, notes: state.notes,
       plannedItems: state.plannedItems, finalizados: state.finalizados, reconciliados: state.reconciliados,
-      fechamentos: state.fechamentos,
+      fechamentos: state.fechamentos, cartoes: state.cartoes, loans: state.loans, reservaAportes: state.reservaAportes,
     };
     const { error } = await sb.from("app_state").upsert({ user_id: currentUser.id, data: payload, updated_at: new Date().toISOString() });
     state.saveError = !!error;
   } catch (e) {
     state.saveError = true;
   }
+}
+
+// ---------- Cartões de crédito ----------
+function addCartao(e) {
+  e.preventDefault();
+  if (!newCard.nome.trim()) return;
+  const dia = Math.min(28, Math.max(1, Number(newCard.vencimentoDia) || 10));
+  state.cartoes.push({ id: uid(), nome: newCard.nome.trim(), cor: newCard.cor, icone: "💳", vencimentoDia: dia });
+  persist();
+  newCard = { nome: "", cor: "#8A05BE", vencimentoDia: 10 };
+  render();
+}
+function deleteCartao(id) {
+  if (!confirm("Excluir este cartão? Lançamentos já feitos com ele não são apagados, só deixam de referenciar um cartão cadastrado.")) return;
+  state.cartoes = state.cartoes.filter((c) => c.id !== id);
+  persist(); render();
+}
+function updateCartaoDia(id, value) {
+  const dia = Math.min(28, Math.max(1, Number(value) || 1));
+  state.cartoes = state.cartoes.map((c) => (c.id === id ? { ...c, vencimentoDia: dia } : c));
+  persist(); render();
+}
+
+// Próximo vencimento de um cartão a partir de uma data de compra: se o dia de fechamento/vencimento
+// cadastrado já passou dentro do mesmo mês da compra, joga pro mês seguinte.
+function nextDueDate(vencimentoDia, fromDateStr) {
+  const [y, m, d] = fromDateStr.split("-").map(Number);
+  let targetY = y, targetM = m;
+  if (d > vencimentoDia) { targetM += 1; if (targetM > 12) { targetM = 1; targetY += 1; } }
+  const lastDay = new Date(targetY, targetM, 0).getDate();
+  return `${targetY}-${pad2(targetM)}-${pad2(Math.min(vencimentoDia, lastDay))}`;
+}
+
+// ---------- Empréstimos consignados ----------
+// Saldo devedor estimado pela fórmula de amortização (Tabela Price, padrão de consignado):
+// dado o valor fixo da parcela, a taxa de juros mensal e quantas parcelas já foram pagas,
+// calcula quanto ainda falta pagar de principal — sem precisar saber o valor original contratado.
+// Pagamentos lançados no app DEPOIS do último saldo conferido no banco (os que já vieram da base
+// ou foram lançados antes dessa conferência já estão embutidos no saldo do banco).
+function pagamentosDesdeSnapshot(loan) {
+  const desde = loan.saldoDevedorManualEm || "";
+  return (loan.pagamentos || []).filter((p) => p.registradoEm && p.registradoEm > desde)
+    .sort((a, b) => a.registradoEm.localeCompare(b.registradoEm));
+}
+
+function saldoDevedorLoan(loan) {
+  // Se o usuário já conferiu e digitou o saldo real (do app do banco), esse número é o ponto de
+  // partida — é mais confiável do que qualquer estimativa — e cada pagamento lançado depois dele
+  // amortiza o saldo: cresce com os juros do mês e cai pelo valor pago (saldo × (1+taxa) − pagamento).
+  if (loan.saldoDevedorManual !== null && loan.saldoDevedorManual !== undefined) {
+    if ((loan.pagamentos || []).length >= loan.parcelasTotais) return 0;
+    const i = (Number(loan.taxaJurosMensal) || 0) / 100;
+    let saldo = Number(loan.saldoDevedorManual);
+    pagamentosDesdeSnapshot(loan).forEach((pg) => { saldo = Math.max(0, saldo * (1 + i) - Number(pg.valor)); });
+    return saldo;
+  }
+  const k = (loan.pagamentos || []).length;
+  const restantes = Math.max(0, loan.parcelasTotais - k);
+  if (restantes === 0) return 0;
+  const i = (Number(loan.taxaJurosMensal) || 0) / 100;
+  if (i === 0) return loan.parcela * restantes; // sem taxa informada: estimativa linear simples
+  return loan.parcela * (1 - Math.pow(1 + i, -restantes)) / i;
+}
+
+function addLoan(e) {
+  e.preventDefault();
+  if (!newLoan.nome.trim() || !newLoan.parcela || !newLoan.parcelasTotais) return;
+  state.loans.push({
+    id: uid(), nome: newLoan.nome.trim(), parcela: Number(newLoan.parcela),
+    parcelasTotais: Number(newLoan.parcelasTotais), taxaJurosMensal: Number(newLoan.taxaJurosMensal) || 0,
+    pagamentos: [],
+  });
+  persist();
+  newLoan = { nome: "", parcela: "", parcelasTotais: "", taxaJurosMensal: "" };
+  render();
+}
+
+// Registra um pagamento de fato (com data), em vez de só incrementar um contador —
+// assim dá pra conferir contra o contracheque mês a mês.
+function registrarPagamentoLoan(loanId) {
+  const np = newPagamento[loanId];
+  if (!np || !np.valor || Number(np.valor) <= 0) return;
+  state.loans = state.loans.map((l) => {
+    if (l.id !== loanId) return l;
+    if ((l.pagamentos || []).length >= l.parcelasTotais) return l;
+    return { ...l, pagamentos: [...(l.pagamentos || []), { id: uid(), date: np.date, valor: Number(np.valor), registradoEm: new Date().toISOString() }] };
+  });
+  delete newPagamento[loanId];
+  persist(); render();
+}
+function deletePagamentoLoan(loanId, pagamentoId) {
+  state.loans = state.loans.map((l) => (l.id === loanId ? { ...l, pagamentos: (l.pagamentos || []).filter((p) => p.id !== pagamentoId) } : l));
+  persist(); render();
+}
+function updateLoanTaxa(id, value) {
+  const v = Math.max(0, Number(value) || 0);
+  state.loans = state.loans.map((l) => (l.id === id ? { ...l, taxaJurosMensal: v } : l));
+  persist(); render();
+}
+function updateLoanSaldoManual(id, value) {
+  const v = value === "" ? null : Math.max(0, Number(value) || 0);
+  state.loans = state.loans.map((l) => (l.id === id ? { ...l, saldoDevedorManual: v, saldoDevedorManualEm: v === null ? null : new Date().toISOString() } : l));
+  persist(); render();
+}
+function limparSaldoManualLoan(id) {
+  state.loans = state.loans.map((l) => (l.id === id ? { ...l, saldoDevedorManual: null } : l));
+  persist(); render();
+}
+function deleteLoan(id) {
+  if (!confirm("Excluir este empréstimo do acompanhamento?")) return;
+  state.loans = state.loans.filter((l) => l.id !== id);
+  persist(); render();
+}
+
+// ---------- Reserva para quitação dos empréstimos ----------
+function addReservaAporte(e) {
+  e.preventDefault();
+  if (!newAporte.valor || Number(newAporte.valor) <= 0) return;
+  state.reservaAportes.push({ id: uid(), date: newAporte.date, valor: Number(newAporte.valor), nota: newAporte.nota.trim() });
+  persist();
+  newAporte = { date: newAporte.date, valor: "", nota: "" };
+  render();
+}
+function deleteReservaAporte(id) {
+  state.reservaAportes = state.reservaAportes.filter((a) => a.id !== id);
+  persist(); render();
+}
+function totalReserva() {
+  return state.reservaAportes.reduce((s, a) => s + Number(a.valor), 0);
+}
+function totalSaldoDevedorEmprestimos() {
+  return state.loans.reduce((s, l) => s + saldoDevedorLoan(l), 0);
 }
 
 // Fechamento do mês: guarda uma fotografia dos totais (planejado/atualizado/realizado e as
@@ -602,7 +779,7 @@ function addTransaction(e) {
   } else if (isDateLocked(form.date)) {
     lockedAlert(form.date); return;
   }
-  const extra = { isCartao: !!form.isCartao, dueDate: form.isCartao ? (form.dueDate || null) : null, plannedItemId: form.plannedItemId || null };
+  const extra = { isCartao: !!form.isCartao, cartaoId: form.isCartao ? (form.cartaoId || null) : null, dueDate: form.isCartao ? (form.dueDate || null) : null, plannedItemId: form.plannedItemId || null };
   if (editingTxId) {
     state.transactions = state.transactions.map((t) =>
       t.id === editingTxId
@@ -614,16 +791,21 @@ function addTransaction(e) {
     state.transactions.push({ id: uid(), date: form.date, description: form.description.trim(), type: form.type, categoryId: form.categoryId, value: Number(form.value), ...extra });
   }
   persist();
-  form = { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, dueDate: "", plannedItemId: "" };
+  form = emptyForm();
   state.showForm = false;
   render();
+}
+
+function emptyForm() {
+  return { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix" };
 }
 
 function startEditTransaction(id) {
   const t = state.transactions.find((tx) => tx.id === id);
   if (!t) return;
   if (isDateLocked(t.date)) { lockedAlert(t.date); return; }
-  form = { date: t.date, description: t.description, type: t.type, categoryId: t.categoryId, value: String(t.value), isCartao: !!t.isCartao, dueDate: t.dueDate || "", plannedItemId: t.plannedItemId || "" };
+  const formaPagamento = t.cartaoId ? t.cartaoId : (t.isCartao ? "legacy-cartao" : "dinheiro");
+  form = { date: t.date, description: t.description, type: t.type, categoryId: t.categoryId, value: String(t.value), isCartao: !!t.isCartao, cartaoId: t.cartaoId || null, dueDate: t.dueDate || "", plannedItemId: t.plannedItemId || "", formaPagamento };
   editingTxId = id;
   state.showForm = true;
   render();
@@ -632,7 +814,7 @@ function startEditTransaction(id) {
 
 function cancelEditTransaction() {
   editingTxId = null;
-  form = { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, dueDate: "", plannedItemId: "" };
+  form = emptyForm();
   state.showForm = false;
   render();
 }
@@ -822,6 +1004,10 @@ function exportBackup() {
     plannedItems: state.plannedItems,
     finalizados: state.finalizados,
     reconciliados: state.reconciliados,
+    fechamentos: state.fechamentos,
+    cartoes: state.cartoes,
+    loans: state.loans,
+    reservaAportes: state.reservaAportes,
     exportedAt: new Date().toISOString(),
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -848,6 +1034,10 @@ function importBackupFile(file) {
       state.notes = parsed.notes && typeof parsed.notes === "object" ? parsed.notes : state.notes;
       state.finalizados = parsed.finalizados && typeof parsed.finalizados === "object" ? parsed.finalizados : state.finalizados;
       state.reconciliados = parsed.reconciliados && typeof parsed.reconciliados === "object" ? parsed.reconciliados : state.reconciliados;
+      state.fechamentos = parsed.fechamentos && typeof parsed.fechamentos === "object" ? parsed.fechamentos : state.fechamentos;
+      state.cartoes = Array.isArray(parsed.cartoes) ? parsed.cartoes : state.cartoes;
+      state.loans = Array.isArray(parsed.loans) ? parsed.loans : state.loans;
+      state.reservaAportes = Array.isArray(parsed.reservaAportes) ? parsed.reservaAportes : state.reservaAportes;
       persist();
       render();
       alert("Backup importado com sucesso!");
@@ -1028,6 +1218,359 @@ function saldoInicioProjetado(year, month) {
 // ================= RENDER =================
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 
+// ================= RELATÓRIOS =================
+function mesesComDados() {
+  return getPlannerMonths().filter((pm) => transactionsInPeriod(state.transactions, pm.year, pm.month).length > 0);
+}
+
+function dadosMensaisHistorico() {
+  return mesesComDados().map((pm) => {
+    const mc = getMonthComparison(pm.year, pm.month);
+    const receita = mc.totalRealizadoReceita, despesa = mc.totalRealizadoDespesa;
+    const taxaPoupanca = receita > 0 ? ((receita - despesa) / receita) * 100 : null;
+    return { ...pm, receita, despesa, saldo: receita - despesa, taxaPoupanca };
+  });
+}
+
+function buildRelatoriosHTML() {
+  let html = `<div class="body-panel">`;
+  html += `<div class="report-nav">`;
+  // "emprestimos" fica de fora da lista visível de propósito — é uma aba discreta, acessada só pelo ponto nas reticências.
+  const abas = [
+    ["geral", "📋 Visão geral"], ["categorias", "🏷️ Categorias"], ["metas", "🎯 Metas"],
+    ["cartao", "💳 Faturas"], ["calendario", "📅 Calendário"], ["evolucao", "📈 Evolução do saldo"],
+  ];
+  abas.forEach(([id, label]) => { html += `<button class="report-nav-btn ${state.reportTab === id ? "active" : ""}" data-action="set-report-tab" data-report="${id}">${label}</button>`; });
+  html += `<button class="report-nav-btn ${state.reportTab === "emprestimos" ? "active" : ""}" data-action="set-report-tab" data-report="emprestimos" title="." style="margin-left:auto;opacity:0.35;padding:6px 10px;">···</button>`;
+  html += `</div><div class="content">`;
+
+  if (state.reportTab === "geral") html += reportGeral();
+  else if (state.reportTab === "categorias") html += reportCategorias();
+  else if (state.reportTab === "metas") html += reportMetas();
+  else if (state.reportTab === "cartao") html += reportCartao();
+  else if (state.reportTab === "calendario") html += reportCalendario();
+  else if (state.reportTab === "evolucao") html += reportEvolucao();
+  else if (state.reportTab === "emprestimos") html += reportEmprestimos();
+
+  html += `</div></div>`;
+  return html;
+}
+
+// ---------- Visão geral: taxa de poupança + reserva de emergência ----------
+function reportGeral() {
+  const historico = dadosMensaisHistorico();
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const realAteHoje = state.transactions.filter((t) => cashKey(t) >= "2026-08-27" && cashKey(t) <= todayStr);
+  const saldoAtual = (() => { const b = computeRunningBalance(realAteHoje); return b.length ? b[b.length - 1].balance : 0; })();
+  const mediaDespesa = historico.length ? historico.reduce((s, m) => s + m.despesa, 0) / historico.length : 0;
+  const mesesReserva = mediaDespesa > 0 ? saldoAtual / mediaDespesa : null;
+  const taxaMedia = (() => {
+    const validas = historico.filter((m) => m.taxaPoupanca !== null);
+    return validas.length ? validas.reduce((s, m) => s + m.taxaPoupanca, 0) / validas.length : null;
+  })();
+
+  let h = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px;">`;
+  h += `<div class="kpi-card"><p class="kpi-label">💰 Saldo atual (desde 27/08)</p><p class="kpi-value" style="color:${saldoAtual >= 0 ? C.green : C.red}">${brl(saldoAtual)}</p></div>`;
+  h += `<div class="kpi-card"><p class="kpi-label">🛟 Meses de reserva de emergência</p><p class="kpi-value" style="color:${mesesReserva === null ? C.inkSoft : mesesReserva >= 3 ? C.green : mesesReserva >= 1 ? C.brass : C.red}">${mesesReserva === null ? "—" : mesesReserva.toFixed(1) + "x"}</p><p class="hint" style="margin:4px 0 0;">saldo ÷ despesa média mensal (${brl(mediaDespesa)})</p></div>`;
+  h += `<div class="kpi-card"><p class="kpi-label">📊 Taxa de poupança média</p><p class="kpi-value" style="color:${taxaMedia === null ? C.inkSoft : taxaMedia >= 0 ? C.green : C.red}">${taxaMedia === null ? "—" : taxaMedia.toFixed(1) + "%"}</p><p class="hint" style="margin:4px 0 0;">quanto da receita sobrou, em média</p></div>`;
+  h += `</div>`;
+
+  h += `<p class="panel-title">Taxa de poupança por mês</p>`;
+  if (historico.length === 0) {
+    h += `<p class="hint">Ainda não há lançamentos reais pra calcular histórico.</p>`;
+  } else {
+    h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Mês</th><th>Receita</th><th>Despesa</th><th>Saldo</th><th>Taxa de poupança</th></tr></thead><tbody>`;
+    [...historico].reverse().forEach((m) => {
+      h += `<tr><td style="text-align:left">${m.label}</td><td class="green">${brl(m.receita)}</td><td class="red">${brl(m.despesa)}</td>`;
+      h += `<td class="bold" style="color:${m.saldo >= 0 ? C.green : C.red}">${brl(m.saldo)}</td>`;
+      h += `<td class="bold" style="color:${m.taxaPoupanca === null ? C.inkSoft : m.taxaPoupanca >= 0 ? C.green : C.red}">${m.taxaPoupanca === null ? "—" : m.taxaPoupanca.toFixed(1) + "%"}</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+  }
+  return h;
+}
+
+// ---------- Categorias: distribuição % num mês escolhido ----------
+function reportCategorias() {
+  const historico = mesesComDados();
+  if (!state.reportCatMonth || !historico.some((m) => m.key === state.reportCatMonth)) {
+    state.reportCatMonth = historico.length ? historico[historico.length - 1].key : null;
+  }
+  let h = `<p class="panel-title">Distribuição de despesas por categoria</p>`;
+  if (!state.reportCatMonth) return h + `<p class="hint">Ainda não há lançamentos reais.</p>`;
+  h += `<label class="field-label" style="max-width:220px;margin-bottom:14px;">Mês<select class="field" id="report-cat-month">`;
+  historico.forEach((m) => { h += `<option value="${m.key}" ${state.reportCatMonth === m.key ? "selected" : ""}>${m.label}</option>`; });
+  h += `</select></label>`;
+
+  const [y, mo] = state.reportCatMonth.split("-").map(Number);
+  const tx = transactionsInPeriod(state.transactions, y, mo - 1).filter((t) => t.type === "despesa");
+  const total = tx.reduce((s, t) => s + Number(t.value), 0);
+  const porCat = {};
+  tx.forEach((t) => { porCat[t.categoryId] = (porCat[t.categoryId] || 0) + Number(t.value); });
+  const linhas = Object.entries(porCat).map(([catId, val]) => {
+    const cat = catById(catId);
+    return { nome: cat ? cat.name : "Outros", cor: cat ? cat.color : C.inkSoft, val, pct: total > 0 ? (val / total) * 100 : 0 };
+  }).sort((a, b) => b.val - a.val);
+
+  if (linhas.length === 0) return h + `<p class="hint">Sem despesas nesse mês.</p>`;
+  linhas.forEach((l) => {
+    h += `<div class="bar-chart-row"><span class="bar-chart-label">${esc(l.nome)}</span><span class="bar-chart-track"><span class="bar-chart-fill" style="width:${Math.max(2, l.pct)}%;background:${l.cor}"></span></span><span class="bar-chart-value">${brl(l.val)} (${l.pct.toFixed(0)}%)</span></div>`;
+  });
+  h += `<p class="hint" style="margin-top:10px;">Total do mês: ${brl(total)}</p>`;
+  return h;
+}
+
+// ---------- Metas: hall da vergonha (estouros) e metas folgadas, acumulado em todos os meses ----------
+function reportMetas() {
+  const historico = mesesComDados();
+  const acumulado = {};
+  historico.forEach((pm) => {
+    const mc = getMonthComparison(pm.year, pm.month);
+    mc.rows.filter((r) => r.lancado).forEach((r) => {
+      const k = r.description;
+      if (!acumulado[k]) acumulado[k] = { description: r.description, type: r.type, meta: 0, real: 0, meses: 0 };
+      acumulado[k].meta += r.value; acumulado[k].real += r.realizado; acumulado[k].meses += 1;
+    });
+  });
+  const lista = Object.values(acumulado).map((x) => ({ ...x, diff: x.real - x.meta, diffPct: x.meta > 0 ? ((x.real - x.meta) / x.meta) * 100 : 0 }));
+  const estouros = [...lista].filter((x) => x.diff > 0).sort((a, b) => b.diff - a.diff).slice(0, 10);
+  const folgadas = [...lista].filter((x) => x.diff < 0).sort((a, b) => a.diff - b.diff).slice(0, 10);
+
+  let h = `<p class="panel-title">🚨 Hall da vergonha — metas que mais estouram (acumulado)</p>`;
+  if (estouros.length === 0) h += `<p class="hint">Nenhuma meta estourou até agora. 🎉</p>`;
+  else {
+    h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Meta</th><th>Meses</th><th>Planejado (soma)</th><th>Realizado (soma)</th><th>Diferença</th></tr></thead><tbody>`;
+    estouros.forEach((x) => {
+      h += `<tr><td style="text-align:left">${esc(x.description)}</td><td>${x.meses}</td><td class="muted">${brl(x.meta)}</td><td>${brl(x.real)}</td><td class="bold red">+${brl(x.diff)} (${x.diffPct.toFixed(0)}%)</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+  }
+
+  h += `<p class="panel-title" style="margin-top:22px;">✅ Metas folgadas — sobram sempre</p>`;
+  if (folgadas.length === 0) h += `<p class="hint">Nenhuma meta com folga relevante ainda.</p>`;
+  else {
+    h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Meta</th><th>Meses</th><th>Planejado (soma)</th><th>Realizado (soma)</th><th>Diferença</th></tr></thead><tbody>`;
+    folgadas.forEach((x) => {
+      h += `<tr><td style="text-align:left">${esc(x.description)}</td><td>${x.meses}</td><td class="muted">${brl(x.meta)}</td><td>${brl(x.real)}</td><td class="bold green">${brl(x.diff)} (${x.diffPct.toFixed(0)}%)</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+  }
+  return h;
+}
+
+// ---------- Calendário de faturas: próximos vencimentos de cartão ----------
+// ---------- Calendário diário: lançamentos reais dia a dia + projeção com pendências ----------
+function reportCalendario() {
+  if (!state.reportCalMonth) {
+    const hoje = new Date();
+    state.reportCalMonth = `${hoje.getFullYear()}-${pad2(hoje.getMonth() + 1)}`;
+  }
+  const [y, mo] = state.reportCalMonth.split("-").map(Number);
+  const month = mo - 1;
+  const { start, end } = getPeriodBounds(y, month);
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  let h = `<p class="panel-title">📅 Calendário do mês</p>`;
+  h += `<label class="field-label" style="max-width:220px;margin-bottom:14px;">Mês<select class="field" id="report-cal-month">`;
+  getPlannerMonths().forEach((pm) => { h += `<option value="${pm.key}" ${state.reportCalMonth === pm.key ? "selected" : ""}>${pm.label}</option>`; });
+  h += `</select></label>`;
+  h += `<p class="hint" style="margin-top:-6px;">Aqui a data que conta é a de <strong>caixa</strong> (vencimento da fatura, pro cartão) — por isso o saldo pode diferir um pouco do "Planejado × Realizado", que usa a data da compra.</p>`;
+
+  // Saldo real (oficial, desde 27/08) acumulado até o dia anterior ao início deste período.
+  const antes = state.transactions.filter((t) => cashKey(t) >= "2026-08-27" && cashKey(t) < start);
+  let saldo = antes.length ? computeRunningBalance(antes).slice(-1)[0].balance : 0;
+
+  const porDia = {};
+  state.transactions.forEach((t) => {
+    const k = cashKey(t);
+    if (k >= start && k <= end) (porDia[k] = porDia[k] || []).push(t);
+  });
+
+  const linhas = [];
+  let menorSaldo = saldo, diaMenorSaldo = null;
+  for (let d = start; d <= end; d = addDaysToDate(d, 1)) {
+    const itens = (porDia[d] || []).slice().sort((a, b) => (b.type === "receita") - (a.type === "receita"));
+    if (itens.length > 0) {
+      const net = itens.reduce((s, t) => s + (t.type === "receita" ? Number(t.value) : -Number(t.value)), 0);
+      saldo += net;
+      linhas.push({ dia: d, itens, saldo });
+      if (saldo < menorSaldo) { menorSaldo = saldo; diaMenorSaldo = d; }
+    }
+  }
+
+  h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Dia</th><th style="text-align:left">Lançamentos</th><th>Saldo acumulado</th></tr></thead><tbody>`;
+  if (linhas.length === 0) {
+    h += `<tr><td colspan="3" class="muted" style="text-align:center;padding:14px;">Nenhum lançamento real neste mês ainda.</td></tr>`;
+  }
+  linhas.forEach((l) => {
+    const [ly, lm, ld] = l.dia.split("-").map(Number);
+    const dow = DIAS_SEMANA[new Date(ly, lm - 1, ld).getDay()];
+    const isHoje = l.dia === todayStr;
+    h += `<tr style="${isHoje ? "background:var(--brass-bg);" : ""}"><td style="text-align:left;white-space:nowrap;">${pad2(ld)}/${pad2(lm)} <span class="muted">(${dow})</span>${isHoje ? ` <span class="badge" style="background:var(--brass-text);">hoje</span>` : ""}</td>`;
+    h += `<td style="text-align:left;">`;
+    h += l.itens.map((t) => {
+      const cartao = state.cartoes.find((c) => c.id === t.cartaoId);
+      return `<div>${esc(t.description)}${cartao ? ` <span class="muted">(${esc(cartao.nome)})</span>` : ""} <span style="color:${t.type === "receita" ? C.green : C.red}">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</span></div>`;
+    }).join("");
+    h += `</td>`;
+    h += `<td class="bold" style="color:${l.saldo >= 0 ? C.green : C.red}">${brl(l.saldo)}${l.dia === diaMenorSaldo && menorSaldo < 0 ? " ⚠️" : ""}</td></tr>`;
+  });
+  h += `</tbody></table></div>`;
+
+  // Projeção com o que ainda falta acontecer no mês (reaproveita a mesma lógica prudente do planejamento)
+  const mc = getMonthComparison(y, month);
+  const saldoFinalReal = linhas.length ? linhas[linhas.length - 1].saldo : saldo;
+  const saldoProjetado = saldoFinalReal + mc.aReceber - mc.aPagar;
+
+  h += `<div class="panel" style="margin-top:16px;background:${saldoProjetado >= 0 ? "var(--ok-bg)" : "var(--danger-bg)"};border-color:${saldoProjetado >= 0 ? C.green : C.red};">`;
+  h += `<p class="panel-title">🔮 Projeção com o que ainda falta neste mês</p>`;
+  h += `<p class="hint" style="margin-top:0;">Saldo real até agora (${brl(saldoFinalReal)}) + a receber pendente (${brl(mc.aReceber)}) − a pagar pendente (${brl(mc.aPagar)})</p>`;
+  h += `<p class="kpi-value" style="color:${saldoProjetado >= 0 ? C.green : C.red};font-size:26px;margin:6px 0;">${brl(saldoProjetado)}</p>`;
+  if (saldoProjetado < 0) {
+    h += `<p class="bold" style="color:${C.red};margin:8px 0 0;">💸 Nesse ritmo, pode faltar dinheiro este mês — considere adiantar receita, usar a reserva, ou rever despesas pendentes.</p>`;
+  } else if (diaMenorSaldo && menorSaldo < 0) {
+    h += `<p class="bold" style="color:${C.brass};margin:8px 0 0;">⚠️ O saldo chegou a ficar negativo no dia ${diaMenorSaldo.slice(8, 10)}/${diaMenorSaldo.slice(5, 7)} antes de se recuperar — fique de olho no fluxo de caixa perto dessa data.</p>`;
+  } else {
+    h += `<p class="hint" style="margin:8px 0 0;">Com o que já está confirmado e o que falta lançar, o mês deve fechar no azul.</p>`;
+  }
+  h += `</div>`;
+  return h;
+}
+
+function reportCartao() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const compras = state.transactions.filter((t) => t.isCartao && t.dueDate);
+  if (compras.length === 0) return `<p class="panel-title">💳 Faturas</p><p class="hint">Nenhuma compra no cartão lançada ainda.</p>`;
+  const porVenc = {};
+  compras.forEach((t) => { (porVenc[t.dueDate] = porVenc[t.dueDate] || []).push(t); });
+  const datas = Object.keys(porVenc).sort();
+  const futuras = datas.filter((d) => d >= todayStr);
+  const passadas = datas.filter((d) => d < todayStr);
+
+  const bloco = (titulo, lista) => {
+    if (lista.length === 0) return "";
+    let h = `<p class="panel-title" style="margin-top:18px;">${titulo}</p>`;
+    lista.forEach((d) => {
+      const itens = porVenc[d];
+      const total = itens.reduce((s, t) => s + Number(t.value), 0);
+      h += `<div class="panel" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>${new Date(d + "T00:00:00").toLocaleDateString("pt-BR")}</strong><span class="bold red">${brl(total)}</span></div>`;
+      itens.forEach((t) => {
+        const cartao = state.cartoes.find((c) => c.id === t.cartaoId);
+        h += `<div class="naoprevisto-row"><span>${cartao ? `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${cartao.cor};margin-right:5px;"></span>` : ""}${esc(t.description)} ${cartao ? `<span class="muted">(${esc(cartao.nome)})</span>` : ""}</span><span class="red">${brl(t.value)}</span></div>`;
+      });
+      h += `</div>`;
+    });
+    return h;
+  };
+  return `<p class="panel-title">💳 Calendário de faturas</p>` + bloco("📅 Próximas", futuras) + bloco("🕓 Já venceram", passadas.reverse());
+}
+
+// ---------- Evolução do saldo acumulado (gráfico de barras em CSS) ----------
+function reportEvolucao() {
+  const oficialTx = state.transactions.filter((t) => cashKey(t) >= "2026-08-27");
+  const bal = computeRunningBalance(oficialTx);
+  const porMes = {};
+  bal.forEach((t) => { porMes[cashKey(t).slice(0, 7)] = t.balance; });
+  const chaves = Object.keys(porMes).sort();
+  if (chaves.length === 0) return `<p class="panel-title">📈 Evolução do saldo</p><p class="hint">Ainda sem lançamentos reais.</p>`;
+  const max = Math.max(1, ...chaves.map((k) => Math.abs(porMes[k])));
+  let h = `<p class="panel-title">📈 Evolução do saldo acumulado (fim de cada mês)</p>`;
+  h += `<div class="planner-bars">`;
+  chaves.forEach((k) => {
+    const v = porMes[k];
+    const alt = Math.max(2, (Math.abs(v) / max) * 120);
+    const [yy, mm] = k.split("-").map(Number);
+    h += `<div class="planner-col" title="${monthLabel(k)}: ${brl(v)}"><div class="bars"><div class="bar" style="height:${alt}px;background:${v >= 0 ? C.green : C.red}"></div></div><div class="lbl">${MESES[mm - 1]}/${String(yy).slice(2)}</div></div>`;
+  });
+  h += `</div>`;
+  h += `<div class="table-wrap" style="margin-top:14px;"><table><thead><tr><th style="text-align:left">Mês</th><th>Saldo acumulado</th></tr></thead><tbody>`;
+  [...chaves].reverse().forEach((k) => { h += `<tr><td style="text-align:left">${monthLabel(k)}</td><td class="bold" style="color:${porMes[k] >= 0 ? C.green : C.red}">${brl(porMes[k])}</td></tr>`; });
+  h += `</tbody></table></div>`;
+  return h;
+}
+
+// ---------- Empréstimos consignados + Reserva pra quitação ----------
+function reportEmprestimos() {
+  const totalDevedor = totalSaldoDevedorEmprestimos();
+  const reserva = totalReserva();
+  const pct = totalDevedor > 0 ? Math.min(100, (reserva / totalDevedor) * 100) : 0;
+
+  let h = `<p class="panel-title">🏦 Empréstimos consignados</p>`;
+  h += `<p class="hint" style="margin-top:0;">Fica fora do planejamento mensal de propósito — lance seu salário já líquido (depois do desconto) nas metas. Aqui é só pra acompanhar o saldo devedor derretendo mês a mês.</p>`;
+  if (state.loans.length === 0) {
+    h += `<p class="hint">Nenhum empréstimo cadastrado ainda.</p>`;
+  } else {
+    state.loans.forEach((l) => {
+      const pagamentos = l.pagamentos || [];
+      const saldo = saldoDevedorLoan(l);
+      const pctPago = l.parcelasTotais > 0 ? (pagamentos.length / l.parcelasTotais) * 100 : 0;
+      if (!newPagamento[l.id]) newPagamento[l.id] = { date: new Date().toISOString().slice(0, 10), valor: String(l.parcela) };
+      const np = newPagamento[l.id];
+      const temManual = l.saldoDevedorManual !== null && l.saldoDevedorManual !== undefined;
+      h += `<div class="panel" style="margin-bottom:10px;">`;
+      h += `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;"><strong>${esc(l.nome)}</strong><span class="bold red">${brl(saldo)} devendo</span></div>`;
+      if (l.valorContratado || l.dataInicio) {
+        h += `<p class="hint" style="margin:0 0 4px;">Contratado ${l.valorContratado ? brl(l.valorContratado) : ""}${l.dataInicio ? ` em ${new Date(l.dataInicio + "T00:00:00").toLocaleDateString("pt-BR")}` : ""}</p>`;
+      }
+      h += `<p class="hint" style="margin:4px 0 8px;">Parcela ${brl(l.parcela)} · ${pagamentos.length}/${l.parcelasTotais} pagas · `;
+      h += `taxa <input type="number" step="0.01" min="0" class="note-input" style="width:60px;display:inline-block;" data-action="edit-loan-taxa" data-id="${l.id}" value="${l.taxaJurosMensal || 0}" />% a.m.</p>`;
+      h += `<div class="progress-track"><div class="progress-fill" style="width:${pctPago}%;background:${C.green};"></div></div>`;
+      h += `<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center;">`;
+      h += `<label class="field-label" style="margin:0;">Saldo devedor<input type="number" step="0.01" class="note-input" style="width:110px;" data-action="edit-loan-saldo-manual" data-id="${l.id}" value="${saldo.toFixed(2)}" /></label>`;
+      const novosPg = temManual ? pagamentosDesdeSnapshot(l).length : 0;
+      h += temManual
+        ? `<span class="badge" style="background:var(--badge-green);" title="Parte do valor digitado por você, conferido no app do banco, e abate cada pagamento lançado depois dele">📌 ${novosPg > 0 ? `saldo do banco − ${novosPg} pagamento(s) lançado(s) desde então` : "valor real do banco"}</span><button class="del-btn" data-action="limpar-saldo-manual-loan" data-id="${l.id}" title="Voltar a estimar pela fórmula">🔄 estimar de novo</button>`
+        : `<span class="muted" style="font-size:11px;">📐 estimado pela fórmula — digite o valor do app do banco acima pra ficar exato</span>`;
+      h += `</div>`;
+
+      if (pagamentos.length > 0) {
+        h += `<div style="margin-top:8px;">`;
+        [...pagamentos].sort((a, b) => b.date.localeCompare(a.date)).forEach((pg) => {
+          h += `<div class="naoprevisto-row"><span>${new Date(pg.date + "T00:00:00").toLocaleDateString("pt-BR")}</span><span style="display:flex;align-items:center;gap:8px;"><span class="green">${brl(pg.valor)}</span><button class="del-btn" data-action="del-pagamento-loan" data-loanid="${l.id}" data-id="${pg.id}" title="Excluir">🗑️</button></span></div>`;
+        });
+        h += `</div>`;
+      }
+
+      h += `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:flex-end;">`;
+      h += `<label class="field-label" style="margin:0;">Data do pagamento<input type="date" class="field" style="padding:6px;" data-action="np-date" data-loanid="${l.id}" value="${np.date}" /></label>`;
+      h += `<label class="field-label" style="margin:0;">Valor pago<input type="number" step="0.01" class="field" style="padding:6px;width:100px;" data-action="np-valor" data-loanid="${l.id}" value="${np.valor}" /></label>`;
+      h += `<button class="btn btn-outline" style="font-size:11px;padding:7px 10px;" data-action="registrar-pagamento-loan" data-id="${l.id}" ${pagamentos.length >= l.parcelasTotais ? "disabled" : ""}>✓ Registrar pagamento</button>`;
+      h += `<button class="del-btn" data-action="del-loan" data-id="${l.id}" title="Excluir empréstimo">🗑️</button>`;
+      h += `</div></div>`;
+    });
+  }
+  h += `<form class="grid cols-6-md" id="loan-form" style="margin-top:10px;">`;
+  h += `<input type="text" class="field span-2" id="newloan-nome" placeholder="Nome do empréstimo" value="${esc(newLoan.nome)}" />`;
+  h += `<input type="number" step="0.01" class="field span-1" id="newloan-parcela" placeholder="Parcela R$" value="${newLoan.parcela}" />`;
+  h += `<input type="number" class="field span-1" id="newloan-totais" placeholder="Nº parcelas" value="${newLoan.parcelasTotais}" />`;
+  h += `<input type="number" step="0.01" class="field span-1" id="newloan-taxa" placeholder="Taxa % a.m." value="${newLoan.taxaJurosMensal}" />`;
+  h += `<button type="submit" class="btn btn-primary span-1">Adicionar</button>`;
+  h += `<p class="hint span-6" style="margin:2px 0 0;">A taxa de juros mensal é usada pra estimar o saldo devedor restante (Tabela Price) conforme você vai registrando os pagamentos — não precisa saber o valor total do contrato.</p>`;
+  h += `</form>`;
+
+  h += `<p class="panel-title" style="margin-top:26px;">💰 Reserva pra quitação antecipada</p>`;
+  h += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px;">`;
+  h += `<div class="kpi-card"><p class="kpi-label">Reservado até agora</p><p class="kpi-value green">${brl(reserva)}</p></div>`;
+  h += `<div class="kpi-card"><p class="kpi-label">Saldo devedor total</p><p class="kpi-value red">${brl(totalDevedor)}</p></div>`;
+  h += `<div class="kpi-card"><p class="kpi-label">Cobertura</p><p class="kpi-value" style="color:${C.cover}">${pct.toFixed(0)}%</p><div class="progress-track" style="margin-top:6px;"><div class="progress-fill" style="width:${pct}%;background:${C.brass};"></div></div></div>`;
+  h += `</div>`;
+
+  if (state.reservaAportes.length > 0) {
+    h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Data</th><th style="text-align:left">Nota</th><th>Valor</th><th></th></tr></thead><tbody>`;
+    [...state.reservaAportes].sort((a, b) => b.date.localeCompare(a.date)).forEach((a) => {
+      h += `<tr><td style="text-align:left">${new Date(a.date + "T00:00:00").toLocaleDateString("pt-BR")}</td><td style="text-align:left">${esc(a.nota || "—")}</td><td class="green">${brl(a.valor)}</td><td><button class="del-btn" data-action="del-aporte" data-id="${a.id}">🗑️</button></td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+  }
+  h += `<form class="grid cols-6-md" id="aporte-form" style="margin-top:10px;">`;
+  h += `<input type="date" class="field span-2" id="newaporte-date" value="${newAporte.date}" />`;
+  h += `<input type="number" step="0.01" class="field span-1" id="newaporte-valor" placeholder="Valor" value="${newAporte.valor}" />`;
+  h += `<input type="text" class="field span-2" id="newaporte-nota" placeholder="Nota (opcional)" value="${esc(newAporte.nota)}" />`;
+  h += `<button type="submit" class="btn btn-primary span-1">Guardar</button>`;
+  h += `</form>`;
+  return h;
+}
+
 function render() {
   const app = document.getElementById("app");
   if (state.loading) { app.innerHTML = '<div class="loading">Abrindo o livro-caixa...</div>'; return; }
@@ -1073,6 +1616,19 @@ function render() {
   html += `<div class="cover"><div><p class="eyebrow">Exercício 2026–2027</p><h1>Livro-Caixa</h1></div><div style="display:flex;align-items:center;gap:12px;"><button data-action="logout" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#F8FAFC;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;">Sair</button><div style="font-size:28px;">💼</div></div></div>`;
   if (state.saveError) html += `<div class="save-error">Não foi possível salvar agora. Seus lançamentos podem se perder ao recarregar.</div>`;
 
+  // Navegação principal: Planejamento (tela do dia a dia) x Relatórios (análises, sem misturar com o planejamento)
+  html += `<div class="tab-nav">`;
+  html += `<button class="tab-nav-btn ${state.activeTab === "planejamento" ? "active" : ""}" data-action="set-tab" data-tab="planejamento">📊 Planejamento</button>`;
+  html += `<button class="tab-nav-btn ${state.activeTab === "relatorios" ? "active" : ""}" data-action="set-tab" data-tab="relatorios">📈 Relatórios</button>`;
+  html += `</div>`;
+
+  if (state.activeTab === "relatorios") {
+    html += buildRelatoriosHTML(withBalance);
+    app.innerHTML = html;
+    attachListeners();
+    return;
+  }
+
   html += `<div class="body-panel">`;
   // Seletor de ano
   html += `<div class="year-row">`;
@@ -1114,6 +1670,7 @@ function render() {
   html += `<button class="btn btn-primary" data-action="toggle-form">➕ ${state.showForm ? "Fechar" : "Novo lançamento"}</button>`;
   html += `<button class="btn btn-outline" data-action="toggle-cat">🏷️ Categorias</button>`;
   html += `<button class="btn btn-brass" data-action="toggle-goals">🎯 ${state.showGoalsManager ? "Fechar metas" : "Editar metas"}</button>`;
+  html += `<button class="btn btn-outline" data-action="toggle-card-manager">💳 ${state.showCardManager ? "Fechar cartões" : "Cartões"}</button>`;
   html += `<button class="btn btn-outline" data-action="export-backup">💾 Exportar backup</button>`;
   html += `<button class="btn btn-outline" data-action="import-backup">📂 Importar backup</button>`;
   html += `<input type="file" id="import-file-input" accept="application/json" style="display:none" />`;
@@ -1142,10 +1699,15 @@ function render() {
       html += `<option value="${p.id}" ${form.plannedItemId === p.id ? "selected" : ""}>${esc(p.description)}${foraDeVigencia && p.id === metaAtual.id ? " (fora de vigência neste mês)" : ""}</option>`;
     });
     html += `</select></label>`;
-    html += `<label class="span-2" style="font-size:11px;color:${C.inkSoft};display:flex;align-items:center;gap:5px;"><input type="checkbox" id="tx-cartao" ${form.isCartao ? "checked" : ""} /> 💳 É cartão de crédito?</label>`;
+    html += `<label class="field-label span-2">Forma de pagamento<select class="field" id="tx-forma">
+      <option value="pix" ${form.formaPagamento === "pix" ? "selected" : ""}>🔵 Pix</option>
+      <option value="dinheiro" ${form.formaPagamento === "dinheiro" ? "selected" : ""}>💵 Dinheiro</option>`;
+    state.cartoes.forEach((c) => { html += `<option value="${c.id}" ${form.formaPagamento === c.id ? "selected" : ""}>${c.icone} Cartão ${esc(c.nome)}</option>`; });
+    if (form.formaPagamento === "legacy-cartao") html += `<option value="legacy-cartao" selected>💳 Cartão (não identificado)</option>`;
+    html += `</select></label>`;
     if (form.isCartao) {
       html += `<label class="field-label span-2">Vencimento da fatura<input type="date" class="field" id="tx-duedate" value="${form.dueDate}" /></label>`;
-      html += `<p class="hint span-2" style="margin:0;grid-column:span 2;">📇 A Data acima é o dia real da compra — ela impacta a meta/categoria no mês em que você <strong>consumiu</strong>. Já o Vencimento decide o mês em que essa despesa pesa no <strong>saldo/caixa</strong> (Saldo geral e Cartão em aberto). Os dois podem ser meses diferentes, de propósito.</p>`;
+      html += `<p class="hint span-2" style="margin:0;grid-column:span 2;">📇 A Data acima é o dia real da compra — ela impacta a meta/categoria no mês em que você <strong>consumiu</strong>. Já o Vencimento decide o mês em que essa despesa pesa no <strong>saldo/caixa</strong> (Saldo geral e Cartão em aberto). Preenchido automaticamente pelo dia de vencimento cadastrado do cartão — pode ajustar se precisar.</p>`;
     }
     html += `<label class="span-${form.isCartao ? 2 : 4}" style="font-size:11px;color:${C.inkSoft};display:flex;align-items:center;">Dica: várias descrições diferentes (ração, areia, petiscos...) podem apontar pra mesma meta (ex: "Pets") — o sistema sugere sozinho quando reconhece a descrição ou quando só existe uma meta naquela categoria.</label>`;
     if (editingTxId) {
@@ -1170,6 +1732,29 @@ function render() {
     html += `<input type="text" class="field span-3" id="newcat-name" placeholder="Nova categoria" value="${esc(newCat.name)}" />`;
     html += `<button type="submit" class="btn btn-primary span-2">Adicionar</button>`;
     html += `</form></div>`;
+  }
+
+  // Gerenciador de cartões de crédito
+  if (state.showCardManager) {
+    html += `<div class="panel">`;
+    html += `<p class="panel-title">Seus cartões de crédito</p>`;
+    html += `<p class="hint" style="margin-top:0;">O dia de vencimento é usado só pra sugerir a data da fatura ao lançar uma despesa nesse cartão — você sempre pode ajustar na hora.</p>`;
+    html += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Cartão</th><th>Dia de vencimento</th><th></th></tr></thead><tbody>`;
+    state.cartoes.forEach((c) => {
+      html += `<tr><td style="text-align:left;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.cor};margin-right:6px;"></span>${c.icone} ${esc(c.nome)}</td>`;
+      html += `<td><input type="number" min="1" max="28" class="note-input" style="width:60px;text-align:right;" data-action="edit-cartao-dia" data-id="${c.id}" value="${c.vencimentoDia}" /></td>`;
+      html += `<td><button class="del-btn" data-action="del-cartao" data-id="${c.id}" title="Excluir cartão">🗑️</button></td></tr>`;
+    });
+    if (state.cartoes.length === 0) html += `<tr><td colspan="3" class="muted" style="text-align:center;padding:12px;">Nenhum cartão cadastrado.</td></tr>`;
+    html += `</tbody></table></div>`;
+    html += `<form class="grid cols-6-md" id="cartao-form" style="margin-top:10px;">`;
+    html += `<input type="text" class="field span-2" id="newcard-nome" placeholder="Nome do cartão" value="${esc(newCard.nome)}" />`;
+    html += `<label class="field-label span-1">Cor<input type="color" class="field" id="newcard-cor" value="${newCard.cor}" style="padding:2px;height:34px;" /></label>`;
+    html += `<label class="field-label span-1">Dia venc.<input type="number" min="1" max="28" class="field" id="newcard-dia" value="${newCard.vencimentoDia}" /></label>`;
+    html += `<button type="submit" class="btn btn-primary span-2">Adicionar cartão</button>`;
+    html += `</form>`;
+
+    html += `</div>`;
   }
 
   // Gerenciador de metas
@@ -1632,6 +2217,16 @@ function attachListeners() {
       else if (action === "archive-goal") { archivePlannedItem(el.dataset.id, el.dataset.month || (state.showAll ? currentMonthKey : `${state.selectedYear}-${pad2(state.selectedMonth + 1)}`)); }
       else if (action === "unarchive-goal") { unarchivePlannedItem(el.dataset.id); }
       else if (action === "quick-launch") { quickLaunchPlannedItem(el.dataset.id, Number(el.dataset.year), Number(el.dataset.month)); }
+      else if (action === "set-tab") { state.activeTab = el.dataset.tab; render(); }
+      else if (action === "set-report-tab") { state.reportTab = el.dataset.report; render(); }
+      else if (action === "toggle-card-manager") { state.showCardManager = !state.showCardManager; render(); }
+      else if (action === "toggle-loan-manager") { state.showLoanManager = !state.showLoanManager; render(); }
+      else if (action === "del-cartao") { deleteCartao(el.dataset.id); }
+      else if (action === "registrar-pagamento-loan") { registrarPagamentoLoan(el.dataset.id); }
+      else if (action === "del-pagamento-loan") { deletePagamentoLoan(el.dataset.loanid, el.dataset.id); }
+      else if (action === "limpar-saldo-manual-loan") { limparSaldoManualLoan(el.dataset.id); }
+      else if (action === "del-loan") { deleteLoan(el.dataset.id); }
+      else if (action === "del-aporte") { deleteReservaAporte(el.dataset.id); }
       else if (action === "close-month") { closeMonth(Number(el.dataset.year), Number(el.dataset.month)); }
       else if (action === "reopen-month") { reopenMonth(el.dataset.key); }
       else if (action === "toggle-report") { state.showReportFor = state.showReportFor === el.dataset.key ? null : el.dataset.key; render(); }
@@ -1711,6 +2306,10 @@ function attachListeners() {
       const ativas = plannedActiveForDate(form.date, form.type);
       if (form.plannedItemId && !ativas.some((p) => p.id === form.plannedItemId)) form.plannedItemId = "";
       if (!form.plannedItemId) form.plannedItemId = suggestPlannedItemId(form.description, form.type, form.categoryId, form.date);
+      if (form.isCartao && form.cartaoId) {
+        const cartao = state.cartoes.find((c) => c.id === form.cartaoId);
+        if (cartao) form.dueDate = nextDueDate(cartao.vencimentoDia, form.date);
+      }
       render();
     });
     document.getElementById("tx-desc").addEventListener("input", (e) => { form.description = e.target.value; });
@@ -1727,7 +2326,19 @@ function attachListeners() {
     });
     document.getElementById("tx-value").addEventListener("input", (e) => { form.value = e.target.value; });
     document.getElementById("tx-meta").addEventListener("change", (e) => { form.plannedItemId = e.target.value; });
-    document.getElementById("tx-cartao").addEventListener("change", (e) => { form.isCartao = e.target.checked; render(); });
+    document.getElementById("tx-forma").addEventListener("change", (e) => {
+      form.formaPagamento = e.target.value;
+      if (e.target.value === "pix" || e.target.value === "dinheiro") {
+        form.isCartao = false; form.cartaoId = null; form.dueDate = "";
+      } else if (e.target.value === "legacy-cartao") {
+        form.isCartao = true; form.cartaoId = null; // mantém a dueDate já existente do lançamento antigo
+      } else {
+        form.isCartao = true; form.cartaoId = e.target.value;
+        const cartao = state.cartoes.find((c) => c.id === e.target.value);
+        if (cartao) form.dueDate = nextDueDate(cartao.vencimentoDia, form.date);
+      }
+      render();
+    });
     const txDue = document.getElementById("tx-duedate"); if (txDue) txDue.addEventListener("input", (e) => { form.dueDate = e.target.value; });
   }
 
@@ -1737,6 +2348,52 @@ function attachListeners() {
     document.getElementById("newcat-type").addEventListener("change", (e) => { newCat.type = e.target.value; });
     document.getElementById("newcat-name").addEventListener("input", (e) => { newCat.name = e.target.value; });
   }
+
+  const cartaoForm = document.getElementById("cartao-form");
+  if (cartaoForm) {
+    cartaoForm.addEventListener("submit", addCartao);
+    document.getElementById("newcard-nome").addEventListener("input", (e) => { newCard.nome = e.target.value; });
+    document.getElementById("newcard-cor").addEventListener("input", (e) => { newCard.cor = e.target.value; });
+    document.getElementById("newcard-dia").addEventListener("input", (e) => { newCard.vencimentoDia = e.target.value; });
+  }
+  app.querySelectorAll('[data-action="edit-cartao-dia"]').forEach((inp) => {
+    inp.addEventListener("change", (e) => updateCartaoDia(inp.dataset.id, e.target.value));
+  });
+
+  const loanFormEl = document.getElementById("loan-form");
+  if (loanFormEl) {
+    loanFormEl.addEventListener("submit", addLoan);
+    document.getElementById("newloan-nome").addEventListener("input", (e) => { newLoan.nome = e.target.value; });
+    document.getElementById("newloan-parcela").addEventListener("input", (e) => { newLoan.parcela = e.target.value; });
+    document.getElementById("newloan-totais").addEventListener("input", (e) => { newLoan.parcelasTotais = e.target.value; });
+    document.getElementById("newloan-taxa").addEventListener("input", (e) => { newLoan.taxaJurosMensal = e.target.value; });
+  }
+  app.querySelectorAll('[data-action="edit-loan-taxa"]').forEach((inp) => {
+    inp.addEventListener("change", (e) => updateLoanTaxa(inp.dataset.id, e.target.value));
+  });
+  app.querySelectorAll('[data-action="edit-loan-saldo-manual"]').forEach((inp) => {
+    inp.addEventListener("change", (e) => updateLoanSaldoManual(inp.dataset.id, e.target.value));
+  });
+  app.querySelectorAll('[data-action="np-date"]').forEach((inp) => {
+    inp.addEventListener("input", (e) => { newPagamento[inp.dataset.loanid] = { ...(newPagamento[inp.dataset.loanid] || {}), date: e.target.value }; });
+  });
+  app.querySelectorAll('[data-action="np-valor"]').forEach((inp) => {
+    inp.addEventListener("input", (e) => { newPagamento[inp.dataset.loanid] = { ...(newPagamento[inp.dataset.loanid] || {}), valor: e.target.value }; });
+  });
+
+  const aporteFormEl = document.getElementById("aporte-form");
+  if (aporteFormEl) {
+    aporteFormEl.addEventListener("submit", addReservaAporte);
+    document.getElementById("newaporte-date").addEventListener("input", (e) => { newAporte.date = e.target.value; });
+    document.getElementById("newaporte-valor").addEventListener("input", (e) => { newAporte.valor = e.target.value; });
+    document.getElementById("newaporte-nota").addEventListener("input", (e) => { newAporte.nota = e.target.value; });
+  }
+
+  const reportCatMonthEl = document.getElementById("report-cat-month");
+  if (reportCatMonthEl) reportCatMonthEl.addEventListener("change", (e) => { state.reportCatMonth = e.target.value; render(); });
+
+  const reportCalMonthEl = document.getElementById("report-cal-month");
+  if (reportCalMonthEl) reportCalMonthEl.addEventListener("change", (e) => { state.reportCalMonth = e.target.value; render(); });
 
   const goalFormEl = document.getElementById("goal-form");
   if (goalFormEl) {
