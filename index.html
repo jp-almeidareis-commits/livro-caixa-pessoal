@@ -172,8 +172,8 @@
   .charts-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
   .bar-chart-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; }
   .bar-chart-label { width: 100px; flex-shrink: 0; color: var(--ink-soft); text-align: right; }
-  .bar-chart-track { flex: 1; background: var(--paper-dark); border-radius: 3px; height: 16px; position: relative; overflow: hidden; }
-  .bar-chart-fill { height: 100%; border-radius: 3px; }
+  .bar-chart-track { display: block; flex: 1; background: var(--paper-dark); border-radius: 3px; height: 16px; position: relative; overflow: hidden; }
+  .bar-chart-fill { display: block; height: 100%; min-width: 2px; border-radius: 3px; }
   .bar-chart-value { width: 90px; flex-shrink: 0; text-align: right; font-weight: 600; }
   .planner-bars { display: flex; align-items: flex-end; gap: 6px; overflow-x: auto; padding-bottom: 4px; height: 160px; }
   .planner-col { display: flex; flex-direction: column; align-items: center; min-width: 34px; height: 100%; justify-content: flex-end; }
@@ -184,6 +184,73 @@
   .legend span { display: inline-flex; align-items: center; gap: 4px; }
   .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
+
+  /* ---- Gráficos ---- */
+  .pb-label { width: 110px; } .pb-value { width: 175px; }
+  @media (max-width: 600px) { .pb-label { width: 70px; } .pb-value { width: 92px; font-size: 10px; } .donut-wrap { justify-content: center; } }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--ink-soft); margin: 0 0 6px; }
+  .chart-legend i, .donut-row i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+  .donut-wrap { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 8px 0 14px; }
+  .donut-legend { flex: 1; min-width: 220px; }
+  .donut-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .chart-box { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--paper); margin-bottom: 16px; }
+  /* ---- Ícones ---- */
+  .ic { display: inline-block; width: 1.15em; height: 1.15em; vertical-align: -0.2em; margin-right: .2em; }
+  .ic svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .del-btn .ic { margin-right: 0; }
+  .area-btn .ic { width: 1.2em; height: 1.2em; }
+  .day-head { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 4px 4px; margin-top: 6px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
+  .tx-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .tx-main { min-width: 0; } .tx-sub { margin-top: 3px; display: flex; gap: 4px; flex-wrap: wrap; }
+  .tx-side { display: flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0; }
+  /* ---- Bichos ---- */
+  .bicho-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px; color: var(--bc); border: 1px solid var(--bc); white-space: nowrap; }
+  .bicho-chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--bc, var(--line)); background: transparent; color: var(--ink); cursor: pointer; font-family: inherit; }
+  .bicho-chip.on { background: var(--bc, var(--brass)); color: #fff; }
+  .bicho-chip.grupo { border-style: dashed; }
+  .bicho-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  /* ---- Fase 1: resumo, status, ajuda ---- */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .kpi-mini { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--paper); }
+  .kpi-mini .l { font-size: 11px; color: var(--ink-soft); margin: 0 0 4px; }
+  .kpi-mini .v { font-size: 18px; font-weight: 700; margin: 0; }
+  .kpi-mini.destaque { border-width: 2px; border-color: var(--brass); }
+  .kpi-mini .s { font-size: 10px; color: var(--ink-soft); margin: 3px 0 0; }
+  .meta-card.st-estourada { border-left: 4px solid var(--red); padding-left: 8px; }
+  .meta-card.st-pendente, .meta-card.st-vencendo { border-left: 4px solid var(--brass); padding-left: 8px; }
+  .meta-card.st-vencida { border-left: 4px solid var(--red); padding-left: 8px; }
+  .meta-card.st-andamento { border-left: 4px solid var(--line); padding-left: 8px; }
+  .meta-card.st-acima, .meta-card.st-fechada, .meta-card.st-lancada { border-left: 4px solid var(--green); padding-left: 8px; }
+  .st-tag { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+  details.more { margin: 6px 0; font-size: 11px; color: var(--ink-soft); }
+  details.more summary { cursor: pointer; display: inline-block; user-select: none; }
+  details.more p { margin-top: 4px; }
+  /* ---- Áreas (Projeções / Lançamentos) ---- */
+  .area-nav { display: flex; gap: 6px; padding: 4px; background: var(--paper-dark); border-radius: 10px; margin-bottom: 14px; }
+  .area-btn { flex: 1; font-size: 14px; font-weight: 600; padding: 10px 12px; border-radius: 8px; border: none; background: transparent; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
+  .area-btn small { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; }
+  .area-btn.active { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .toolbar .spacer { flex: 1; }
+  .cfg-panel { border: 1px dashed var(--line); border-radius: 8px; padding: 10px; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .proj-section { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 16px; background: var(--paper); }
+  .proj-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+  .proj-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .proj-stats div { display: flex; flex-direction: column; font-size: 11px; color: var(--ink-soft); }
+  .proj-stats b { font-size: 14px; color: var(--ink); }
+  .proj-stats b.green { color: var(--green); } .proj-stats b.red { color: var(--red); } .proj-stats b.muted { color: var(--ink-soft); }
+  .meta-card { border-top: 1px solid var(--line); padding: 8px 0 6px; }
+  .meta-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
+  .meta-title { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .meta-nums { display: flex; align-items: center; gap: 8px; font-size: 12px; white-space: nowrap; }
+  .meta-bar { margin-top: 6px; }
+  .meta-detail { margin-top: 10px; padding: 10px; border-radius: 8px; background: var(--paper-dark); }
+  .meta-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 12px; margin-bottom: 8px; }
+  @media (max-width: 600px) {
+    .area-btn { font-size: 13px; padding: 9px 6px; }
+    .proj-stats { gap: 10px; }
+    .meta-nums { width: 100%; justify-content: space-between; }
+  }
   .loading { min-height: 300px; display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--ink-soft); }
   select.field { -webkit-appearance: none; appearance: none; }
   .italic { font-style: italic; }
@@ -398,7 +465,16 @@ let state = {
   cartoes: [],
   loans: [],
   reservaAportes: [],
+  bichos: [],
+  grupos: [],
+  showBichoManager: false,
+  formMais: false,
+  reportBichoMonth: null,
+  reportBichoSel: "todos",
+  reportCatTipo: "despesa",
   activeTab: "planejamento",
+  area: "projecoes",
+  showCfg: false,
   reportTab: "geral",
   showCardManager: false,
   showLoanManager: false,
@@ -408,22 +484,25 @@ let state = {
 };
 
 const DEFAULT_CARTOES = [];
+// Etiquetas de bichos só contam nos relatórios a partir desta data (decisão: sem etiquetar o histórico).
+const ETIQUETA_INICIO = "2026-11-01";
 
 let newCard = { nome: "", cor: "#8A05BE", vencimentoDia: 10 };
 let newLoan = { nome: "", parcela: "", parcelasTotais: "", taxaJurosMensal: "" };
 let newPagamento = {}; // por empréstimo: { [loanId]: { date, valor } }
-let newAporte = { date: new Date().toISOString().slice(0, 10), valor: "", nota: "" };
+let newAporte = { date: localTodayISO(), valor: "", nota: "" };
 
-const todayISO = new Date().toISOString().slice(0, 10);
+function localTodayISO() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+const todayISO = localTodayISO();
 const currentMonthKey = todayISO.slice(0, 7);
 
-let form = { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix" };
+let form = { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix", bichoIds: [], bichosTocado: false };
 let editingTxId = null;
 let newCat = { name: "", type: "despesa" };
 let goalForm = {
   description: "", type: "despesa", categoryId: "moradia", value: "",
   mode: "recorrente", startMonth: currentMonthKey, endMonth: "", month: currentMonthKey,
-  installments: 4, installStartMonth: currentMonthKey,
+  installments: 4, installStartMonth: currentMonthKey, diaVencimento: "",
 };
 
 
@@ -511,6 +590,8 @@ async function loadData() {
       state.cartoes = Array.isArray(parsed.cartoes) ? parsed.cartoes : DEFAULT_CARTOES;
       state.loans = Array.isArray(parsed.loans) ? parsed.loans : [];
       state.reservaAportes = Array.isArray(parsed.reservaAportes) ? parsed.reservaAportes : [];
+      state.bichos = Array.isArray(parsed.bichos) ? parsed.bichos : [];
+      state.grupos = Array.isArray(parsed.grupos) ? parsed.grupos : [];
       state.plannedItems = Array.isArray(parsed.plannedItems) ? parsed.plannedItems : [];
     } else {
       // primeiro acesso: cria a linha vazia desse usuário
@@ -551,6 +632,7 @@ async function persist() {
       transactions: state.transactions, categories: state.categories, notes: state.notes,
       plannedItems: state.plannedItems, finalizados: state.finalizados, reconciliados: state.reconciliados,
       fechamentos: state.fechamentos, cartoes: state.cartoes, loans: state.loans, reservaAportes: state.reservaAportes,
+      bichos: state.bichos, grupos: state.grupos,
     };
     const { error } = await sb.from("app_state").upsert({ user_id: currentUser.id, data: payload, updated_at: new Date().toISOString() });
     state.saveError = !!error;
@@ -699,7 +781,7 @@ function closeMonth(year, month) {
   const key = `${year}-${pad2(month + 1)}`;
   const mc = getMonthComparison(year, month);
   if (!mc) return;
-  if (!confirm(`Confirmar fechamento de ${monthLabel(key)}?\n\nIsso grava uma fotografia dos números de hoje (planejado, atualizado e realizado). Você ainda pode editar lançamentos depois, mas o relatório desse fechamento fica guardado do jeito que está agora.`)) return;
+  if (!confirm(`Confirmar fechamento de ${monthLabel(key)}?\n\nIsso grava uma fotografia dos números de hoje (planejado, previsão e realizado). Você ainda pode editar lançamentos depois, mas o relatório desse fechamento fica guardado do jeito que está agora.`)) return;
   const topDiffs = [...mc.rows].filter((r) => r.lancado).sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff)).slice(0, 8)
     .map((r) => ({ description: r.description, type: r.type, meta: r.value, realizado: r.realizado, diff: r.diff }));
   const pendentes = mc.rows.filter((r) => !r.lancado).map((r) => ({ description: r.description, type: r.type, meta: r.value }));
@@ -743,7 +825,7 @@ function generateMonthReportText(year, month) {
     pendentes: mc.rows.filter((r) => !r.lancado).map((r) => ({ description: r.description, type: r.type, meta: r.value })),
   };
   out += `PLANEJADO   receitas ${d(src.totalPlanejadoReceita)}  despesas ${d(src.totalPlanejadoDespesa)}  saldo ${d(src.totalPlanejadoReceita - src.totalPlanejadoDespesa)}\n`;
-  out += `ATUALIZADO  receitas ${d(src.totalAtualizadoReceita)}  despesas ${d(src.totalAtualizadoDespesa)}  saldo ${d(src.totalAtualizadoReceita - src.totalAtualizadoDespesa)}\n`;
+  out += `PREVISÃO    receitas ${d(src.totalAtualizadoReceita)}  despesas ${d(src.totalAtualizadoDespesa)}  saldo ${d(src.totalAtualizadoReceita - src.totalAtualizadoDespesa)}\n`;
   out += `REALIZADO   receitas ${d(src.totalRealizadoReceita)}  despesas ${d(src.totalRealizadoDespesa)}  saldo ${d(src.totalRealizadoReceita - src.totalRealizadoDespesa)}\n`;
   out += `\nNão previstos: ${src.qtdNaoPrevistos} lançamento(s), receita ${d(src.naoPrevistosReceita)} / despesa ${d(src.naoPrevistosDespesa)}\n`;
   if (src.topDiffs.length) {
@@ -770,16 +852,89 @@ function lockedAlert(dateStr) {
   alert(`${monthLabel(key)} está fechado. Reabra o mês (botão "↩️ Reabrir mês") para poder editar, excluir ou lançar algo nessa data.`);
 }
 
+// ================= BICHOS (etiquetas) =================
+function bichoById(id) { return state.bichos.find((b) => b.id === id) || null; }
+function bichosValidos(ids) { return (Array.isArray(ids) ? ids : []).filter((id) => !!bichoById(id)); }
+function bichoChips(t) {
+  const ids = bichosValidos(t && t.bichoIds);
+  if (ids.length === 0) return "";
+  return ids.map((id) => { const b = bichoById(id); return ` <span class="bicho-tag" style="--bc:${esc(b.cor)}">🐾 ${esc(b.nome)}</span>`; }).join("");
+}
+// Etiquetas efetivas do formulário: se o usuário ainda não mexeu, herda as da projeção escolhida.
+function formBichoIds() {
+  if (form.bichosTocado) return bichosValidos(form.bichoIds);
+  const pi = state.plannedItems.find((x) => x.id === form.plannedItemId);
+  return bichosValidos(pi && pi.bichoIds);
+}
+// Parte de cada bicho num lançamento: despesa dividida igualmente entre os bichos etiquetados.
+function partesPorBicho(t) {
+  if (t.type !== "despesa" || !t.date || t.date < ETIQUETA_INICIO) return [];
+  const ids = bichosValidos(t.bichoIds);
+  if (ids.length === 0) return [];
+  const parte = Number(t.value) / ids.length;
+  return ids.map((id) => ({ bichoId: id, parte }));
+}
+function addBicho() {
+  const nome = (document.getElementById("bicho-nome")?.value || "").trim();
+  const cor = document.getElementById("bicho-cor")?.value || "#7C3AED";
+  if (!nome) return;
+  if (state.bichos.some((b) => b.nome.toLowerCase() === nome.toLowerCase())) { alert("Já existe um bicho com esse nome."); return; }
+  state.bichos.push({ id: uid(), nome, cor });
+  persist(); render();
+}
+function delBicho(id) {
+  const b = bichoById(id); if (!b) return;
+  const usos = state.transactions.filter((t) => (t.bichoIds || []).includes(id)).length;
+  if (!confirm(`Excluir "${b.nome}"?${usos ? `\n\n${usos} lançamento(s) estão etiquetados com ele. Eles continuam existindo, mas perdem essa etiqueta nos relatórios.` : ""}`)) return;
+  state.bichos = state.bichos.filter((x) => x.id !== id);
+  state.grupos = state.grupos.map((g) => ({ ...g, bichoIds: g.bichoIds.filter((x) => x !== id) }));
+  form.bichoIds = (form.bichoIds || []).filter((x) => x !== id);
+  persist(); render();
+}
+function addGrupo() {
+  const nome = (document.getElementById("grupo-nome")?.value || "").trim();
+  const ids = [...document.querySelectorAll(".grupo-bicho:checked")].map((c) => c.value);
+  if (!nome || ids.length < 2) { alert("Dê um nome ao grupo e marque pelo menos 2 bichos."); return; }
+  state.grupos.push({ id: uid(), nome, bichoIds: ids });
+  persist(); render();
+}
+function delGrupo(id) {
+  state.grupos = state.grupos.filter((g) => g.id !== id);
+  persist(); render();
+}
+function toggleFormBicho(id) {
+  const atual = formBichoIds();
+  form.bichoIds = atual.includes(id) ? atual.filter((x) => x !== id) : [...atual, id];
+  form.bichosTocado = true; render();
+}
+function toggleFormGrupo(gid) {
+  const g = state.grupos.find((x) => x.id === gid); if (!g) return;
+  const gIds = bichosValidos(g.bichoIds);
+  const atual = formBichoIds();
+  const todos = gIds.every((id) => atual.includes(id));
+  form.bichoIds = todos ? atual.filter((id) => !gIds.includes(id)) : [...new Set([...atual, ...gIds])];
+  form.bichosTocado = true; render();
+}
+function toggleMetaBicho(plannedId, bichoId) {
+  state.plannedItems = state.plannedItems.map((p) => {
+    if (p.id !== plannedId) return p;
+    const cur = bichosValidos(p.bichoIds);
+    return { ...p, bichoIds: cur.includes(bichoId) ? cur.filter((x) => x !== bichoId) : [...cur, bichoId] };
+  });
+  persist(); render();
+}
+
 function addTransaction(e) {
   e.preventDefault();
   if (!form.description.trim() || !form.value || Number(form.value) <= 0) return;
+  if (!form.formaPagamento) { alert("Escolha a forma de pagamento antes de lançar."); return; }
   if (editingTxId) {
     const original = state.transactions.find((t) => t.id === editingTxId);
     if ((original && isDateLocked(original.date)) || isDateLocked(form.date)) { lockedAlert((original && isDateLocked(original.date)) ? original.date : form.date); return; }
   } else if (isDateLocked(form.date)) {
     lockedAlert(form.date); return;
   }
-  const extra = { isCartao: !!form.isCartao, cartaoId: form.isCartao ? (form.cartaoId || null) : null, dueDate: form.isCartao ? (form.dueDate || null) : null, plannedItemId: form.plannedItemId || null };
+  const extra = { isCartao: !!form.isCartao, cartaoId: form.isCartao ? (form.cartaoId || null) : null, dueDate: form.isCartao ? (form.dueDate || null) : null, plannedItemId: form.plannedItemId || null, bichoIds: formBichoIds() };
   if (editingTxId) {
     state.transactions = state.transactions.map((t) =>
       t.id === editingTxId
@@ -797,7 +952,7 @@ function addTransaction(e) {
 }
 
 function emptyForm() {
-  return { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix" };
+  return { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix", bichoIds: [], bichosTocado: false };
 }
 
 function startEditTransaction(id) {
@@ -805,7 +960,7 @@ function startEditTransaction(id) {
   if (!t) return;
   if (isDateLocked(t.date)) { lockedAlert(t.date); return; }
   const formaPagamento = t.cartaoId ? t.cartaoId : (t.isCartao ? "legacy-cartao" : "dinheiro");
-  form = { date: t.date, description: t.description, type: t.type, categoryId: t.categoryId, value: String(t.value), isCartao: !!t.isCartao, cartaoId: t.cartaoId || null, dueDate: t.dueDate || "", plannedItemId: t.plannedItemId || "", formaPagamento };
+  form = { date: t.date, description: t.description, type: t.type, categoryId: t.categoryId, value: String(t.value), isCartao: !!t.isCartao, cartaoId: t.cartaoId || null, dueDate: t.dueDate || "", plannedItemId: t.plannedItemId || "", formaPagamento, bichoIds: Array.isArray(t.bichoIds) ? t.bichoIds : [], bichosTocado: true };
   editingTxId = id;
   state.showForm = true;
   render();
@@ -843,6 +998,8 @@ function deleteCategory(id) {
   persist(); render();
 }
 
+function diaValido(v) { const d = parseInt(v, 10); return d >= 1 && d <= 31 ? d : null; }
+
 function addPlannedItem(e) {
   e.preventDefault();
   if (goalForm.mode === "parcelado") {
@@ -854,17 +1011,17 @@ function addPlannedItem(e) {
         id: uid(), groupId,
         description: `${goalForm.description.trim()} (parcela ${i + 1}/${n})`,
         type: "despesa", categoryId: goalForm.categoryId, value: Number(goalForm.value),
-        mode: "pontual", month: addMonthsToKey(goalForm.installStartMonth, i),
+        mode: "pontual", month: addMonthsToKey(goalForm.installStartMonth, i), diaVencimento: diaValido(goalForm.diaVencimento),
       });
     }
   } else {
     if (!goalForm.description.trim() || !goalForm.value || Number(goalForm.value) <= 0) return;
-    const base = { id: uid(), description: goalForm.description.trim(), type: goalForm.type, categoryId: goalForm.categoryId, value: Number(goalForm.value), mode: goalForm.mode };
+    const base = { id: uid(), description: goalForm.description.trim(), type: goalForm.type, categoryId: goalForm.categoryId, value: Number(goalForm.value), mode: goalForm.mode, diaVencimento: diaValido(goalForm.diaVencimento) };
     const item = goalForm.mode === "pontual" ? { ...base, month: goalForm.month } : { ...base, startMonth: goalForm.startMonth, endMonth: goalForm.endMonth || null };
     state.plannedItems.push(item);
   }
   persist();
-  goalForm.description = ""; goalForm.value = "";
+  goalForm.description = ""; goalForm.value = ""; goalForm.diaVencimento = "";
   render();
 }
 
@@ -922,13 +1079,19 @@ function quickLaunchPlannedItem(id, year, month) {
   if (!p) return;
   const key = `${year}-${pad2(month + 1)}`;
   if (isMonthKeyClosed(key)) { alert(`${monthLabel(key)} está fechado. Reabra o mês pra poder lançar.`); return; }
-  const date = clampDateToPeriod(todayISO, year, month);
-  const looksCartao = /parcela/i.test(p.description) || /cart[aã]o/i.test(p.description);
-  state.transactions.push({
-    id: uid(), date, description: p.description, type: p.type, categoryId: p.categoryId,
-    value: p.value, isCartao: looksCartao, dueDate: null, plannedItemId: p.id,
-  });
-  persist(); render();
+  const row = getMonthComparison(year, month).rows.find((r) => r.id === id);
+  form = {
+    ...emptyForm(),
+    date: clampDateToPeriod(localTodayISO(), year, month),
+    description: p.description, type: p.type, categoryId: p.categoryId,
+    value: String(row ? row.value : p.value),
+    plannedItemId: p.id, formaPagamento: "", fromQuick: true,
+    bichoIds: bichosValidos(p.bichoIds), bichosTocado: false,
+  };
+  editingTxId = null;
+  state.showForm = true;
+  render();
+  document.getElementById("tx-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function archivePlannedItem(id, ctxKey) {
@@ -1008,12 +1171,14 @@ function exportBackup() {
     cartoes: state.cartoes,
     loans: state.loans,
     reservaAportes: state.reservaAportes,
+    bichos: state.bichos,
+    grupos: state.grupos,
     exportedAt: new Date().toISOString(),
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  const dateStr = new Date().toISOString().slice(0, 10);
+  const dateStr = localTodayISO();
   a.href = url;
   a.download = `livro-caixa-backup-${dateStr}.json`;
   document.body.appendChild(a);
@@ -1038,6 +1203,8 @@ function importBackupFile(file) {
       state.cartoes = Array.isArray(parsed.cartoes) ? parsed.cartoes : state.cartoes;
       state.loans = Array.isArray(parsed.loans) ? parsed.loans : state.loans;
       state.reservaAportes = Array.isArray(parsed.reservaAportes) ? parsed.reservaAportes : state.reservaAportes;
+      state.bichos = Array.isArray(parsed.bichos) ? parsed.bichos : state.bichos;
+      state.grupos = Array.isArray(parsed.grupos) ? parsed.grupos : state.grupos;
       persist();
       render();
       alert("Backup importado com sucesso!");
@@ -1149,6 +1316,32 @@ function getPlannerData(withBalance) {
   });
 }
 
+function dueDateFor(p, key) {
+  const d = parseInt(p.diaVencimento, 10);
+  if (!d || d < 1) return null;
+  const [y, m] = key.split("-").map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return `${key}-${pad2(Math.min(d, last))}`;
+}
+function diasAte(dateStr) {
+  const a = new Date(localTodayISO() + "T00:00:00"), b = new Date(dateStr + "T00:00:00");
+  return Math.round((b - a) / 86400000);
+}
+function metaStatus(r) {
+  if (r.finalizado) return { id: "fechada", label: "✓ fechada", cor: C.green, ordem: 5 };
+  if (r.type === "despesa" && r.excedida) return { id: "estourada", label: "estourada", cor: C.red, ordem: 0 };
+  if (!r.lancado && r.dueDate) {
+    const dias = diasAte(r.dueDate), dia = parseInt(r.diaVencimento, 10);
+    if (dias < 0) return { id: "vencida", label: `vencida há ${-dias}d · dia ${dia}`, cor: C.red, ordem: 0, dias };
+    if (dias <= 5) return { id: "vencendo", label: dias === 0 ? "vence hoje" : `vence em ${dias}d · dia ${dia}`, cor: C.brass, ordem: 1, dias };
+    return { id: "pendente", label: `pendente · vence dia ${dia}`, cor: C.brass, ordem: 2 };
+  }
+  if (!r.lancado) return { id: "pendente", label: "pendente", cor: C.brass, ordem: 2 };
+  if (r.type === "receita" && r.excedida) return { id: "acima", label: "acima do previsto", cor: C.green, ordem: 4 };
+  if (r.realizado >= r.value) return { id: "lancada", label: "lançada", cor: C.green, ordem: 4 };
+  return { id: "andamento", label: "em andamento", cor: C.inkSoft, ordem: 3 };
+}
+
 function getMonthComparison(yearOverride, monthOverride) {
   const hasOverride = yearOverride !== undefined && monthOverride !== undefined;
   if (!hasOverride && state.showAll) return null;
@@ -1177,7 +1370,7 @@ function getMonthComparison(yearOverride, monthOverride) {
     // 575 e não muda mais, então a partir daí conta 575.
     const finalizado = !!state.finalizados[noteKey];
     const atualizado = finalizado ? realizado : excedida ? realizado : p.value;
-    return { ...p, realizado, lancado, diff, favoravel, excedida, finalizado, atualizado, noteKey };
+    return { ...p, realizado, lancado, diff, favoravel, excedida, finalizado, atualizado, noteKey, lancamentos: matches, dueDate: dueDateFor(p, key) };
   });
   const naoPrevistos = monthReal.filter((t) => !usedRealIds.has(t.id));
   const naoPrevistosReceita = naoPrevistos.filter((t) => t.type === "receita").reduce((s, t) => s + Number(t.value), 0);
@@ -1218,6 +1411,118 @@ function saldoInicioProjetado(year, month) {
 // ================= RENDER =================
 function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
 
+// ================= GRÁFICOS (SVG puro, responsivos, claro/escuro) =================
+function fmtK(v) {
+  const a = Math.abs(v), sg = v < 0 ? "-" : "";
+  if (a >= 1e6) return sg + (a / 1e6).toFixed(1).replace(".", ",") + " mi";
+  if (a >= 1e3) return sg + (a / 1e3).toFixed(a >= 1e4 ? 0 : 1).replace(".", ",") + " mil";
+  return sg + Math.round(a);
+}
+function niceMax(v) {
+  if (v <= 0) return 1;
+  const e = Math.pow(10, Math.floor(Math.log10(v))), f = v / e;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 4 ? 4 : f <= 6 ? 6 : f <= 8 ? 8 : 10) * e;
+}
+function chartLegend(items) {
+  return `<div class="chart-legend">${items.map((i) => `<span><i style="background:${i.cor}"></i>${esc(i.nome)}</span>`).join("")}</div>`;
+}
+// Barras agrupadas: data = [{label, vals:[...]}], series = [{nome, cor}]
+function svgGroupedBars(data, series) {
+  const W = 640, H = 230, L = 50, R = 8, T = 12, B = 30, iw = W - L - R, ih = H - T - B;
+  const max = niceMax(Math.max(1, ...data.flatMap((d) => d.vals)));
+  const gw = iw / data.length, bw = Math.min(26, (gw * 0.8) / series.length);
+  let g = "";
+  for (let i = 0; i <= 4; i++) {
+    const y = T + ih - (ih * i) / 4;
+    g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" style="stroke:var(--line)" stroke-width="1"/><text x="${L - 6}" y="${y + 3}" text-anchor="end" font-size="10" style="fill:var(--ink-soft)">${fmtK((max * i) / 4)}</text>`;
+  }
+  data.forEach((d, i) => {
+    const x0 = L + gw * i + (gw - bw * series.length) / 2;
+    d.vals.forEach((v, k) => {
+      const h = Math.max(v > 0 ? 1.5 : 0, (v / max) * ih);
+      g += `<rect x="${x0 + bw * k}" y="${T + ih - h}" width="${bw - 2}" height="${h}" rx="2" style="fill:${series[k].cor}"><title>${esc(d.label)} · ${esc(series[k].nome)}: ${brl(v)}</title></rect>`;
+    });
+    g += `<text x="${L + gw * i + gw / 2}" y="${H - 10}" text-anchor="middle" font-size="10" style="fill:var(--ink-soft)">${esc(d.label)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:260px" role="img">${g}</svg>`;
+}
+// Barras empilhadas: data = [{label, vals:[...]}]
+function svgStackedBars(data, series) {
+  const W = 640, H = 230, L = 50, R = 8, T = 12, B = 30, iw = W - L - R, ih = H - T - B;
+  const max = niceMax(Math.max(1, ...data.map((d) => d.vals.reduce((s, v) => s + v, 0))));
+  const gw = iw / data.length, bw = Math.min(44, gw * 0.6);
+  let g = "";
+  for (let i = 0; i <= 4; i++) {
+    const y = T + ih - (ih * i) / 4;
+    g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" style="stroke:var(--line)"/><text x="${L - 6}" y="${y + 3}" text-anchor="end" font-size="10" style="fill:var(--ink-soft)">${fmtK((max * i) / 4)}</text>`;
+  }
+  data.forEach((d, i) => {
+    let acc = 0; const x = L + gw * i + (gw - bw) / 2;
+    d.vals.forEach((v, k) => {
+      if (v <= 0) return;
+      const h = (v / max) * ih, y = T + ih - acc - h; acc += h;
+      g += `<rect x="${x}" y="${y}" width="${bw}" height="${h}" style="fill:${series[k].cor};stroke:var(--paper)" stroke-width="1"><title>${esc(d.label)} · ${esc(series[k].nome)}: ${brl(v)}</title></rect>`;
+    });
+    g += `<text x="${L + gw * i + gw / 2}" y="${H - 10}" text-anchor="middle" font-size="10" style="fill:var(--ink-soft)">${esc(d.label)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:260px" role="img">${g}</svg>`;
+}
+// Linha: pts = [{label, v}]
+function svgLine(pts) {
+  const W = 640, H = 230, L = 56, R = 14, T = 14, B = 30, iw = W - L - R, ih = H - T - B;
+  let mx = Math.max(0, ...pts.map((p) => p.v)), mn = Math.min(0, ...pts.map((p) => p.v));
+  if (mx === mn) mx = mn + 1;
+  const span = niceMax(mx - mn), top = mn + span >= mx ? mn + span : mx;
+  const yOf = (v) => T + ih - ((v - mn) / (top - mn)) * ih;
+  const xOf = (i) => L + (pts.length === 1 ? iw / 2 : (iw * i) / (pts.length - 1));
+  let g = "";
+  for (let i = 0; i <= 4; i++) {
+    const v = mn + ((top - mn) * i) / 4, y = yOf(v);
+    g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" style="stroke:var(--line)"/><text x="${L - 6}" y="${y + 3}" text-anchor="end" font-size="10" style="fill:var(--ink-soft)">${fmtK(v)}</text>`;
+  }
+  g += `<line x1="${L}" x2="${W - R}" y1="${yOf(0)}" y2="${yOf(0)}" style="stroke:var(--ink-soft)" stroke-dasharray="4 3"/>`;
+  const d = pts.map((p, i) => `${i ? "L" : "M"}${xOf(i)},${yOf(p.v)}`).join(" ");
+  g += `<path d="${d} L${xOf(pts.length - 1)},${yOf(0)} L${xOf(0)},${yOf(0)} Z" style="fill:var(--brass);opacity:.12"/>`;
+  g += `<path d="${d}" fill="none" style="stroke:var(--brass)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  const step = Math.ceil(pts.length / 8);
+  pts.forEach((p, i) => {
+    g += `<circle cx="${xOf(i)}" cy="${yOf(p.v)}" r="4" style="fill:${p.v >= 0 ? "var(--green)" : "var(--red)"};stroke:var(--paper)" stroke-width="1.5"><title>${esc(p.label)}: ${brl(p.v)}</title></circle>`;
+    if (i % step === 0 || i === pts.length - 1) g += `<text x="${xOf(i)}" y="${H - 10}" text-anchor="middle" font-size="10" style="fill:var(--ink-soft)">${esc(p.label)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:260px" role="img">${g}</svg>`;
+}
+// Rosca: items = [{nome, cor, val}] — agrupa o excedente em "Outros"
+function donutChart(items, centro) {
+  const MAXF = 7;
+  let list = [...items].filter((i) => i.val > 0).sort((a, b) => b.val - a.val);
+  if (list.length > MAXF) {
+    const resto = list.slice(MAXF - 1).reduce((s, i) => s + i.val, 0);
+    list = [...list.slice(0, MAXF - 1), { nome: "Outros", cor: "#94A3B8", val: resto }];
+  }
+  const total = list.reduce((s, i) => s + i.val, 0);
+  if (total <= 0) return "";
+  const R = 70, CIRC = 2 * Math.PI * R;
+  let off = 0, arcs = "";
+  list.forEach((i) => {
+    const len = (i.val / total) * CIRC;
+    arcs += `<circle cx="100" cy="100" r="${R}" fill="none" style="stroke:${i.cor}" stroke-width="30" stroke-dasharray="${len} ${CIRC - len}" stroke-dashoffset="${-off}" transform="rotate(-90 100 100)"><title>${esc(i.nome)}: ${brl(i.val)} (${((i.val / total) * 100).toFixed(0)}%)</title></circle>`;
+    off += len;
+  });
+  const svg = `<svg viewBox="0 0 200 200" style="width:200px;height:200px;flex-shrink:0" role="img">${arcs}<text x="100" y="96" text-anchor="middle" font-size="10" style="fill:var(--ink-soft)">${esc(centro)}</text><text x="100" y="114" text-anchor="middle" font-size="15" font-weight="700" style="fill:var(--ink)">${brl(total)}</text></svg>`;
+  const leg = list.map((i) => `<div class="donut-row"><span><i style="background:${i.cor}"></i>${esc(i.nome)}</span><span><b>${brl(i.val)}</b> <span class="muted">${((i.val / total) * 100).toFixed(0)}%</span></span></div>`).join("");
+  return `<div class="donut-wrap">${svg}<div class="donut-legend">${leg}</div></div>`;
+}
+// Projetado × realizado (barras horizontais pareadas): items = [{nome, plan, real}]
+function pairedBars(items, tipo) {
+  const max = Math.max(1, ...items.flatMap((i) => [i.plan, i.real]));
+  const bom = tipo === "receita" ? C.green : C.red;
+  let h = `<div class="chart-legend"><span><i style="background:var(--line)"></i>Projetado</span><span><i style="background:${bom}"></i>Realizado</span></div>`;
+  items.forEach((i) => {
+    h += `<div class="bar-chart-row" title="${esc(i.nome)}: projetado ${brl(i.plan)} · realizado ${brl(i.real)}"><span class="bar-chart-label pb-label">${esc(i.nome)}</span><span class="bar-chart-track" style="height:20px;background:transparent;"><span class="bar-chart-fill" style="height:9px;margin-bottom:2px;width:${(i.plan / max) * 100}%;background:var(--line)"></span><span class="bar-chart-fill" style="height:9px;width:${(i.real / max) * 100}%;background:${bom}"></span></span><span class="bar-chart-value pb-value">${brl(i.real)} <span class="muted">/ ${brl(i.plan)}</span></span></div>`;
+  });
+  return h;
+}
+
 // ================= RELATÓRIOS =================
 function mesesComDados() {
   return getPlannerMonths().filter((pm) => transactionsInPeriod(state.transactions, pm.year, pm.month).length > 0);
@@ -1238,7 +1543,7 @@ function buildRelatoriosHTML() {
   // "emprestimos" fica de fora da lista visível de propósito — é uma aba discreta, acessada só pelo ponto nas reticências.
   const abas = [
     ["geral", "📋 Visão geral"], ["categorias", "🏷️ Categorias"], ["metas", "🎯 Metas"],
-    ["cartao", "💳 Faturas"], ["calendario", "📅 Calendário"], ["evolucao", "📈 Evolução do saldo"],
+    ["cartao", "💳 Faturas"], ["calendario", "📅 Calendário"], ["evolucao", "📈 Evolução do saldo"], ["bichos", "🐾 Bichos"],
   ];
   abas.forEach(([id, label]) => { html += `<button class="report-nav-btn ${state.reportTab === id ? "active" : ""}" data-action="set-report-tab" data-report="${id}">${label}</button>`; });
   html += `<button class="report-nav-btn ${state.reportTab === "emprestimos" ? "active" : ""}" data-action="set-report-tab" data-report="emprestimos" title="." style="margin-left:auto;opacity:0.35;padding:6px 10px;">···</button>`;
@@ -1250,6 +1555,7 @@ function buildRelatoriosHTML() {
   else if (state.reportTab === "cartao") html += reportCartao();
   else if (state.reportTab === "calendario") html += reportCalendario();
   else if (state.reportTab === "evolucao") html += reportEvolucao();
+  else if (state.reportTab === "bichos") html += reportBichos();
   else if (state.reportTab === "emprestimos") html += reportEmprestimos();
 
   html += `</div></div>`;
@@ -1259,7 +1565,7 @@ function buildRelatoriosHTML() {
 // ---------- Visão geral: taxa de poupança + reserva de emergência ----------
 function reportGeral() {
   const historico = dadosMensaisHistorico();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = localTodayISO();
   const realAteHoje = state.transactions.filter((t) => cashKey(t) >= "2026-08-27" && cashKey(t) <= todayStr);
   const saldoAtual = (() => { const b = computeRunningBalance(realAteHoje); return b.length ? b[b.length - 1].balance : 0; })();
   const mediaDespesa = historico.length ? historico.reduce((s, m) => s + m.despesa, 0) / historico.length : 0;
@@ -1275,6 +1581,12 @@ function reportGeral() {
   h += `<div class="kpi-card"><p class="kpi-label">📊 Taxa de poupança média</p><p class="kpi-value" style="color:${taxaMedia === null ? C.inkSoft : taxaMedia >= 0 ? C.green : C.red}">${taxaMedia === null ? "—" : taxaMedia.toFixed(1) + "%"}</p><p class="hint" style="margin:4px 0 0;">quanto da receita sobrou, em média</p></div>`;
   h += `</div>`;
 
+  if (historico.length > 0) {
+    h += `<div class="chart-box"><p class="panel-title" style="margin-top:0;">Receitas × despesas por mês</p>`;
+    h += chartLegend([{ nome: "Receitas", cor: "var(--green)" }, { nome: "Despesas", cor: "var(--red)" }]);
+    h += svgGroupedBars(historico.map((m) => ({ label: m.label, vals: [m.receita, m.despesa] })), [{ nome: "Receitas", cor: "var(--green)" }, { nome: "Despesas", cor: "var(--red)" }]);
+    h += `</div>`;
+  }
   h += `<p class="panel-title">Taxa de poupança por mês</p>`;
   if (historico.length === 0) {
     h += `<p class="hint">Ainda não há lançamentos reais pra calcular histórico.</p>`;
@@ -1296,27 +1608,42 @@ function reportCategorias() {
   if (!state.reportCatMonth || !historico.some((m) => m.key === state.reportCatMonth)) {
     state.reportCatMonth = historico.length ? historico[historico.length - 1].key : null;
   }
-  let h = `<p class="panel-title">Distribuição de despesas por categoria</p>`;
+  const tipo = state.reportCatTipo === "receita" ? "receita" : "despesa";
+  let h = `<p class="panel-title">Distribuição por categoria</p>`;
   if (!state.reportCatMonth) return h + `<p class="hint">Ainda não há lançamentos reais.</p>`;
-  h += `<label class="field-label" style="max-width:220px;margin-bottom:14px;">Mês<select class="field" id="report-cat-month">`;
+  h += `<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;">`;
+  h += `<label class="field-label" style="max-width:220px;margin:0;">Mês<select class="field" id="report-cat-month">`;
   historico.forEach((m) => { h += `<option value="${m.key}" ${state.reportCatMonth === m.key ? "selected" : ""}>${m.label}</option>`; });
-  h += `</select></label>`;
+  h += `</select></label><div>`;
+  [["despesa", "📉 Despesas"], ["receita", "📈 Receitas"]].forEach(([v, l]) => { h += `<button class="btn ${tipo === v ? "btn-primary" : "btn-outline"}" style="font-size:12px;padding:6px 12px;margin-right:4px;" data-action="set-cat-tipo" data-value="${v}">${l}</button>`; });
+  h += `</div></div>`;
 
   const [y, mo] = state.reportCatMonth.split("-").map(Number);
-  const tx = transactionsInPeriod(state.transactions, y, mo - 1).filter((t) => t.type === "despesa");
-  const total = tx.reduce((s, t) => s + Number(t.value), 0);
+  const tx = transactionsInPeriod(state.transactions, y, mo - 1).filter((t) => t.type === tipo);
   const porCat = {};
   tx.forEach((t) => { porCat[t.categoryId] = (porCat[t.categoryId] || 0) + Number(t.value); });
-  const linhas = Object.entries(porCat).map(([catId, val]) => {
-    const cat = catById(catId);
-    return { nome: cat ? cat.name : "Outros", cor: cat ? cat.color : C.inkSoft, val, pct: total > 0 ? (val / total) * 100 : 0 };
-  }).sort((a, b) => b.val - a.val);
+  const itens = Object.entries(porCat).map(([catId, val]) => { const cat = catById(catId); return { nome: cat ? cat.name : "Outros", cor: cat ? cat.color : "#94A3B8", val }; });
+  if (itens.length === 0) return h + `<p class="hint">Sem ${tipo === "despesa" ? "despesas" : "receitas"} nesse mês.</p>`;
+  h += `<div class="chart-box">${donutChart(itens, tipo === "despesa" ? "Total de despesas" : "Total de receitas")}</div>`;
 
-  if (linhas.length === 0) return h + `<p class="hint">Sem despesas nesse mês.</p>`;
-  linhas.forEach((l) => {
-    h += `<div class="bar-chart-row"><span class="bar-chart-label">${esc(l.nome)}</span><span class="bar-chart-track"><span class="bar-chart-fill" style="width:${Math.max(2, l.pct)}%;background:${l.cor}"></span></span><span class="bar-chart-value">${brl(l.val)} (${l.pct.toFixed(0)}%)</span></div>`;
-  });
-  h += `<p class="hint" style="margin-top:10px;">Total do mês: ${brl(total)}</p>`;
+  // comparação com os meses anteriores (barras empilhadas por categoria)
+  const idx = historico.findIndex((m) => m.key === state.reportCatMonth);
+  const janela = historico.slice(Math.max(0, idx - 5), idx + 1);
+  if (janela.length >= 2) {
+    const totaisCat = {};
+    const dadosMes = janela.map((m) => {
+      const [yy, mm] = m.key.split("-").map(Number);
+      const por = {};
+      transactionsInPeriod(state.transactions, yy, mm - 1).filter((t) => t.type === tipo).forEach((t) => { por[t.categoryId] = (por[t.categoryId] || 0) + Number(t.value); totaisCat[t.categoryId] = (totaisCat[t.categoryId] || 0) + Number(t.value); });
+      return { label: m.label, por };
+    });
+    const top = Object.entries(totaisCat).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([id]) => id);
+    const series = top.map((id) => { const c = catById(id); return { nome: c ? c.name : "Outros", cor: c ? c.color : "#94A3B8" }; });
+    series.push({ nome: "Demais", cor: "#94A3B8" });
+    const data = dadosMes.map((m) => { const vals = top.map((id) => m.por[id] || 0); vals.push(Object.entries(m.por).filter(([id]) => !top.includes(id)).reduce((s, [, v]) => s + v, 0)); return { label: m.label, vals }; });
+    if (!data.some((d) => d.vals[d.vals.length - 1] > 0)) { series.pop(); data.forEach((d) => d.vals.pop()); }
+    h += `<div class="chart-box"><p class="panel-title" style="margin-top:0;">Evolução por categoria (até 6 meses)</p>${chartLegend(series)}${svgStackedBars(data, series)}</div>`;
+  }
   return h;
 }
 
@@ -1336,7 +1663,11 @@ function reportMetas() {
   const estouros = [...lista].filter((x) => x.diff > 0).sort((a, b) => b.diff - a.diff).slice(0, 10);
   const folgadas = [...lista].filter((x) => x.diff < 0).sort((a, b) => a.diff - b.diff).slice(0, 10);
 
-  let h = `<p class="panel-title">🚨 Hall da vergonha — metas que mais estouram (acumulado)</p>`;
+  const graf = (tipo, titulo) => {
+    const it = lista.filter((x) => x.type === tipo).sort((a, b) => b.meta - a.meta).slice(0, 10).map((x) => ({ nome: x.description, plan: x.meta, real: x.real }));
+    return it.length ? `<div class="chart-box"><p class="panel-title" style="margin-top:0;">${titulo}</p>${pairedBars(it, tipo)}</div>` : "";
+  };
+  let h = graf("despesa", "Despesas — projetado × realizado (acumulado, 10 maiores)") + graf("receita", "Receitas — projetado × realizado (acumulado)") + `<p class="panel-title">🚨 Hall da vergonha — metas que mais estouram (acumulado)</p>`;
   if (estouros.length === 0) h += `<p class="hint">Nenhuma meta estourou até agora. 🎉</p>`;
   else {
     h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Meta</th><th>Meses</th><th>Planejado (soma)</th><th>Realizado (soma)</th><th>Diferença</th></tr></thead><tbody>`;
@@ -1368,7 +1699,7 @@ function reportCalendario() {
   const [y, mo] = state.reportCalMonth.split("-").map(Number);
   const month = mo - 1;
   const { start, end } = getPeriodBounds(y, month);
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = localTodayISO();
 
   let h = `<p class="panel-title">📅 Calendário do mês</p>`;
   h += `<label class="field-label" style="max-width:220px;margin-bottom:14px;">Mês<select class="field" id="report-cal-month">`;
@@ -1438,7 +1769,7 @@ function reportCalendario() {
 }
 
 function reportCartao() {
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = localTodayISO();
   const compras = state.transactions.filter((t) => t.isCartao && t.dueDate);
   if (compras.length === 0) return `<p class="panel-title">💳 Faturas</p><p class="hint">Nenhuma compra no cartão lançada ainda.</p>`;
   const porVenc = {};
@@ -1473,19 +1804,77 @@ function reportEvolucao() {
   bal.forEach((t) => { porMes[cashKey(t).slice(0, 7)] = t.balance; });
   const chaves = Object.keys(porMes).sort();
   if (chaves.length === 0) return `<p class="panel-title">📈 Evolução do saldo</p><p class="hint">Ainda sem lançamentos reais.</p>`;
-  const max = Math.max(1, ...chaves.map((k) => Math.abs(porMes[k])));
   let h = `<p class="panel-title">📈 Evolução do saldo acumulado (fim de cada mês)</p>`;
-  h += `<div class="planner-bars">`;
-  chaves.forEach((k) => {
-    const v = porMes[k];
-    const alt = Math.max(2, (Math.abs(v) / max) * 120);
-    const [yy, mm] = k.split("-").map(Number);
-    h += `<div class="planner-col" title="${monthLabel(k)}: ${brl(v)}"><div class="bars"><div class="bar" style="height:${alt}px;background:${v >= 0 ? C.green : C.red}"></div></div><div class="lbl">${MESES[mm - 1]}/${String(yy).slice(2)}</div></div>`;
-  });
-  h += `</div>`;
+  h += `<div class="chart-box">${svgLine(chaves.map((k) => { const [yy, mm] = k.split("-").map(Number); return { label: `${MESES[mm - 1]}/${String(yy).slice(2)}`, v: porMes[k] }; }))}</div>`;
   h += `<div class="table-wrap" style="margin-top:14px;"><table><thead><tr><th style="text-align:left">Mês</th><th>Saldo acumulado</th></tr></thead><tbody>`;
   [...chaves].reverse().forEach((k) => { h += `<tr><td style="text-align:left">${monthLabel(k)}</td><td class="bold" style="color:${porMes[k] >= 0 ? C.green : C.red}">${brl(porMes[k])}</td></tr>`; });
   h += `</tbody></table></div>`;
+  return h;
+}
+
+// ---------- Bichos: quanto cada um custou (despesas etiquetadas, a partir de nov/2026) ----------
+function reportBichos() {
+  let h = `<p class="panel-title">🐾 Gastos por bicho</p>`;
+  if (state.bichos.length === 0) return h + `<p class="hint">Cadastre os bichos em <strong>Planejamento → ⚙️ Configurar → 🐾 Bichos</strong> e etiquete os lançamentos a partir de novembro/2026.</p>`;
+  h += `<p class="hint" style="margin-top:0;">Considera só despesas etiquetadas a partir de 01/11/2026. Quando há mais de um bicho no lançamento, o valor é dividido igualmente.</p>`;
+  const meses = getPlannerMonths().filter((pm) => pm.key >= ETIQUETA_INICIO.slice(0, 7));
+  const porMes = meses.map((pm) => {
+    const tx = transactionsInPeriod(state.transactions, pm.year, pm.month);
+    const tot = {}; const semEtiqueta = { val: 0 };
+    tx.filter((t) => t.type === "despesa").forEach((t) => {
+      const partes = partesPorBicho(t);
+      if (partes.length === 0) { return; }
+      partes.forEach((x) => { tot[x.bichoId] = (tot[x.bichoId] || 0) + x.parte; });
+    });
+    return { ...pm, tot, total: Object.values(tot).reduce((s, v) => s + v, 0), tx };
+  });
+  const comDados = porMes.filter((m) => m.total > 0);
+  if (comDados.length === 0) return h + `<p class="hint">Ainda não há despesas etiquetadas com bichos.</p>`;
+
+  // acumulado
+  const acum = {}; comDados.forEach((m) => Object.entries(m.tot).forEach(([id, v]) => { acum[id] = (acum[id] || 0) + v; }));
+  const acumLinhas = Object.entries(acum).map(([id, v]) => ({ b: bichoById(id), v })).filter((x) => x.b).sort((a, b) => b.v - a.v);
+  const totalAcum = acumLinhas.reduce((s, x) => s + x.v, 0);
+  h += `<p class="panel-title" style="margin-top:14px;">Acumulado desde novembro/2026 — ${brl(totalAcum)}</p>`;
+  acumLinhas.forEach((x) => {
+    const pct = totalAcum > 0 ? (x.v / totalAcum) * 100 : 0;
+    h += `<div class="bar-chart-row"><span class="bar-chart-label">${esc(x.b.nome)}</span><span class="bar-chart-track"><span class="bar-chart-fill" style="width:${Math.max(2, pct)}%;background:${x.b.cor}"></span></span><span class="bar-chart-value">${brl(x.v)} (${pct.toFixed(0)}%)</span></div>`;
+  });
+
+  // por mês
+  const ids = acumLinhas.map((x) => x.b.id);
+  if (comDados.length >= 1) {
+    const ser = acumLinhas.map((x) => ({ nome: x.b.nome, cor: x.b.cor }));
+    h += `<div class="chart-box" style="margin-top:14px;"><p class="panel-title" style="margin-top:0;">Gasto por mês, por bicho</p>${chartLegend(ser)}${svgStackedBars(comDados.map((m) => ({ label: m.label, vals: acumLinhas.map((x) => m.tot[x.b.id] || 0) })), ser)}</div>`;
+  }
+  h += `<p class="panel-title" style="margin-top:20px;">Mês a mês</p>`;
+  h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Mês</th>${ids.map((id) => `<th>${esc(bichoById(id).nome)}</th>`).join("")}<th>Total</th></tr></thead><tbody>`;
+  [...comDados].reverse().forEach((m) => {
+    h += `<tr><td style="text-align:left">${m.label}</td>${ids.map((id) => `<td>${m.tot[id] ? brl(m.tot[id]) : "—"}</td>`).join("")}<td class="bold red">${brl(m.total)}</td></tr>`;
+  });
+  h += `</tbody></table></div>`;
+
+  // detalhe: lançamentos de um mês (e de um bicho)
+  if (!state.reportBichoMonth || !comDados.some((m) => m.key === state.reportBichoMonth)) state.reportBichoMonth = comDados[comDados.length - 1].key;
+  h += `<p class="panel-title" style="margin-top:20px;">Detalhe dos lançamentos</p>`;
+  h += `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">`;
+  h += `<label class="field-label" style="max-width:200px;">Mês<select class="field" id="report-bicho-month">${comDados.map((m) => `<option value="${m.key}" ${state.reportBichoMonth === m.key ? "selected" : ""}>${m.label}</option>`).join("")}</select></label>`;
+  h += `<label class="field-label" style="max-width:200px;">Bicho<select class="field" id="report-bicho-sel"><option value="todos">Todos</option>${state.bichos.map((b) => `<option value="${b.id}" ${state.reportBichoSel === b.id ? "selected" : ""}>${esc(b.nome)}</option>`).join("")}</select></label></div>`;
+  const mSel = comDados.find((m) => m.key === state.reportBichoMonth);
+  const linhas = [];
+  mSel.tx.filter((t) => t.type === "despesa").forEach((t) => {
+    partesPorBicho(t).forEach((x) => { if (state.reportBichoSel === "todos" || state.reportBichoSel === x.bichoId) linhas.push({ t, x }); });
+  });
+  linhas.sort((a, b) => a.t.date.localeCompare(b.t.date));
+  if (linhas.length === 0) h += `<p class="hint">Nenhum lançamento para essa seleção.</p>`;
+  else {
+    h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Data</th><th style="text-align:left">Descrição</th><th style="text-align:left">Bicho</th><th>Valor do lançamento</th><th>Parte do bicho</th></tr></thead><tbody>`;
+    linhas.forEach(({ t, x }) => {
+      const b = bichoById(x.bichoId);
+      h += `<tr><td style="text-align:left">${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</td><td style="text-align:left">${esc(t.description)}</td><td style="text-align:left"><span class="bicho-tag" style="--bc:${esc(b.cor)}">${esc(b.nome)}</span></td><td class="muted">${brl(t.value)}</td><td class="bold red">${brl(x.parte)}</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+  }
   return h;
 }
 
@@ -1504,7 +1893,7 @@ function reportEmprestimos() {
       const pagamentos = l.pagamentos || [];
       const saldo = saldoDevedorLoan(l);
       const pctPago = l.parcelasTotais > 0 ? (pagamentos.length / l.parcelasTotais) * 100 : 0;
-      if (!newPagamento[l.id]) newPagamento[l.id] = { date: new Date().toISOString().slice(0, 10), valor: String(l.parcela) };
+      if (!newPagamento[l.id]) newPagamento[l.id] = { date: localTodayISO(), valor: String(l.parcela) };
       const np = newPagamento[l.id];
       const temManual = l.saldoDevedorManual !== null && l.saldoDevedorManual !== undefined;
       h += `<div class="panel" style="margin-bottom:10px;">`;
@@ -1661,26 +2050,39 @@ function render() {
     html += `<div class="card"><p class="label">Líquido do mês (realizado + a realizar)</p><p class="value" style="color:${projecaoMes.liquidoMes >= 0 ? C.green : C.red}">${projecaoMes.liquidoMes >= 0 ? "+" : ""}${brl(projecaoMes.liquidoMes)}</p></div>`;
     html += `<div class="card" style="border-color:${C.brass};border-width:2px;"><p class="label brass-text">Saldo final projetado</p><p class="value bold" style="color:${projecaoMes.saldoFinal >= 0 ? C.green : C.red};font-size:17px;">${brl(projecaoMes.saldoFinal)}</p></div>`;
     html += `</div>`;
-    html += `<p class="hint" style="margin:8px 0 0;">O saldo inicial já é projetado, não só o realizado: encadeia o "Atualizado" de cada mês anterior desde setembro/2026, então se um mês passado ainda tiver contas em aberto, isso já reflete aqui. O líquido do mês soma o que já entrou/saiu (inclusive não previstos) com o que ainda está planejado e não foi lançado.</p>`;
+    html += `<details class="more"><summary>ⓘ como é calculado</summary><p class="hint" style="margin:8px 0 0;">O saldo inicial já é projetado, não só o realizado: encadeia a "Previsão do mês" de cada mês anterior desde setembro/2026, então se um mês passado ainda tiver contas em aberto, isso já reflete aqui. O líquido do mês soma o que já entrou/saiu (inclusive não previstos) com o que ainda está planejado e não foi lançado.</p></details>`;
     html += `</div>`;
   }
 
-  // Ações
-  html += `<div class="actions">`;
-  html += `<button class="btn btn-primary" data-action="toggle-form">➕ ${state.showForm ? "Fechar" : "Novo lançamento"}</button>`;
-  html += `<button class="btn btn-outline" data-action="toggle-cat">🏷️ Categorias</button>`;
-  html += `<button class="btn btn-brass" data-action="toggle-goals">🎯 ${state.showGoalsManager ? "Fechar metas" : "Editar metas"}</button>`;
-  html += `<button class="btn btn-outline" data-action="toggle-card-manager">💳 ${state.showCardManager ? "Fechar cartões" : "Cartões"}</button>`;
-  html += `<button class="btn btn-outline" data-action="export-backup">💾 Exportar backup</button>`;
-  html += `<button class="btn btn-outline" data-action="import-backup">📂 Importar backup</button>`;
-  html += `<input type="file" id="import-file-input" accept="application/json" style="display:none" />`;
+  // Áreas: Projeções (planejado x realizado, por meta) e Lançamentos (o que de fato aconteceu)
+  html += `<div class="area-nav">`;
+  html += `<button class="area-btn ${state.area === "projecoes" ? "active" : ""}" data-action="set-area" data-area="projecoes">🎯 Projeções<small>metas × realizado</small></button>`;
+  html += `<button class="area-btn ${state.area === "lancamentos" ? "active" : ""}" data-action="set-area" data-area="lancamentos">🧾 Lançamentos<small>o que já aconteceu</small></button>`;
   html += `</div>`;
+  html += `<div class="toolbar">`;
+  html += `<button class="btn btn-primary" data-action="toggle-form">➕ ${state.showForm ? "Fechar" : "Novo lançamento"}</button>`;
+  html += `<span class="spacer"></span>`;
+  html += `<button class="btn btn-outline" data-action="toggle-cfg">⚙️ Configurar ${state.showCfg ? "▴" : "▾"}</button>`;
+  html += `</div>`;
+  if (state.showCfg) {
+    html += `<div class="cfg-panel">`;
+    html += `<button class="btn btn-brass" data-action="toggle-goals">🎯 ${state.showGoalsManager ? "Fechar metas" : "Editar metas"}</button>`;
+    html += `<button class="btn btn-outline" data-action="toggle-cat">🏷️ Categorias</button>`;
+    html += `<button class="btn btn-outline" data-action="toggle-bicho-manager">🐾 ${state.showBichoManager ? "Fechar bichos" : "Bichos"}</button>`;
+    html += `<button class="btn btn-outline" data-action="toggle-card-manager">💳 ${state.showCardManager ? "Fechar cartões" : "Cartões"}</button>`;
+    html += `<button class="btn btn-outline" data-action="export-backup">💾 Exportar backup</button>`;
+    html += `<button class="btn btn-outline" data-action="import-backup">📂 Importar backup</button>`;
+    html += `</div>`;
+  }
+  html += `<input type="file" id="import-file-input" accept="application/json" style="display:none" />`;
 
   // Formulário de lançamento
   if (state.showForm) {
     html += `<form class="grid cols-6-md panel" id="tx-form" style="margin-bottom:16px;">`;
     if (editingTxId) {
       html += `<p class="panel-title span-6" style="grid-column:span 6;color:var(--brass-text)">✏️ Editando lançamento</p>`;
+    } else if (form.fromQuick) {
+      html += `<p class="panel-title span-6" style="grid-column:span 6;color:var(--brass-text)">⚡ Lançamento rápido — confira a data e escolha a forma de pagamento</p>`;
     }
     html += `<select class="field span-1" id="tx-type"><option value="despesa" ${form.type === "despesa" ? "selected" : ""}>Despesa</option><option value="receita" ${form.type === "receita" ? "selected" : ""}>Receita</option></select>`;
     html += `<input type="date" class="field span-1" id="tx-date" min="2026-01-01" max="2027-12-31" value="${form.date}" />`;
@@ -1694,12 +2096,13 @@ function render() {
     const listaMetasForm = [...metasVigentes];
     const foraDeVigencia = !!(metaAtual && !metasVigentes.some((p) => p.id === metaAtual.id));
     if (foraDeVigencia) listaMetasForm.push(metaAtual); // mantém a etiqueta atual visível ao editar lançamento antigo
-    html += `<label class="field-label span-2">Meta (opcional) — vigentes em ${monthLabel(planKeyForDate(form.date))}<select class="field" id="tx-meta"><option value="">— Não previsto —</option>`;
+    let metaHtml = `<label class="field-label span-3">Meta (opcional) — vigentes em ${monthLabel(planKeyForDate(form.date))}<select class="field" id="tx-meta"><option value="">— Não previsto —</option>`;
     listaMetasForm.forEach((p) => {
-      html += `<option value="${p.id}" ${form.plannedItemId === p.id ? "selected" : ""}>${esc(p.description)}${foraDeVigencia && p.id === metaAtual.id ? " (fora de vigência neste mês)" : ""}</option>`;
+      metaHtml += `<option value="${p.id}" ${form.plannedItemId === p.id ? "selected" : ""}>${esc(p.description)}${foraDeVigencia && p.id === metaAtual.id ? " (fora de vigência neste mês)" : ""}</option>`;
     });
-    html += `</select></label>`;
+    metaHtml += `</select></label>`;
     html += `<label class="field-label span-2">Forma de pagamento<select class="field" id="tx-forma">
+      ${form.formaPagamento === "" ? `<option value="" selected disabled>— Escolha —</option>` : ""}
       <option value="pix" ${form.formaPagamento === "pix" ? "selected" : ""}>🔵 Pix</option>
       <option value="dinheiro" ${form.formaPagamento === "dinheiro" ? "selected" : ""}>💵 Dinheiro</option>`;
     state.cartoes.forEach((c) => { html += `<option value="${c.id}" ${form.formaPagamento === c.id ? "selected" : ""}>${c.icone} Cartão ${esc(c.nome)}</option>`; });
@@ -1709,7 +2112,19 @@ function render() {
       html += `<label class="field-label span-2">Vencimento da fatura<input type="date" class="field" id="tx-duedate" value="${form.dueDate}" /></label>`;
       html += `<p class="hint span-2" style="margin:0;grid-column:span 2;">📇 A Data acima é o dia real da compra — ela impacta a meta/categoria no mês em que você <strong>consumiu</strong>. Já o Vencimento decide o mês em que essa despesa pesa no <strong>saldo/caixa</strong> (Saldo geral e Cartão em aberto). Preenchido automaticamente pelo dia de vencimento cadastrado do cartão — pode ajustar se precisar.</p>`;
     }
-    html += `<label class="span-${form.isCartao ? 2 : 4}" style="font-size:11px;color:${C.inkSoft};display:flex;align-items:center;">Dica: várias descrições diferentes (ração, areia, petiscos...) podem apontar pra mesma meta (ex: "Pets") — o sistema sugere sozinho quando reconhece a descrição ou quando só existe uma meta naquela categoria.</label>`;
+    let bichosHtml = "";
+    if (state.bichos.length > 0 && form.type === "despesa") {
+      const sel = formBichoIds();
+      bichosHtml += `<div class="span-6" style="grid-column:span 6;"><p class="hint" style="margin:0 0 4px;">🐾 Bichos deste gasto${!form.bichosTocado && sel.length ? " (herdado da meta)" : ""} — vários = valor dividido igualmente</p><div class="bicho-row">`;
+      state.grupos.forEach((g) => { const gi = bichosValidos(g.bichoIds); const on = gi.length > 0 && gi.every((id) => sel.includes(id)); bichosHtml += `<button type="button" class="bicho-chip grupo ${on ? "on" : ""}" data-action="form-grupo" data-id="${g.id}">${esc(g.nome)}</button>`; });
+      state.bichos.forEach((b) => { bichosHtml += `<button type="button" class="bicho-chip ${sel.includes(b.id) ? "on" : ""}" style="--bc:${esc(b.cor)}" data-action="form-bicho" data-id="${b.id}">${esc(b.nome)}</button>`; });
+      bichosHtml += `</div></div>`;
+    }
+    const dicaHtml = `<label class="span-6" style="font-size:11px;color:${C.inkSoft};display:flex;align-items:center;">Dica: várias descrições diferentes (ração, areia, petiscos...) podem apontar pra mesma meta (ex: "Pets") — o sistema sugere sozinho quando reconhece a descrição ou quando só existe uma meta naquela categoria.</label>`;
+    const _pi = state.plannedItems.find((x) => x.id === form.plannedItemId);
+    const _bn = formBichoIds().map((id) => bichoById(id).nome);
+    html += `<div class="span-6" style="grid-column:span 6;display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><button type="button" class="btn btn-outline" style="font-size:12px;padding:4px 10px;" data-action="toggle-form-mais">${state.formMais ? "▴ Menos opções" : "▾ Mais opções"}</button><span class="hint" style="margin:0;">Projeção: <strong>${_pi ? esc(_pi.description) : "não prevista"}</strong>${_bn.length ? ` · Bichos: <strong>${esc(_bn.join(", "))}</strong>` : ""}</span></div>`;
+    if (state.formMais) { html += metaHtml; html += bichosHtml; html += dicaHtml; }
     if (editingTxId) {
       html += `<button type="button" class="btn btn-outline span-1" data-action="cancel-edit-tx">Cancelar</button>`;
       html += `<button type="submit" class="btn btn-submit span-1">Salvar</button>`;
@@ -1717,6 +2132,31 @@ function render() {
       html += `<button type="submit" class="btn btn-submit span-2">Lançar</button>`;
     }
     html += `</form>`;
+  }
+
+  // Gerenciador de bichos e grupos
+  if (state.showBichoManager) {
+    html += `<div class="panel">`;
+    html += `<p class="panel-title">🐾 Bichos e grupos</p>`;
+    html += `<p class="hint" style="margin-top:0;">Cadastre cada bicho e, se quiser, grupos (ex.: "Gatas") para etiquetar vários de uma vez. Num lançamento com mais de um bicho, o valor é dividido igualmente. As etiquetas contam nos relatórios a partir de 01/11/2026.</p>`;
+    if (state.bichos.length === 0) html += `<p class="hint">Nenhum bicho cadastrado ainda.</p>`;
+    else {
+      html += `<div class="bicho-row" style="margin-bottom:10px;">`;
+      state.bichos.forEach((b) => { html += `<span class="bicho-tag" style="--bc:${esc(b.cor)};font-size:12px;padding:3px 10px;">${esc(b.nome)} <button class="del-btn" data-action="del-bicho" data-id="${b.id}" title="Excluir">✕</button></span>`; });
+      html += `</div>`;
+    }
+    html += `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;"><input type="text" class="field" id="bicho-nome" placeholder="Nome do bicho" style="width:200px;" /><input type="color" id="bicho-cor" value="#7C3AED" style="width:42px;height:34px;border:none;background:none;" /><button class="btn btn-brass" data-action="add-bicho">➕ Adicionar bicho</button></div>`;
+    html += `<p class="panel-title" style="font-size:13px;">Grupos</p>`;
+    if (state.grupos.length === 0) html += `<p class="hint" style="margin-top:0;">Nenhum grupo criado.</p>`;
+    state.grupos.forEach((g) => {
+      html += `<div class="naoprevisto-row"><span><strong>${esc(g.nome)}</strong> <span class="muted">${bichosValidos(g.bichoIds).map((id) => esc(bichoById(id).nome)).join(", ")}</span></span><button class="del-btn" data-action="del-grupo" data-id="${g.id}" title="Excluir grupo">🗑️</button></div>`;
+    });
+    if (state.bichos.length >= 2) {
+      html += `<div style="margin-top:8px;"><input type="text" class="field" id="grupo-nome" placeholder="Nome do grupo (ex.: Gatas)" style="width:200px;display:inline-block;margin-right:8px;" />`;
+      state.bichos.forEach((b) => { html += `<label style="font-size:12px;margin-right:8px;white-space:nowrap;"><input type="checkbox" class="grupo-bicho" value="${b.id}" /> ${esc(b.nome)}</label>`; });
+      html += `<button class="btn btn-outline" data-action="add-grupo" style="margin-left:4px;">➕ Criar grupo</button></div>`;
+    }
+    html += `</div>`;
   }
 
   // Gerenciador de categorias
@@ -1819,6 +2259,7 @@ function render() {
       html += `<label class="field-label span-3">1ª parcela em<input type="month" class="field" id="goal-install-start" value="${goalForm.installStartMonth}" /></label>`;
       html += `<p class="hint span-6" style="margin:2px 0 0;">Lança o valor da parcela informado acima neste mês e nos seguintes, até completar o total de parcelas.</p>`;
     }
+    html += `<label class="field-label span-6">Vence dia do mês (opcional — deixe vazio se acontece ao longo do mês)<input type="number" min="1" max="31" class="field" id="goal-dia" placeholder="ex.: 10" value="${goalForm.diaVencimento}" style="max-width:140px;" /></label>`;
     html += `<button type="submit" class="btn btn-submit span-6">Adicionar meta</button>`;
     html += `</form></div>`;
   }
@@ -1827,6 +2268,27 @@ function render() {
   if (monthComparison) {
     const mcKey = monthComparison.key;
     const fechamento = state.fechamentos[mcKey];
+    if (state.area === "projecoes") {
+    {
+      const saldoReal = monthComparison.totalRealizadoReceita - monthComparison.totalRealizadoDespesa;
+      const previsao = saldoReal + monthComparison.aReceber - monthComparison.aPagar;
+      const nPend = monthComparison.rows.filter((r) => !r.lancado).length;
+      const nEst = monthComparison.rows.filter((r) => r.type === "despesa" && r.excedida).length;
+      const venc = monthComparison.rows.map((r) => ({ r, st: metaStatus(r) })).filter((x) => x.st.id === "vencida" || x.st.id === "vencendo").sort((a, b) => a.st.dias - b.st.dias);
+      if (venc.length > 0) {
+        html += `<div class="panel" style="border-color:${venc.some((x) => x.st.id === "vencida") ? C.red : C.brass};margin-bottom:12px;"><p class="panel-title" style="margin:0 0 6px;">⏰ Vencimentos que pedem atenção</p>`;
+        venc.forEach(({ r, st }) => {
+          html += `<div class="naoprevisto-row"><span><strong>${esc(r.description)}</strong> <span class="st-tag" style="color:${st.cor}">${st.label}</span></span><span style="display:flex;align-items:center;gap:8px;"><span class="${r.type === "receita" ? "green" : "red"}">${brl(r.value)}</span>${isMonthKeyClosed(monthComparison.key) ? "" : `<button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" data-action="quick-launch" data-id="${r.id}" data-year="${state.selectedYear}" data-month="${state.selectedMonth}">⚡ Lançar</button>`}</span></div>`;
+        });
+        html += `</div>`;
+      }
+      html += `<div class="kpi-row">`;
+      html += `<div class="kpi-mini"><p class="l">Saldo realizado no mês</p><p class="v" style="color:${saldoReal >= 0 ? C.green : C.red}">${brl(saldoReal)}</p><p class="s">receitas − despesas já lançadas</p></div>`;
+      html += `<div class="kpi-mini"><p class="l">A receber</p><p class="v green">${brl(monthComparison.aReceber)}</p><p class="s">falta entrar</p></div>`;
+      html += `<div class="kpi-mini"><p class="l">A pagar</p><p class="v red">${brl(monthComparison.aPagar)}</p><p class="s">${nPend} projeção(ões) sem lançamento${nEst ? ` · ${nEst} estourada(s)` : ""}</p></div>`;
+      html += `<div class="kpi-mini destaque"><p class="l brass-text">Previsão de fechamento</p><p class="v" style="color:${previsao >= 0 ? C.green : C.red}">${brl(previsao)}</p><p class="s">saldo realizado + a receber − a pagar</p></div>`;
+      html += `</div>`;
+    }
     html += `<div class="panel">`;
     html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">`;
     html += `<p class="panel-title" style="margin:0;">Planejado × Realizado — ${MESES[state.selectedMonth]}/${String(state.selectedYear).slice(2)}`;
@@ -1861,7 +2323,7 @@ function render() {
     categoriasNoMes.forEach((c) => { html += `<option value="${c.id}" ${state.filtroCategoria === c.id ? "selected" : ""}>${c.name}</option>`; });
     html += `</select></div>`;
     html += `<div><span class="hint" style="margin:0 8px 0 0;">Status:</span>`;
-    [["todos", "Todos"], ["fechado", "Fechados"], ["aberto", "Abertos"]].forEach(([v, label]) => {
+    [["todos", "Todas"], ["atencao", "Atenção"], ["pendente", "Pendentes"], ["fechado", "Fechadas"]].forEach(([v, label]) => {
       html += `<button class="btn ${state.filtroStatus === v ? "btn-primary" : "btn-outline"}" style="font-size:11px;padding:4px 9px;margin-right:4px;" data-action="set-filtro-status" data-value="${v}">${label}</button>`;
     });
     html += `</div>`;
@@ -1873,58 +2335,102 @@ function render() {
       const totalAtualizado = isReceita ? monthComparison.totalAtualizadoReceita : monthComparison.totalAtualizadoDespesa;
       const totalRealizado = isReceita ? monthComparison.totalRealizadoReceita : monthComparison.totalRealizadoDespesa;
       const naoPrevistoVal = isReceita ? monthComparison.naoPrevistosReceita : monthComparison.naoPrevistosDespesa;
+      const pendente = isReceita ? monthComparison.aReceber : monthComparison.aPagar;
       const colorClass = isReceita ? "green" : "red";
-      const sectionId = `${monthComparison.key}-${type}`;
-      const isExpanded = !!state.expanded[sectionId];
+      const mesFechado = isMonthKeyClosed(monthComparison.key);
       const rowsFiltradas = rows
         .filter((r) => state.filtroCategoria === "todas" || r.categoryId === state.filtroCategoria)
-        .filter((r) => state.filtroStatus === "todos" || (state.filtroStatus === "fechado" ? r.finalizado : !r.finalizado));
+        .filter((r) => state.filtroStatus === "todos" || (state.filtroStatus === "fechado" ? r.finalizado : state.filtroStatus === "atencao" ? ["estourada", "vencida", "vencendo"].includes(metaStatus(r).id) : metaStatus(r).id === state.filtroStatus))
+        .map((r, i) => ({ r, i, o: metaStatus(r).ordem }))
+        .sort((a, b) => a.o - b.o || a.i - b.i)
+        .map((x) => x.r);
       const filtroAtivo = state.filtroCategoria !== "todas" || state.filtroStatus !== "todos";
-      let h = `<p class="panel-title" style="margin-top:${isReceita ? "0" : "16px"};">${isReceita ? "📈 Receitas" : "📉 Despesas"}</p>`;
-      if (isReceita) {
-        h += `<div class="card" style="margin-bottom:10px;"><p class="label">📥 A receber (planejado, ainda não lançado)</p><p class="value green">${brl(monthComparison.aReceber)}</p></div>`;
-      } else {
-        h += `<div class="card" style="margin-bottom:10px;"><p class="label">📤 A pagar (saldo prudente da meta)</p><p class="value red">${brl(monthComparison.aPagar)}</p></div>`;
+      const pctGeral = totalAtualizado > 0 ? Math.min(100, (totalRealizado / totalAtualizado) * 100) : 0;
+
+      let h = `<div class="proj-section">`;
+      h += `<div class="proj-head"><p class="panel-title" style="margin:0;font-size:14px;">${isReceita ? "📈 Receitas" : "📉 Despesas"} <span class="muted" style="font-weight:400;">· ${rows.length} meta(s)</span></p>`;
+      h += `<div class="proj-stats">`;
+      h += `<div><span>Planejado</span><b class="muted">${brl(totalPlanejado)}</b></div>`;
+      h += `<div><span>Previsão do mês</span><b class="${colorClass}">${brl(totalAtualizado)}</b></div>`;
+      h += `<div><span>Realizado</span><b class="${colorClass}">${brl(totalRealizado)}</b></div>`;
+      h += `<div><span>${isReceita ? "A receber" : "A pagar"}</span><b>${brl(pendente)}</b></div>`;
+      h += `</div></div>`;
+      h += `<div class="progress-track" style="margin-bottom:8px;"><div class="progress-fill" style="width:${pctGeral}%;background:${isReceita ? C.green : C.red};"></div></div>`;
+      if (naoPrevistoVal > 0) {
+        h += `<p class="hint" style="margin:0 0 8px;">Realizado e Previsão do mês incluem <strong>${brl(naoPrevistoVal)}</strong> de lançamentos não previstos (listados mais abaixo).</p>`;
       }
       if (rows.length === 0) {
-        h += `<p class="hint" style="margin:0 0 10px;">Nenhuma meta de ${isReceita ? "receita" : "despesa"} cadastrada para este mês.</p>`;
+        h += `<p class="hint" style="margin:0 0 10px;">Nenhuma meta de ${isReceita ? "receita" : "despesa"} cadastrada para este mês.</p></div>`;
         return h;
       }
-      // Visão gerencial: só os totais, sem os lançamentos linha a linha.
-      h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left"></th><th>Planejado</th><th>Atualizado</th><th>Realizado</th></tr></thead><tbody>`;
-      h += `<tr><td style="text-align:left">Metas cadastradas (${rows.length})</td><td class="muted">${brl(totalPlanejado)}</td><td class="${colorClass}">${brl(rows.reduce((s, r) => s + r.atualizado, 0))}</td><td class="${colorClass}">${brl(rows.reduce((s, r) => s + r.realizado, 0))}</td></tr>`;
-      if (naoPrevistoVal > 0) {
-        h += `<tr><td style="text-align:left">+ Não previstos</td><td class="muted">—</td><td class="muted">${brl(naoPrevistoVal)}</td><td class="${colorClass}">${brl(naoPrevistoVal)}</td></tr>`;
+      if (filtroAtivo) {
+        h += `<p class="hint" style="margin:0 0 6px;">Filtro ativo: mostrando ${rowsFiltradas.length} de ${rows.length} metas.</p>`;
       }
-      h += `<tr><td class="bold" style="text-align:left">Total ${isReceita ? "receitas" : "despesas"}</td><td class="bold muted">${brl(totalPlanejado)}</td><td class="bold ${colorClass}">${brl(totalAtualizado)}</td><td class="bold ${colorClass}">${brl(totalRealizado)}</td></tr>`;
-      h += `</tbody></table></div>`;
-      h += `<button class="btn btn-outline" style="margin-top:8px;font-size:12px;padding:5px 10px;" data-action="toggle-section" data-section="${sectionId}">${isExpanded ? "▲ Ocultar lançamentos" : `▾ Ver os ${rows.length} lançamentos`}</button>`;
+      if (rowsFiltradas.length === 0) {
+        h += `<p class="hint" style="text-align:center;padding:10px;">Nenhuma meta nesse filtro.</p>`;
+      }
 
-      if (isExpanded) {
-        if (filtroAtivo) {
-          h += `<p class="hint" style="margin:6px 0 0;">Filtro ativo: mostrando ${rowsFiltradas.length} de ${rows.length} itens.</p>`;
-        }
-        h += `<div class="table-wrap" style="margin-top:10px;"><table><thead><tr><th style="text-align:left">Item</th><th>Planejado</th><th>Atualizado</th><th>Realizado</th><th>Diferença</th><th title="Trava o Atualizado no valor lançado, mesmo abaixo da meta">Fechado?</th><th style="text-align:left">Observação</th></tr></thead><tbody>`;
-        if (rowsFiltradas.length === 0) {
-          h += `<tr><td colspan="7" class="muted" style="text-align:center;padding:12px;">Nenhum item nesse filtro.</td></tr>`;
-        }
-        rowsFiltradas.forEach((r) => {
-          h += `<tr><td style="text-align:left;color:${C.ink}">${esc(r.description)}${!r.lancado ? ` <span class="italic brass-text">(ainda não lançado)</span> ${isMonthKeyClosed(monthComparison.key) ? "" : `<button class="del-btn" data-action="quick-launch" data-id="${r.id}" data-year="${state.selectedYear}" data-month="${state.selectedMonth}" title="Lançar agora pelo valor da meta (${brl(r.value)})">⚡ Lançar</button>`}` : ""}${r.finalizado ? ` <span class="badge" style="background:var(--badge-green)">✓ fechado</span>` : ""} <button class="del-btn" data-action="archive-goal" data-id="${r.id}" data-month="${monthComparison.key}" title="Arquivar meta (deixa de valer a partir do mês seguinte)">📦</button></td>`;
+      rowsFiltradas.forEach((r) => {
+        const sid = `meta-${r.noteKey}`;
+        const open = !!state.expanded[sid];
+        const alvo = r.atualizado > 0 ? r.atualizado : r.value;
+        const pct = alvo > 0 ? Math.min(100, (r.realizado / alvo) * 100) : 0;
+        const barColor = r.excedida ? (isReceita ? C.green : C.red) : (r.finalizado || (r.lancado && r.realizado >= r.value)) ? C.green : C.brass;
+        const qtd = r.lancamentos.length;
+        const stt = metaStatus(r);
+        h += `<div class="meta-card st-${stt.id}">`;
+        h += `<div class="meta-top" data-action="toggle-section" data-section="${sid}">`;
+        h += `<div class="meta-title"><span class="muted">${open ? "▾" : "▸"}</span>${esc(r.description)} <span class="st-tag" style="color:${stt.cor}">${stt.label}</span>`;
+        if (r.overridden) h += ` <span class="badge" style="background:var(--badge-brass)">só este mês</span>`;
+        h += `</div><div class="meta-nums"><span class="muted">${brl(r.value)}</span><span class="muted">→</span><b style="color:${r.lancado ? C.ink : C.inkSoft}">${r.lancado ? brl(r.realizado) : "—"}</b>`;
+        if (r.lancado) h += `<b style="color:${r.favoravel ? C.green : C.red};font-size:11px;">${r.diff >= 0 ? "+" : ""}${brl(r.diff)}</b>`;
+        h += `<span class="muted" style="font-size:11px;">${qtd} lanç.</span></div></div>`;
+        h += `<div class="meta-bar"><div class="progress-track" style="height:6px;"><div class="progress-fill" style="width:${pct}%;background:${barColor}"></div></div></div>`;
+
+        if (open) {
+          h += `<div class="meta-detail"><div class="meta-tools">`;
           if (state.editingOverride === `${monthComparison.key}|${r.id}`) {
-            h += `<td style="white-space:nowrap;"><input type="number" step="0.01" min="0" class="note-input" id="ov-input" style="width:90px;text-align:right;" value="${r.value}" title="Novo valor da meta só para ${monthLabel(monthComparison.key)}" /> <button class="del-btn" data-action="ov-save" title="Salvar (só neste mês)">✓</button><button class="del-btn" data-action="ov-cancel" title="Cancelar">✕</button></td>`;
+            h += `<span>Meta só de ${monthLabel(monthComparison.key)}: <input type="number" step="0.01" min="0" class="note-input" id="ov-input" style="width:90px;text-align:right;" value="${r.value}" /></span><button class="del-btn" data-action="ov-save" title="Salvar (só neste mês)">✓</button><button class="del-btn" data-action="ov-cancel" title="Cancelar">✕</button>`;
           } else {
-            h += `<td class="muted" style="white-space:nowrap;">${brl(r.value)}${r.overridden ? ` <span class="badge" style="background:var(--badge-brass)" title="Valor base: ${brl(r.baseValue)}">só este mês</span>` : ""} ${isMonthKeyClosed(monthComparison.key)
-              ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
-              : `<button class="del-btn" data-action="ov-edit" data-id="${r.id}" data-month="${monthComparison.key}" title="Editar a meta só deste mês">✏️</button>${r.overridden ? `<button class="del-btn" data-action="ov-reset" data-id="${r.id}" data-month="${monthComparison.key}" title="Voltar ao valor base (${brl(r.baseValue)})">↺</button>` : ""}`}</td>`;
+            h += `<span>Meta do mês: <b>${brl(r.value)}</b>${r.overridden ? ` <span class="muted">(base ${brl(r.baseValue)})</span>` : ""}</span>`;
+            if (mesFechado) h += `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`;
+            else {
+              h += `<button class="del-btn" data-action="ov-edit" data-id="${r.id}" data-month="${monthComparison.key}" title="Editar a meta só deste mês">✏️</button>`;
+              if (r.overridden) h += `<button class="del-btn" data-action="ov-reset" data-id="${r.id}" data-month="${monthComparison.key}" title="Voltar ao valor base">↺</button>`;
+            }
           }
-          h += `<td class="${r.finalizado ? "bold green" : r.excedida ? "bold brass-text" : "muted"}">${brl(r.atualizado)}</td>`;
-          h += `<td style="color:${r.lancado ? C.ink : C.inkSoft}">${r.lancado ? brl(r.realizado) : "—"}</td>`;
-          h += `<td class="bold" style="color:${!r.lancado ? C.inkSoft : r.favoravel ? C.green : C.red}">${r.lancado ? `${r.diff >= 0 ? "+" : ""}${brl(r.diff)}` : "—"}</td>`;
-          h += `<td><input type="checkbox" data-action="toggle-finalizado" data-notekey="${r.noteKey}" ${r.finalizado ? "checked" : ""} title="Marcar como valor final do mês (não vai mudar mais)" /></td>`;
-          h += `<td style="text-align:left"><input type="text" class="note-input" placeholder="anotar..." data-action="edit-note" data-notekey="${r.noteKey}" value="${esc(state.notes[r.noteKey] || "")}" /></td></tr>`;
-        });
-        h += `</tbody></table></div>`;
-      }
+          h += `<label style="display:inline-flex;align-items:center;gap:4px;" title="Trava a previsão no valor lançado, mesmo abaixo da projeção"><input type="checkbox" data-action="toggle-finalizado" data-notekey="${r.noteKey}" ${r.finalizado ? "checked" : ""} /> Valor final</label>`;
+          if (!r.lancado && !mesFechado) h += `<button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" data-action="quick-launch" data-id="${r.id}" data-year="${state.selectedYear}" data-month="${state.selectedMonth}" title="Lançar pelo valor da meta">⚡ Lançar ${brl(r.value)}</button>`;
+          h += `<button class="del-btn" data-action="archive-goal" data-id="${r.id}" data-month="${monthComparison.key}" title="Arquivar meta (deixa de valer a partir do mês seguinte)">📦 arquivar</button>`;
+          h += `</div>`;
+          h += `<div class="meta-tools" style="margin-bottom:8px;"><label style="display:inline-flex;align-items:center;gap:6px;">Vence dia <input type="number" min="1" max="31" class="note-input" style="width:56px;" placeholder="—" data-action="edit-goal-dia" data-id="${r.id}" value="${r.diaVencimento || ""}" /> <span class="muted">(vazio = ao longo do mês)</span></label></div>`;
+          if (state.bichos.length > 0 && !isReceita) {
+            const pb = bichosValidos((state.plannedItems.find((x) => x.id === r.id) || {}).bichoIds);
+            h += `<div class="bicho-row" style="margin-bottom:8px;"><span class="hint" style="margin:0;">🐾 Bichos desta projeção (herdados pelos novos lançamentos):</span>`;
+            state.bichos.forEach((b) => { h += `<button type="button" class="bicho-chip ${pb.includes(b.id) ? "on" : ""}" style="--bc:${esc(b.cor)}" data-action="toggle-meta-bicho" data-id="${r.id}" data-bicho="${b.id}">${esc(b.nome)}</button>`; });
+            h += `</div>`;
+          }
+          h += `<input type="text" class="note-input" style="margin-bottom:8px;" placeholder="anotar..." data-action="edit-note" data-notekey="${r.noteKey}" value="${esc(state.notes[r.noteKey] || "")}" />`;
+
+          h += `<p class="panel-title" style="margin:0 0 4px;">Lançamentos vinculados (${qtd})</p>`;
+          if (qtd === 0) {
+            h += `<p class="hint" style="margin:0;">Nenhum lançamento vinculado a esta meta neste mês.</p>`;
+          } else {
+            [...r.lancamentos].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => {
+              const dataCurta = new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+              h += `<div class="naoprevisto-row"><span><span class="muted">${dataCurta}</span> ${esc(t.description)}${bichoChips(t)}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>` : ""}</span>`;
+              h += `<span style="display:flex;align-items:center;gap:8px;"><span style="color:${isReceita ? C.green : C.red}">${isReceita ? "+" : "-"}${brl(t.value)}</span>`;
+              if (isDateLocked(t.date)) h += `<span class="muted" title="Mês fechado">🔒</span>`;
+              else h += `<button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button><button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button>`;
+              h += `</span></div>`;
+            });
+            h += `<div class="naoprevisto-row" style="border-bottom:none;"><span class="bold">Total realizado</span><span class="bold ${colorClass}">${brl(r.realizado)}</span></div>`;
+          }
+          h += `</div>`;
+        }
+        h += `</div>`;
+      });
+      h += `</div>`;
       return h;
     };
 
@@ -1934,12 +2440,15 @@ function render() {
     const saldoP = monthComparison.totalPlanejadoReceita - monthComparison.totalPlanejadoDespesa;
     const saldoA = monthComparison.totalAtualizadoReceita - monthComparison.totalAtualizadoDespesa;
     const saldoR = monthComparison.totalRealizadoReceita - monthComparison.totalRealizadoDespesa;
-    html += `<div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th style="text-align:left">Saldo do mês (receitas − despesas)</th><th>Planejado</th><th>Atualizado</th><th>Realizado</th></tr></thead><tbody>`;
+    html += `<div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th style="text-align:left">Saldo do mês (receitas − despesas)</th><th>Planejado</th><th>Previsão do mês</th><th>Realizado</th></tr></thead><tbody>`;
     html += `<tr><td style="text-align:left" class="bold">Total</td><td class="bold muted">${brl(saldoP)}</td><td class="bold" style="color:${saldoA >= 0 ? C.green : C.red}">${brl(saldoA)}</td><td class="bold" style="color:${saldoR >= 0 ? C.green : C.red}">${brl(saldoR)}</td></tr>`;
     html += `</tbody></table></div>`;
-    html += `<p class="hint" style="margin-top:6px;">"Atualizado" é a meta, mas substituída pelo valor real quando ele já foi lançado e ultrapassou a meta (destacado em dourado) — itens abaixo da meta ou ainda não lançados continuam com o valor original. Os não previstos entram no "Atualizado" e no "Realizado" de cada tabela.</p>`;
+    html += `<details class="more"><summary>ⓘ como é calculado</summary><p class="hint" style="margin-top:6px;">"Previsão do mês" é a projeção, mas substituída pelo valor real quando ele já foi lançado e ultrapassou a meta (destacado em dourado) — itens abaixo da meta ou ainda não lançados continuam com o valor original. Os não previstos entram na "Previsão do mês" e no "Realizado" de cada tabela.</p></details>`;
     html += `</div>`;
+    }
 
+    if (state.area === "lancamentos") {
+    html += `<div class="proj-head"><p class="panel-title" style="margin:0;font-size:14px;">🧾 Lançamentos — ${MESES[state.selectedMonth]}/${String(state.selectedYear).slice(2)}</p><span class="muted" style="font-size:12px;">receitas <b class="green">${brl(monthComparison.totalRealizadoReceita)}</b> · despesas <b class="red">${brl(monthComparison.totalRealizadoDespesa)}</b></span></div>`;
     if (monthComparison.naoPrevistos.length > 0) {
       const npReceitas = monthComparison.naoPrevistos.filter((t) => t.type === "receita");
       const npDespesas = monthComparison.naoPrevistos.filter((t) => t.type === "despesa");
@@ -1950,7 +2459,7 @@ function render() {
         let h = `<p class="panel-title" style="margin:${isReceita ? "0" : "14px"} 0 6px;">${isReceita ? "📈 Receitas" : "📉 Despesas"} não previstas (${list.length})</p>`;
         list.forEach((t) => {
           const cat = catById(t.categoryId);
-          h += `<div class="naoprevisto-row"><span>${esc(t.description)}${cat ? ` <span class="muted">(${cat.name})</span>` : ""}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳 cartão${t.dueDate ? " · vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</span>`;
+          h += `<div class="naoprevisto-row"><span>${esc(t.description)}${bichoChips(t)}${cat ? ` <span class="muted">(${cat.name})</span>` : ""}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳 cartão${t.dueDate ? " · vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</span>`;
           h += `<span style="display:flex;align-items:center;gap:8px;"><span style="color:${isReceita ? C.green : C.red}">${isReceita ? "+" : "-"}${brl(t.value)}</span>`;
           if (isDateLocked(t.date)) {
             h += `<span class="muted" title="Mês fechado — reabra para editar">🔒</span></span></div>`;
@@ -1965,7 +2474,7 @@ function render() {
       };
       html += `<div class="panel brass">`;
       html += `<p class="panel-title">⚠️ Não previstos (${monthComparison.naoPrevistos.length}) — já contam no saldo projetado</p>`;
-      html += `<p class="hint" style="margin-top:0;">Esses lançamentos não bateram com nenhuma meta cadastrada, mas o valor deles já está somado na coluna <strong>Atualizado</strong> da tabela acima e no <strong>saldo projetado</strong> do topo da página — não precisa fazer nada com eles, a projeção já reflete a realidade.</p>`;
+      html += `<details class="more"><summary>ⓘ como é calculado</summary><p class="hint" style="margin-top:0;">Esses lançamentos não bateram com nenhuma meta cadastrada, mas o valor deles já está somado na coluna <strong>Previsão do mês</strong> da tabela acima e no <strong>saldo projetado</strong> do topo da página — não precisa fazer nada com eles, a projeção já reflete a realidade.</p></details>`;
       html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">`;
       html += `<span class="bold">
           <span class="green">+${brl(monthComparison.naoPrevistosReceita)}</span> ·
@@ -1987,7 +2496,7 @@ function render() {
 
     // Lista completa e detalhada de todos os lançamentos reais do período (batendo ou não com metas)
     const realSectionId = `real-${monthComparison.key}`;
-    const realExpanded = !!state.expanded[realSectionId];
+    const realExpanded = state.expanded[realSectionId] !== false;
     html += `<div class="panel">`;
     html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">`;
     html += `<p class="panel-title" style="margin:0;">Todos os lançamentos reais do período (${monthComparison.allReal.length})</p>`;
@@ -1998,20 +2507,24 @@ function render() {
     if (monthComparison.allReal.length === 0) {
       html += `<p class="hint" style="margin:8px 0 0;">Nenhum lançamento real ainda neste período.</p>`;
     } else if (realExpanded) {
-      html += `<div class="table-wrap" style="margin-top:10px;"><table><thead><tr><th style="text-align:left">Data</th><th style="text-align:left">Descrição</th><th style="text-align:left">Categoria</th><th></th><th>Valor</th><th></th></tr></thead><tbody>`;
-      [...monthComparison.allReal].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => {
-        const cat = catById(t.categoryId);
-        const meta = t.plannedItemId ? state.plannedItems.find((p) => p.id === t.plannedItemId) : null;
-        html += `<tr><td style="text-align:left">${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</td>`;
-        html += `<td style="text-align:left">${esc(t.description)}${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}</td>`;
-        html += `<td style="text-align:left"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span></td>`;
-        html += `<td style="text-align:left">${t.isCartao ? `<span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR") : ""}</span>` : ""}</td>`;
-        html += `<td style="color:${t.type === "receita" ? C.green : C.red}">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</td>`;
-        html += `<td>${isDateLocked(t.date)
-          ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
-          : `<button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button> <button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button>`}</td></tr>`;
+      html += `<div style="margin-top:10px;">`;
+      const porDia = {};
+      [...monthComparison.allReal].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => { (porDia[t.date] = porDia[t.date] || []).push(t); });
+      Object.keys(porDia).sort().forEach((dia) => {
+        const itens = porDia[dia];
+        const liq = itens.reduce((s2, t) => s2 + (t.type === "receita" ? Number(t.value) : -Number(t.value)), 0);
+        const dd = new Date(dia + "T00:00:00");
+        html += `<div class="day-head"><span class="bold">${pad2(dd.getDate())}/${pad2(dd.getMonth() + 1)} <span class="muted">${DIAS_SEMANA[dd.getDay()]}</span></span><span style="color:${liq >= 0 ? C.green : C.red}">${liq >= 0 ? "+" : ""}${brl(liq)}</span></div>`;
+        itens.forEach((t) => {
+          const cat = catById(t.categoryId);
+          const meta = t.plannedItemId ? state.plannedItems.find((p) => p.id === t.plannedItemId) : null;
+          html += `<div class="tx-row"><div class="tx-main"><div>${esc(t.description)}${bichoChips(t)}</div><div class="tx-sub"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span>${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>` : ""}</div></div>`;
+          html += `<div class="tx-side"><span style="color:${t.type === "receita" ? C.green : C.red};font-weight:600;">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</span>${isDateLocked(t.date)
+            ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
+            : `<span><button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button><button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></span>`}</div></div>`;
+        });
       });
-      html += `</tbody></table></div>`;
+      html += `</div>`;
     }
     html += `</div>`;
 
@@ -2071,7 +2584,8 @@ function render() {
       }
       html += `</div>`;
     }
-  } else {
+    }
+  } else if (state.area === "lancamentos") {
     // ANO: ledger completo
     const anoSectionId = "ledger-ano";
     const anoExpanded = !!state.expanded[anoSectionId];
@@ -2100,7 +2614,7 @@ function render() {
   }
 
   // Gráficos de categoria (barras em CSS puro) — despesas e receitas lado a lado
-  if (catBreakdown.length > 0 || catBreakdownReceita.length > 0) {
+  if (state.area === "lancamentos" && (catBreakdown.length > 0 || catBreakdownReceita.length > 0)) {
     html += `<div class="charts-section" style="margin-top:20px;padding-top:0;border-top:none;"><div style="display:grid;grid-template-columns:1fr;gap:20px;">`;
     if (catBreakdown.length > 0) {
       const maxCat = Math.max(...catBreakdown.map((c) => c.total));
@@ -2124,9 +2638,10 @@ function render() {
   }
 
   // Planejador estendido (barras em CSS puro)
+  if (state.area === "projecoes") {
   html += `<div class="charts-section">`;
   html += `<p class="panel-title">Planejador · setembro/2026 a dezembro/2027</p>`;
-  html += `<p class="hint">Esse gráfico e a tabela usam a meta como referência — mas se o real lançado no mês (incluindo os não previstos) já excedeu a meta, o valor exibido sobe automaticamente para o total real. Meses futuros refletem apenas o que estiver cadastrado como meta em "Editar metas".</p>`;
+  html += `<details class="more"><summary>ⓘ como é calculado</summary><p class="hint">Esse gráfico e a tabela usam a meta como referência — mas se o real lançado no mês (incluindo os não previstos) já excedeu a meta, o valor exibido sobe automaticamente para o total real. Meses futuros refletem apenas o que estiver cadastrado como meta em "Editar metas".</p></details>`;
   html += `<div class="legend"><span><i style="background:${C.green}"></i>Receitas</span><span><i style="background:${C.red}"></i>Despesas</span></div>`;
   const maxPlanner = Math.max(1, ...plannerData.map((p) => Math.max(p.receitas, p.despesas)));
   html += `<div class="planner-bars">`;
@@ -2148,8 +2663,8 @@ function render() {
       <th rowspan="2" style="vertical-align:bottom;">Acumulado</th>
     </tr>
     <tr>
-      <th style="font-size:9px;">Original</th><th style="font-size:9px;">Atualizado</th><th style="font-size:9px;">Executado</th>
-      <th style="font-size:9px;">Original</th><th style="font-size:9px;">Atualizado</th><th style="font-size:9px;">Executado</th>
+      <th style="font-size:9px;">Original</th><th style="font-size:9px;">Previsão</th><th style="font-size:9px;">Executado</th>
+      <th style="font-size:9px;">Original</th><th style="font-size:9px;">Previsão</th><th style="font-size:9px;">Executado</th>
     </tr>
   </thead><tbody>`;
   plannerData.forEach((pm) => {
@@ -2164,8 +2679,10 @@ function render() {
     html += `<td class="bold" style="color:${pm.saldoAcumulado >= 0 ? C.green : C.red}">${brl(pm.saldoAcumulado)}</td></tr>`;
   });
   html += `</tbody></table></div>`;
-  html += `<p class="hint" style="margin-top:6px;"><strong>Original</strong>: a meta cadastrada. <strong>Atualizado</strong>: usado nos cálculos — vira igual ao executado quando ele supera a meta. <strong>Executado</strong>: soma real do que já foi lançado no mês (— quando ainda não há nada lançado).</p>`;
+  html += `<details class="more"><summary>ⓘ como ler esta tabela</summary><p class="hint" style="margin-top:6px;"><strong>Original</strong>: a meta cadastrada. <strong>Previsão do mês</strong>: usado nos cálculos — vira igual ao executado quando ele supera a meta. <strong>Executado</strong>: soma real do que já foi lançado no mês (— quando ainda não há nada lançado).</p></details>`;
   html += `</div>`;
+
+  }
 
   html += `</div></div>`; // fecha content e body-panel
 
@@ -2185,7 +2702,83 @@ function saveOverrideFromInput() {
 
 let listenersInitialized = false;
 
+// ================= ÍCONES VETORIAIS =================
+// Os textos do sistema usam emojis; depois de cada render, trocamos por ícones SVG de traço
+// (herdam a cor do texto, funcionam no modo escuro e ficam nítidos em qualquer tamanho).
+const ICON_PATHS = {
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  gear: '<circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"/><path d="M9 8h6M9 12h6"/>',
+  paw: '<circle cx="6" cy="11" r="1.8"/><circle cx="10" cy="6.5" r="1.8"/><circle cx="14" cy="6.5" r="1.8"/><circle cx="18" cy="11" r="1.8"/><path d="M8 17c0-2.5 2-4 4-4s4 1.5 4 4c0 2-1.5 2.5-4 2.5S8 19 8 17Z"/>',
+  tag: '<path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1"/>',
+  card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+  save: '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/>',
+  folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+  up: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  down: '<path d="M3 7l6 6 4-4 8 8"/><path d="M15 17h6v-6"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  list: '<path d="M8 4h8v3H8Z"/><path d="M6 5H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-1"/><path d="M9 12h6M9 16h6"/>',
+  bars: '<path d="M5 21V10M12 21V4M19 21v-8"/>',
+  file: '<path d="M6 2h8l6 6v14H6Z"/><path d="M14 2v6h6M9 13h6M9 17h6"/>',
+  spark: '<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z"/>',
+  alert: '<path d="M12 3l10 18H2Z"/><path d="M12 10v5M12 18h.01"/>',
+  checkc: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  wallet: '<path d="M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M3 7l2-3h12"/><path d="M16 13h3"/>',
+  buoy: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/>',
+  bank: '<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9 10v8M15 10v8M19 10v8M3 21h18"/>',
+  lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7Z"/>',
+  archive: '<path d="M3 4h18v4H3Z"/><path d="M5 8v12h14V8M10 12h4"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M3 13h18"/>',
+  pin: '<path d="M12 17v5M9 3h6l-1 6 3 4H7l3-4Z"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  money: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/>',
+  cash: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',
+  refresh: '<path d="M20 11a8 8 0 0 0-14-4L4 9"/><path d="M4 4v5h5"/><path d="M4 13a8 8 0 0 0 14 4l2-2"/><path d="M20 20v-5h-5"/>',
+  dot: '<circle cx="12" cy="12" r="6"/>',
+  ruler: '<path d="M3 17L17 3l4 4L7 21Z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>',
+};
+const EMOJI_ICON = {
+  "🗑": "trash", "💳": "card", "📈": "up", "🐾": "paw", "✏": "edit", "✅": "checkc", "🔒": "lock", "📦": "archive",
+  "📋": "list", "🏷": "tag", "🎯": "target", "📅": "calendar", "📆": "calendar", "💰": "wallet", "⚠": "alert", "➕": "plus",
+  "⚡": "bolt", "💼": "briefcase", "📊": "bars", "⚙": "gear", "🧾": "receipt", "🛟": "buoy", "🚨": "alert", "🎉": "spark",
+  "🔮": "spark", "💸": "money", "🕓": "clock", "🕐": "clock", "⏰": "clock", "🏦": "bank", "📌": "pin", "🔄": "refresh",
+  "📐": "ruler", "💾": "save", "📂": "folder", "🔵": "dot", "💵": "cash", "📇": "list", "📄": "file", "📉": "down",
+};
+const EMOJI_RE = new RegExp("(" + Object.keys(EMOJI_ICON).join("|") + ")\\uFE0F?", "g");
+function iconSVG(name) {
+  return `<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON_PATHS[name]}</svg></span>`;
+}
+function iconize(root) {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(n) {
+      if (!n.nodeValue || !EMOJI_RE.test(n.nodeValue)) { EMOJI_RE.lastIndex = 0; return NodeFilter.FILTER_REJECT; }
+      EMOJI_RE.lastIndex = 0;
+      const tag = n.parentNode && n.parentNode.nodeName.toLowerCase();
+      return ["option", "script", "style", "textarea", "title", "text"].includes(tag) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach((n) => {
+    const frag = document.createDocumentFragment();
+    let last = 0, m; const txt = n.nodeValue; EMOJI_RE.lastIndex = 0;
+    while ((m = EMOJI_RE.exec(txt))) {
+      if (m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+      const tpl = document.createElement("template"); tpl.innerHTML = iconSVG(EMOJI_ICON[m[1]]);
+      frag.appendChild(tpl.content.firstChild);
+      last = m.index + m[0].length;
+    }
+    if (last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+    n.parentNode.replaceChild(frag, n);
+  });
+}
+
 function attachListeners() {
+  iconize(document.getElementById("app"));
   const app = document.getElementById("app");
 
   if (!listenersInitialized) {
@@ -2196,11 +2789,23 @@ function attachListeners() {
       if (action === "set-year") { state.selectedYear = Number(el.dataset.year); render(); }
       else if (action === "show-all") { state.showAll = true; render(); }
       else if (action === "set-month") { state.selectedMonth = Number(el.dataset.month); state.showAll = false; render(); }
-      else if (action === "toggle-form") { state.showForm = !state.showForm; render(); }
+      else if (action === "toggle-form") { state.showForm = !state.showForm; if (state.showForm) state.area = "lancamentos"; render(); }
       else if (action === "toggle-cat") { state.showCatManager = !state.showCatManager; render(); }
       else if (action === "toggle-goals") { state.showGoalsManager = !state.showGoalsManager; render(); }
       else if (action === "logout") { if (confirm("Sair da sua conta?")) doLogout(); }
-      else if (action === "toggle-section") { const s = el.dataset.section; state.expanded[s] = !state.expanded[s]; render(); }
+      else if (action === "toggle-section") { const s = el.dataset.section; const cur = s.startsWith("real-") ? state.expanded[s] !== false : !!state.expanded[s]; state.expanded[s] = !cur; render(); }
+      else if (action === "set-area") { state.area = el.dataset.area; render(); }
+      else if (action === "toggle-bicho-manager") { state.showBichoManager = !state.showBichoManager; render(); }
+      else if (action === "add-bicho") { addBicho(); }
+      else if (action === "del-bicho") { delBicho(el.dataset.id); }
+      else if (action === "add-grupo") { addGrupo(); }
+      else if (action === "del-grupo") { delGrupo(el.dataset.id); }
+      else if (action === "form-bicho") { toggleFormBicho(el.dataset.id); }
+      else if (action === "form-grupo") { toggleFormGrupo(el.dataset.id); }
+      else if (action === "toggle-meta-bicho") { toggleMetaBicho(el.dataset.id, el.dataset.bicho); }
+      else if (action === "set-cat-tipo") { state.reportCatTipo = el.dataset.value; render(); }
+      else if (action === "toggle-form-mais") { state.formMais = !state.formMais; render(); }
+      else if (action === "toggle-cfg") { state.showCfg = !state.showCfg; render(); }
       else if (action === "toggle-reconciliado") { toggleReconciliado(el.dataset.key); }
       else if (action === "set-filtro-status") { state.filtroStatus = el.dataset.value; render(); }
       else if (action === "export-backup") { exportBackup(); }
@@ -2255,6 +2860,13 @@ function attachListeners() {
   app.querySelectorAll('[data-action="edit-goal-value"]').forEach((inp) => {
     inp.addEventListener("input", (e) => updatePlannedItemValue(inp.dataset.id, e.target.value));
     inp.addEventListener("blur", () => { persist(); });
+  });
+  app.querySelectorAll('[data-action="edit-goal-dia"]').forEach((inp) => {
+    inp.addEventListener("change", (e) => {
+      const v = diaValido(e.target.value);
+      state.plannedItems = state.plannedItems.map((p) => (p.id === inp.dataset.id ? { ...p, diaVencimento: v } : p));
+      persist(); render();
+    });
   });
   app.querySelectorAll('[data-action="toggle-finalizado"]').forEach((chk) => {
     chk.addEventListener("change", () => toggleFinalizado(chk.dataset.notekey));
@@ -2325,7 +2937,7 @@ function attachListeners() {
       render();
     });
     document.getElementById("tx-value").addEventListener("input", (e) => { form.value = e.target.value; });
-    document.getElementById("tx-meta").addEventListener("change", (e) => { form.plannedItemId = e.target.value; });
+    const txMetaEl = document.getElementById("tx-meta"); if (txMetaEl) txMetaEl.addEventListener("change", (e) => { form.plannedItemId = e.target.value; });
     document.getElementById("tx-forma").addEventListener("change", (e) => {
       form.formaPagamento = e.target.value;
       if (e.target.value === "pix" || e.target.value === "dinheiro") {
@@ -2392,6 +3004,11 @@ function attachListeners() {
   const reportCatMonthEl = document.getElementById("report-cat-month");
   if (reportCatMonthEl) reportCatMonthEl.addEventListener("change", (e) => { state.reportCatMonth = e.target.value; render(); });
 
+  const reportBichoMonthEl = document.getElementById("report-bicho-month");
+  if (reportBichoMonthEl) reportBichoMonthEl.addEventListener("change", (e) => { state.reportBichoMonth = e.target.value; render(); });
+  const reportBichoSelEl = document.getElementById("report-bicho-sel");
+  if (reportBichoSelEl) reportBichoSelEl.addEventListener("change", (e) => { state.reportBichoSel = e.target.value; render(); });
+
   const reportCalMonthEl = document.getElementById("report-cal-month");
   if (reportCalMonthEl) reportCalMonthEl.addEventListener("change", (e) => { state.reportCalMonth = e.target.value; render(); });
 
@@ -2403,6 +3020,7 @@ function attachListeners() {
     document.getElementById("goal-cat").addEventListener("change", (e) => { goalForm.categoryId = e.target.value; });
     document.getElementById("goal-value").addEventListener("input", (e) => { goalForm.value = e.target.value; });
     document.getElementById("goal-mode").addEventListener("change", (e) => { goalForm.mode = e.target.value; render(); });
+    const gdia = document.getElementById("goal-dia"); if (gdia) gdia.addEventListener("input", (e) => { goalForm.diaVencimento = e.target.value; });
     const gs = document.getElementById("goal-start"); if (gs) gs.addEventListener("input", (e) => { goalForm.startMonth = e.target.value; });
     const ge = document.getElementById("goal-end"); if (ge) ge.addEventListener("input", (e) => { goalForm.endMonth = e.target.value; });
     const gm = document.getElementById("goal-month"); if (gm) gm.addEventListener("input", (e) => { goalForm.month = e.target.value; });
