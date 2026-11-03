@@ -3,12 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Livro-Caixa 2026</title>
+<title>Livro-Caixa</title>
+<meta name="theme-color" content="#1E293B" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%231E293B'/%3E%3Cg transform='translate(4 5) scale(.83)' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 15 23 19V41L5 37Z M43 15 25 19V41L43 37Z' stroke='%23fff' stroke-width='2.6'/%3E%3Cpath d='M28 14 42 5M36.5 5H42V10.5' stroke='%23F59E0B' stroke-width='2.6'/%3E%3Cg fill='%234ADE80' stroke='none'%3E%3Crect x='28.5' y='30' width='3.4' height='6' rx='.8'/%3E%3Crect x='33.3' y='26' width='3.4' height='10' rx='.8'/%3E%3Crect x='38.1' y='22' width='3.4' height='14' rx='.8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E" />
 <style>
   :root {
     --cover: #1E293B;
+    --primary: #1E293B;
+    --primary-ink: #FFFFFF;
     --paper: #FFFFFF;
-    --paper-dark: #F3F4F6;
+    --paper-dark: #F1F5F9;
     --line: #E2E8F0;
     --ink: #0F172A;
     --ink-soft: #64748B;
@@ -16,8 +20,9 @@
     --green: #15803D;
     --brass: #D97706;
     --cream: #FFFFFF;
-    --body-bg: #F8FAFC;
+    --body-bg: #F3F4F6;
     --input-bg: #FFFFFF;
+    --info-bg: #EFF6FF;
     --brass-bg: #FFFBEB;
     --brass-border: #FDE68A;
     --brass-text: #B45309;
@@ -26,79 +31,121 @@
     --badge-green: #15803D;
     --badge-brass: #B45309;
     --badge-gray: #64748B;
+    --ring: rgba(30, 41, 59, 0.16);
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.07);
+    --logo-bars: #4ADE80;
+    --logo-arrow: #F59E0B;
     color-scheme: light;
+    --radius-sm: 8px;
+    --radius: 12px;
+    --radius-lg: 16px;
+    --control-h: 40px;
+    --font: Inter, "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --cover: #0F172A;
-      --paper: #1E293B;
-      --paper-dark: #263449;
-      --line: #334155;
-      --ink: #F1F5F9;
-      --ink-soft: #94A3B8;
-      --red: #F87171;
-      --green: #4ADE80;
-      --brass: #FBBF24;
-      --cream: #1E293B;
-      --body-bg: #0F172A;
-      --input-bg: #0F172A;
-      --brass-bg: #2B2410;
-      --brass-border: #6B5314;
-      --brass-text: #FBBF24;
-      --ok-bg: #12301E;
-      --danger-bg: #3A1618;
-      color-scheme: dark;
+    --cover: #0E1A2E;
+    --primary: #2C4166;
+    --primary-ink: #FFFFFF;
+    --paper: #111B2E;
+    --paper-dark: #182740;
+    --line: #26364F;
+    --ink: #E8EEF7;
+    --ink-soft: #9AA9C0;
+    --red: #F27878;
+    --green: #4CCB8A;
+    --brass: #F2B450;
+    --cream: #111B2E;
+    --body-bg: #0A1120;
+    --input-bg: #0A1120;
+    --info-bg: #10233F;
+    --brass-bg: #241C0C;
+    --brass-border: #5E4A17;
+    --brass-text: #F2B450;
+    --ok-bg: #0F2A1D;
+    --danger-bg: #34171A;
+    --ring: rgba(154, 169, 192, 0.28);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 8px 22px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --cover: #0F172A;
-    --paper: #1E293B;
-    --paper-dark: #263449;
-    --line: #334155;
-    --ink: #F1F5F9;
-    --ink-soft: #94A3B8;
-    --red: #F87171;
-    --green: #4ADE80;
-    --brass: #FBBF24;
-    --cream: #1E293B;
-    --body-bg: #0F172A;
-    --input-bg: #0F172A;
-    --brass-bg: #2B2410;
-    --brass-border: #6B5314;
-    --brass-text: #FBBF24;
-    --ok-bg: #12301E;
-    --danger-bg: #3A1618;
+    --cover: #0E1A2E;
+    --primary: #2C4166;
+    --primary-ink: #FFFFFF;
+    --paper: #111B2E;
+    --paper-dark: #182740;
+    --line: #26364F;
+    --ink: #E8EEF7;
+    --ink-soft: #9AA9C0;
+    --red: #F27878;
+    --green: #4CCB8A;
+    --brass: #F2B450;
+    --cream: #111B2E;
+    --body-bg: #0A1120;
+    --input-bg: #0A1120;
+    --info-bg: #10233F;
+    --brass-bg: #241C0C;
+    --brass-border: #5E4A17;
+    --brass-text: #F2B450;
+    --ok-bg: #0F2A1D;
+    --danger-bg: #34171A;
+    --ring: rgba(154, 169, 192, 0.28);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 8px 22px rgba(0, 0, 0, 0.4);
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     background: var(--body-bg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font);
     color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.4;
   }
-  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 40px; }
   .cover {
-    background: var(--cover);
-    color: #F8FAFC;
-    border-radius: 10px 10px 0 0;
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    position: relative; overflow: hidden;
+    background: var(--cover); color: #F8FAFC;
+    border-radius: var(--radius-lg);
+    padding: 18px 26px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
-  .cover .eyebrow { font-size: 11px; letter-spacing: 0.04em; color: #94A3B8; margin: 0 0 4px; font-weight: 500; }
-  .cover h1 { font-family: inherit; font-weight: 600; font-size: 22px; margin: 0; letter-spacing: -0.01em; }
-  .body-panel { border: 1px solid var(--line); border-top: none; border-radius: 0 0 10px 10px; background: var(--paper); }
-  .save-error { background: var(--danger-bg); color: var(--red); padding: 8px 16px; font-size: 13px; }
+  .cover::after { content: ""; position: absolute; right: -40px; top: 0; bottom: 0; width: 46%; pointer-events: none;
+    background: repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 14px);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 70%); mask-image: linear-gradient(90deg, transparent, #000 70%); }
+  .value, .v, .t2, td, th, .bar-chart-value, .pb-value, .tx-side, .proj-stats b, .meta-nums, .donut-row, .kpi-value, .naoprevisto-row, .day-head { font-variant-numeric: tabular-nums; }
+  .cover > * { position: relative; z-index: 1; }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .brand .logo-symbol { width: 44px; height: 44px; flex-shrink: 0; }
+  .brand-text { display: flex; flex-direction: column; min-width: 0; }
+  .brand-name { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; color: #fff; font-variant-numeric: normal; }
+  .brand-tag { font-size: 11.5px; color: #94A3B8; margin-top: 3px; letter-spacing: 0.01em; }
+  .cover-right { display: flex; align-items: center; gap: 10px; }
+  .cover-chip { font-size: 11px; font-weight: 500; color: #CBD5E1; padding: 5px 11px; border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; white-space: nowrap; }
+  .cover-btn { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); color: #F8FAFC; border-radius: var(--radius-sm); padding: 6px 11px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .cover-btn:hover { background: rgba(255,255,255,0.13); }
+  .logo-symbol .lg-book { stroke: currentColor; }
+  .logo-symbol .lg-bars { fill: var(--logo-bars); }
+  .logo-symbol .lg-arrow { stroke: var(--logo-arrow); }
+  .logo-mono .lg-bars { fill: currentColor; } .logo-mono .lg-arrow { stroke: currentColor; }
+  .body-panel { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--paper); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .save-error { background: var(--danger-bg); color: var(--red); padding: 10px 16px; font-size: 13px; border-radius: var(--radius-sm); margin: 10px 0 0; border: 1px solid var(--red); }
 
-  .tab-nav { display: flex; gap: 8px; padding: 14px 0 0; }
-  .tab-nav-btn { font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 8px 8px 0 0; border: 1px solid var(--line); border-bottom: none; background: var(--paper); color: var(--ink-soft); cursor: pointer; font-family: inherit; }
-  .tab-nav-btn.active { background: var(--cream); color: var(--ink); }
+  .tab-nav { display: flex; gap: 6px; padding: 18px 0 14px; }
+  .tab-nav-btn { font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--ink-soft); cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
+  .tab-nav-btn:hover { background: var(--paper-dark); color: var(--ink); }
+  .tab-nav-btn.active { background: var(--primary); color: var(--primary-ink); box-shadow: var(--shadow-sm); }
   .report-nav { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px; border-bottom: 1px solid var(--line); }
   .report-nav-btn { font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
-  .report-nav-btn.active { background: var(--cover); color: #fff; border-color: var(--cover); }
-  .kpi-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--paper); }
+  .report-nav-btn.active { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+  .report-nav-btn:hover:not(.active), .year-btn:hover:not(.active) { background: var(--paper-dark); color: var(--ink); }
+  .kpi-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; background: var(--paper); box-shadow: var(--shadow-sm); }
   .kpi-card .kpi-label { font-size: 12px; color: var(--ink-soft); margin: 0 0 6px; }
   .kpi-card .kpi-value { font-size: 22px; font-weight: 700; margin: 0; }
   .progress-track { height: 10px; border-radius: 6px; background: var(--paper-dark); overflow: hidden; }
@@ -106,46 +153,57 @@
 
   .year-row { display: flex; gap: 8px; padding: 12px 12px 0; }
   .year-btn { font-size: 12px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
-  .year-btn.active { background: var(--cover); color: #fff; border-color: var(--cover); }
+  .year-btn.active { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
 
   .month-tabs { display: flex; overflow-x: auto; gap: 2px; padding: 8px 12px 0; border-bottom: 1px solid var(--line); }
   .month-tab { font-size: 13px; padding: 8px 12px; border-radius: 6px 6px 0 0; background: transparent; border: none; color: var(--ink-soft); white-space: nowrap; cursor: pointer; font-family: inherit; }
-  .month-tab.active { background: var(--paper-dark); color: var(--ink); font-weight: 600; }
+  .month-tab { border-bottom: 2px solid transparent; border-radius: 6px 6px 0 0; }
+  .month-tab:hover { color: var(--ink); }
+  .month-tab.active { background: transparent; color: var(--ink); font-weight: 700; border-bottom-color: var(--ink); }
 
   .content { padding: 16px; }
   .summary-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; align-items: stretch; }
   .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .card { border: 1px solid var(--line); background: var(--paper); border-radius: 8px; padding: 10px; }
+  .card { border: 1px solid var(--line); background: var(--paper); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow-sm); }
   .card .label { font-size: 11px; color: var(--ink-soft); margin: 0 0 4px; display:flex; align-items:center; gap:4px; font-weight: 500; }
-  .card .value { font-size: 16px; font-weight: 700; margin: 0; }
+  .card .value { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
   .stamp-wrap { display: flex; align-items: stretch; }
   .stamp {
-    border-radius: 8px; width: 100%; height: 100%; display: flex; flex-direction: column;
+    border-radius: var(--radius); width: 100%; height: 100%; display: flex; flex-direction: column;
     align-items: flex-start; justify-content: center; padding: 14px 16px;
     border: 1px solid var(--line); background: var(--paper-dark);
   }
   .stamp .t1 { font-size: 11px; color: var(--ink-soft); font-weight: 500; }
-  .stamp .t2 { font-family: inherit; font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .stamp .t2 { font-family: inherit; font-size: 24px; font-weight: 700; margin-top: 4px; letter-spacing: -0.02em; }
   .stamp .t3 { font-size: 10px; color: var(--ink-soft); margin-top: 4px; font-weight: 500; }
 
   .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .btn { font-size: 13px; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; }
-  .btn-primary { background: var(--cover); color: #fff; border-color: var(--line); }
-  .btn-outline { background: transparent; border-color: var(--line); color: var(--ink); }
-  .btn-brass { background: transparent; border-color: var(--line); color: var(--ink-soft); }
-  .btn-submit { background: var(--cover); color: #fff; font-weight: 600; width: 100%; }
+  .btn { font-size: 13px; font-weight: 500; min-height: 38px; padding: 8px 14px; border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; transition: background .15s, border-color .15s, box-shadow .15s; }
+  .btn:focus-visible, .cover-btn:focus-visible, .tab-nav-btn:focus-visible, .area-btn:focus-visible, .month-tab:focus-visible, .report-nav-btn:focus-visible, .year-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+  .btn-primary { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); font-weight: 600; }
+  .btn-primary:hover, .btn-submit:hover { filter: brightness(1.12); }
+  .btn-outline { background: var(--paper); border-color: var(--line); color: var(--ink); }
+  .btn-outline:hover { background: var(--paper-dark); }
+  .btn-brass { background: var(--brass-bg); border-color: var(--brass-border); color: var(--brass-text); }
+  .btn-brass:hover { filter: brightness(0.97); }
+  .btn-submit { background: var(--primary); color: var(--primary-ink); font-weight: 600; width: 100%; }
 
-  .panel { border: 1px solid var(--line); background: var(--paper); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+  .panel { border: 1px solid var(--line); background: var(--paper); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
   .panel.brass { border-color: var(--brass-border); background: var(--brass-bg); }
-  .panel-title { font-size: 12px; font-weight: 600; color: var(--ink); margin: 0 0 8px; }
+  .panel.brass .card { background: var(--paper); }
+  .panel-title { font-size: 13px; font-weight: 600; color: var(--ink); margin: 0 0 10px; letter-spacing: -0.005em; }
   .panel.brass .panel-title { color: var(--brass-text); }
 
   form.grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   form.grid.cols-6-md { grid-template-columns: 1fr; }
   @media (min-width: 640px) { form.grid.cols-6-md { grid-template-columns: repeat(6, 1fr); } }
-  .field { font-size: 13px; padding: 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--input-bg); color: var(--ink); font-family: inherit; width: 100%; }
-  label.field-label { font-size: 11px; color: var(--ink-soft); display: block; }
-  label.field-label .field { margin-top: 2px; }
+  .field { font-size: 13px; min-height: var(--control-h); padding: 8px 11px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--input-bg); color: var(--ink); font-family: inherit; width: 100%; transition: border-color .15s, box-shadow .15s; }
+  .field::placeholder { color: var(--ink-soft); opacity: .8; }
+  .field:hover { border-color: var(--ink-soft); }
+  .field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+  .field[aria-invalid="true"], .field:user-invalid { border-color: var(--red); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12); }
+  label.field-label { font-size: 11px; font-weight: 500; color: var(--ink-soft); display: block; }
+  label.field-label .field { margin-top: 4px; }
   .span-1 { grid-column: span 1; } .span-2 { grid-column: span 2; } .span-3 { grid-column: span 3; }
   .span-4 { grid-column: span 4; } .span-6 { grid-column: span 6; }
 
@@ -154,9 +212,10 @@
   .chip button { background: none; border: none; color: #fff; cursor: pointer; padding: 0; line-height: 1; }
 
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th, td { padding: 6px 8px; text-align: right; }
+  th, td { padding: 8px 10px; text-align: right; }
   th:first-child, td:first-child { text-align: left; }
-  thead tr { border-bottom: 1px solid var(--line); color: var(--ink-soft); font-weight: 500; }
+  thead tr { border-bottom: 1px solid var(--line); color: var(--ink-soft); font-weight: 600; }
+  tbody tr:hover { background: var(--paper-dark); }
   tbody tr, tfoot tr:first-child { border-bottom: 1px solid var(--line); }
   tfoot tr { border-top: none; }
   tfoot tr:first-of-type { border-top: 1px solid var(--ink); }
@@ -176,7 +235,7 @@
   .bar-chart-fill { display: block; height: 100%; min-width: 2px; border-radius: 3px; }
   .bar-chart-value { width: 90px; flex-shrink: 0; text-align: right; font-weight: 600; }
   .planner-bars { display: flex; align-items: flex-end; gap: 6px; overflow-x: auto; padding-bottom: 4px; height: 160px; }
-  .planner-col { display: flex; flex-direction: column; align-items: center; min-width: 34px; height: 100%; justify-content: flex-end; }
+  .planner-col { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 34px; height: 100%; justify-content: flex-end; }
   .planner-col .bars { display: flex; align-items: flex-end; gap: 2px; height: 120px; }
   .planner-col .bar { width: 12px; border-radius: 2px 2px 0 0; }
   .planner-col .lbl { font-size: 9px; color: var(--ink-soft); margin-top: 4px; white-space: nowrap; }
@@ -185,6 +244,12 @@
   .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
 
+  /* ---- Parcelas no cartão ---- */
+  .parc-section { border-top-color: var(--primary); }
+  .parc-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .parc-main { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; min-width: 0; }
+  .parc-side { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+  .dot-cartao { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
   /* ---- Gráficos ---- */
   .pb-label { width: 110px; } .pb-value { width: 175px; }
   @media (max-width: 600px) { .pb-label { width: 70px; } .pb-value { width: 92px; font-size: 10px; } .donut-wrap { justify-content: center; } }
@@ -193,7 +258,7 @@
   .donut-wrap { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 8px 0 14px; }
   .donut-legend { flex: 1; min-width: 220px; }
   .donut-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--line); }
-  .chart-box { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--paper); margin-bottom: 16px; }
+  .chart-box { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; background: var(--paper); margin-bottom: 16px; box-shadow: var(--shadow-sm); }
   /* ---- Ícones ---- */
   .ic { display: inline-block; width: 1.15em; height: 1.15em; vertical-align: -0.2em; margin-right: .2em; }
   .ic svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -211,29 +276,36 @@
   .bicho-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   /* ---- Fase 1: resumo, status, ajuda ---- */
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
-  .kpi-mini { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--paper); }
+  .kpi-mini { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; background: var(--paper); box-shadow: var(--shadow-sm); }
   .kpi-mini .l { font-size: 11px; color: var(--ink-soft); margin: 0 0 4px; }
-  .kpi-mini .v { font-size: 18px; font-weight: 700; margin: 0; }
-  .kpi-mini.destaque { border-width: 2px; border-color: var(--brass); }
+  .kpi-mini .v { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  .kpi-mini.destaque { background: var(--brass-bg); border-color: var(--brass-border); }
   .kpi-mini .s { font-size: 10px; color: var(--ink-soft); margin: 3px 0 0; }
-  .meta-card.st-estourada { border-left: 4px solid var(--red); padding-left: 8px; }
-  .meta-card.st-pendente, .meta-card.st-vencendo { border-left: 4px solid var(--brass); padding-left: 8px; }
-  .meta-card.st-vencida { border-left: 4px solid var(--red); padding-left: 8px; }
-  .meta-card.st-andamento { border-left: 4px solid var(--line); padding-left: 8px; }
-  .meta-card.st-acima, .meta-card.st-fechada, .meta-card.st-lancada { border-left: 4px solid var(--green); padding-left: 8px; }
+  .meta-card.st-estourada { border-left: 3px solid var(--red); padding-left: 10px; }
+  .meta-card.st-pendente, .meta-card.st-vencendo { border-left: 3px solid var(--brass); padding-left: 10px; }
+  .meta-card.st-vencida { border-left: 3px solid var(--red); padding-left: 10px; }
+  .meta-card.st-andamento { border-left: 3px solid var(--line); padding-left: 10px; }
+  .meta-card.st-acima, .meta-card.st-fechada, .meta-card.st-lancada { border-left: 3px solid var(--green); padding-left: 10px; }
   .st-tag { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
   details.more { margin: 6px 0; font-size: 11px; color: var(--ink-soft); }
   details.more summary { cursor: pointer; display: inline-block; user-select: none; }
   details.more p { margin-top: 4px; }
   /* ---- Áreas (Projeções / Lançamentos) ---- */
-  .area-nav { display: flex; gap: 6px; padding: 4px; background: var(--paper-dark); border-radius: 10px; margin-bottom: 14px; }
+  .area-nav { display: flex; gap: 6px; padding: 4px; background: var(--paper-dark); border-radius: var(--radius); margin-bottom: 16px; }
   .area-btn { flex: 1; font-size: 14px; font-weight: 600; padding: 10px 12px; border-radius: 8px; border: none; background: transparent; color: var(--ink-soft); cursor: pointer; font-family: inherit; }
   .area-btn small { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; }
-  .area-btn.active { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .area-btn { border-bottom: 2px solid transparent; transition: background .15s, color .15s; }
+  .area-btn:hover:not(.active) { color: var(--ink); }
+  .area-btn.active { background: var(--paper); color: var(--ink); box-shadow: var(--shadow-sm); }
+  .area-btn[data-area="projecoes"].active { border-bottom-color: var(--brass); }
+  .area-btn[data-area="projecoes"].active .ic { color: var(--brass); }
+  .area-btn[data-area="lancamentos"].active { border-bottom-color: var(--primary); }
   .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
   .toolbar .spacer { flex: 1; }
   .cfg-panel { border: 1px dashed var(--line); border-radius: 8px; padding: 10px; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .proj-section { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 16px; background: var(--paper); }
+  .proj-section { border: 1px solid var(--line); border-top: 3px solid var(--brass); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; background: var(--paper); box-shadow: var(--shadow-sm); }
+  .proj-cols { display: block; }
+  @media (min-width: 1100px) { .proj-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; } .proj-cols .proj-section { margin-bottom: 0; } }
   .proj-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
   .proj-stats { display: flex; gap: 16px; flex-wrap: wrap; }
   .proj-stats div { display: flex; flex-direction: column; font-size: 11px; color: var(--ink-soft); }
@@ -259,8 +331,12 @@
   /* ---- Celular ---- */
   @media (max-width: 600px) {
     .wrap { padding: 12px 8px; }
-    .cover { padding: 16px; border-radius: 8px 8px 0 0; }
-    .cover h1 { font-size: 19px; }
+    .cover { padding: 14px 16px; border-radius: var(--radius); }
+    .brand .logo-symbol { width: 36px; height: 36px; }
+    .brand-name { font-size: 19px; }
+    .brand-tag { font-size: 10.5px; }
+    .cover-chip { display: none; }
+    .tab-nav { padding: 14px 0 12px; }
     .content { padding: 12px; }
     .summary-grid { grid-template-columns: 1fr; }
     .summary-cards { grid-template-columns: 1fr 1fr; }
@@ -279,8 +355,11 @@
   @media (max-width: 380px) {
     .summary-cards { grid-template-columns: 1fr; }
   }
-  .login-box { max-width: 360px; margin: 15vh auto; padding: 28px 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
-  .login-box h1 { font-size: 20px; margin: 0 0 4px; }
+  .login-box { max-width: 380px; margin: 12vh auto; padding: 32px 28px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--paper); box-shadow: var(--shadow-md); }
+  .login-brand { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 22px; color: var(--ink); text-align: center; }
+  .login-brand .logo-symbol { width: 56px; height: 56px; }
+  .login-brand .brand-name { color: var(--ink); font-size: 24px; }
+  .login-brand .brand-tag { color: var(--ink-soft); margin: 0; }
   .login-box p.sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 20px; }
   .login-box .field { margin-bottom: 10px; width: 100%; }
   .login-box .btn { width: 100%; margin-top: 6px; }
@@ -467,6 +546,8 @@ let state = {
   reservaAportes: [],
   bichos: [],
   grupos: [],
+  parcelados: [],
+  showParcManager: false,
   showBichoManager: false,
   formMais: false,
   reportBichoMonth: null,
@@ -496,7 +577,7 @@ function localTodayISO() { const d = new Date(); return `${d.getFullYear()}-${St
 const todayISO = localTodayISO();
 const currentMonthKey = todayISO.slice(0, 7);
 
-let form = { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix", bichoIds: [], bichosTocado: false };
+let form = { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix", bichoIds: [], bichosTocado: false, parcelaId: null, parcelaNum: null };
 let editingTxId = null;
 let newCat = { name: "", type: "despesa" };
 let goalForm = {
@@ -557,8 +638,8 @@ function renderLogin() {
   const app = document.getElementById("app");
   app.innerHTML = `
     <div class="login-box">
-      <h1>💼 Livro-Caixa</h1>
-      <p class="sub">Entre com seu e-mail e senha pra acessar seus dados.</p>
+      <div class="login-brand">${logoSymbol("logo-sym")}<span class="brand-name">Livro-Caixa</span><span class="brand-tag">Sua vida financeira, sob controle.</span></div>
+      <p class="sub">Entre com seu e-mail e senha para acessar seus dados.</p>
       <div class="login-error" id="login-error"></div>
       <input type="email" id="login-email" class="field" placeholder="E-mail" autocomplete="username" />
       <input type="password" id="login-password" class="field" placeholder="Senha" autocomplete="current-password" />
@@ -592,6 +673,7 @@ async function loadData() {
       state.reservaAportes = Array.isArray(parsed.reservaAportes) ? parsed.reservaAportes : [];
       state.bichos = Array.isArray(parsed.bichos) ? parsed.bichos : [];
       state.grupos = Array.isArray(parsed.grupos) ? parsed.grupos : [];
+      state.parcelados = Array.isArray(parsed.parcelados) ? parsed.parcelados : [];
       state.plannedItems = Array.isArray(parsed.plannedItems) ? parsed.plannedItems : [];
     } else {
       // primeiro acesso: cria a linha vazia desse usuário
@@ -632,7 +714,7 @@ async function persist() {
       transactions: state.transactions, categories: state.categories, notes: state.notes,
       plannedItems: state.plannedItems, finalizados: state.finalizados, reconciliados: state.reconciliados,
       fechamentos: state.fechamentos, cartoes: state.cartoes, loans: state.loans, reservaAportes: state.reservaAportes,
-      bichos: state.bichos, grupos: state.grupos,
+      bichos: state.bichos, grupos: state.grupos, parcelados: state.parcelados,
     };
     const { error } = await sb.from("app_state").upsert({ user_id: currentUser.id, data: payload, updated_at: new Date().toISOString() });
     state.saveError = !!error;
@@ -924,6 +1006,92 @@ function toggleMetaBicho(plannedId, bichoId) {
   persist(); render();
 }
 
+function lancarParcela(parcId, num) {
+  const pc = (state.parcelados || []).find((x) => x.id === parcId);
+  if (!pc) return;
+  const key = parcelaMonthKey(pc, num);
+  if (isMonthKeyClosed(key)) { alert(`${monthLabel(key)} está fechado. Reabra o mês pra poder lançar.`); return; }
+  const [y, m] = key.split("-").map(Number);
+  const cartao = state.cartoes.find((c) => c.id === pc.cartaoId);
+  form = {
+    ...emptyForm(),
+    date: clampDateToPeriod(localTodayISO(), y, m - 1),
+    description: `${pc.descricao} (parcela ${num}/${pc.total})`,
+    type: "despesa", categoryId: pc.categoryId || categoriesForType("despesa")[0]?.id || "",
+    value: String(pc.valor), isCartao: !!cartao, cartaoId: cartao ? cartao.id : null,
+    dueDate: parcelaDueDate(pc, key), formaPagamento: cartao ? cartao.id : "",
+    parcelaId: pc.id, parcelaNum: num, fromQuick: true,
+  };
+  editingTxId = null;
+  state.showForm = true;
+  render();
+  document.getElementById("tx-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+function addParcelado() {
+  const g = (id) => document.getElementById(id);
+  const descricao = ((g("pc-desc") || {}).value || "").trim();
+  const cartaoId = (g("pc-cartao") || {}).value || "";
+  const valor = Number((g("pc-valor") || {}).value);
+  const total = parseInt((g("pc-total") || {}).value, 10);
+  const numAtual = parseInt((g("pc-atual") || {}).value, 10) || 1;
+  const primeiraVenc = (g("pc-mes") || {}).value || "";
+  const categoryId = (g("pc-cat") || {}).value || "";
+  if (!descricao || !cartaoId || !(valor > 0) || !(total >= 1) || numAtual < 1 || numAtual > total || !/^\d{4}-\d{2}$/.test(primeiraVenc)) {
+    alert("Preencha descrição, cartão, valor da parcela, total de parcelas e o mês da primeira fatura. A parcela atual deve ficar entre 1 e o total.");
+    return;
+  }
+  state.parcelados.push({ id: uid(), descricao, cartaoId, valor, total, numAtual, primeiraVenc, categoryId });
+  persist(); render();
+}
+function delParcelado(id) {
+  const pc = state.parcelados.find((x) => x.id === id); if (!pc) return;
+  const vinc = state.transactions.filter((t) => t.parcelaId === id).length;
+  if (!confirm(`Excluir o compromisso "${pc.descricao}"?\n\nAs parcelas futuras deixam de ser previstas.${vinc ? ` Os ${vinc} lançamento(s) já registrados continuam, só perdem o vínculo com a parcela.` : ""}`)) return;
+  state.transactions = state.transactions.map((t) => (t.parcelaId === id ? { ...t, parcelaId: null, parcelaNum: null } : t));
+  state.parcelados = state.parcelados.filter((x) => x.id !== id);
+  persist(); render();
+}
+function detectarGruposParcela() {
+  const re = /^(.*?)\s*\(parcela\s+(\d+)\s*\/\s*(\d+)\)\s*$/i;
+  const grupos = {};
+  state.plannedItems.forEach((p) => {
+    if (p.type !== "despesa" || p.mode !== "pontual" || !p.month) return;
+    const m = re.exec(p.description || ""); if (!m) return;
+    const base = m[1].trim(), num = Number(m[2]), total = Number(m[3]);
+    const k = p.groupId ? `g:${p.groupId}` : `b:${base.toLowerCase()}|${total}`;
+    (grupos[k] = grupos[k] || { key: k, base, total, itens: [] }).itens.push({ p, num });
+  });
+  return Object.values(grupos).map((g) => ({ ...g, itens: g.itens.sort((a, b) => a.num - b.num) }));
+}
+function converterGrupoParcela(key, cartaoId) {
+  const g = detectarGruposParcela().find((x) => x.key === key);
+  if (!g) return;
+  if (!cartaoId) { alert("Escolha o cartão em que essa compra foi parcelada."); return; }
+  const first = g.itens[0];
+  const nums = new Set(g.itens.map((it) => it.num));
+  const consecutivo = nums.size === g.itens.length && g.itens.every((it) => addMonthsToKey(first.p.month, it.num - first.num) === it.p.month);
+  if (!consecutivo) { alert("As parcelas dessa compra não estão em meses consecutivos (ou há parcela repetida). Não dá para converter automaticamente — cadastre o compromisso manualmente."); return; }
+  if (!confirm(`Converter "${g.base}" (${g.itens.length} projeções, parcelas ${first.num} a ${g.itens[g.itens.length - 1].num} de ${g.total}) em um compromisso de cartão?\n\nAs projeções saem da lista de metas e passam a aparecer no bloco "Parcelas no cartão" e nas faturas. Os lançamentos já feitos continuam e ficam vinculados às parcelas.`)) return;
+  const id = uid();
+  const norm = (x) => String(x || "").trim().toLowerCase();
+  let vinculados = 0;
+  state.transactions = state.transactions.map((t) => {
+    if (t.parcelaId) return t;
+    for (const it of g.itens) {
+      const [yy, mm] = it.p.month.split("-").map(Number);
+      const { start, end } = getPeriodBounds(yy, mm - 1);
+      const casa = t.plannedItemId === it.p.id || (!t.plannedItemId && t.type === "despesa" && norm(t.description) === norm(it.p.description) && t.date >= start && t.date <= end);
+      if (casa) { vinculados++; return { ...t, parcelaId: id, parcelaNum: it.num, plannedItemId: null }; }
+    }
+    return t;
+  });
+  const ids = new Set(g.itens.map((it) => it.p.id));
+  state.plannedItems = state.plannedItems.filter((p) => !ids.has(p.id));
+  state.parcelados.push({ id, descricao: g.base, cartaoId, valor: Number(first.p.value), total: g.total, numAtual: first.num, primeiraVenc: first.p.month, categoryId: first.p.categoryId });
+  persist(); render();
+  alert(`Convertido: ${g.itens.length} parcelas, ${vinculados} lançamento(s) vinculado(s).`);
+}
+
 function addTransaction(e) {
   e.preventDefault();
   if (!form.description.trim() || !form.value || Number(form.value) <= 0) return;
@@ -934,7 +1102,7 @@ function addTransaction(e) {
   } else if (isDateLocked(form.date)) {
     lockedAlert(form.date); return;
   }
-  const extra = { isCartao: !!form.isCartao, cartaoId: form.isCartao ? (form.cartaoId || null) : null, dueDate: form.isCartao ? (form.dueDate || null) : null, plannedItemId: form.plannedItemId || null, bichoIds: formBichoIds() };
+  const extra = { isCartao: !!form.isCartao, cartaoId: form.isCartao ? (form.cartaoId || null) : null, dueDate: form.isCartao ? (form.dueDate || null) : null, plannedItemId: form.parcelaId ? null : (form.plannedItemId || null), bichoIds: formBichoIds(), parcelaId: form.parcelaId || null, parcelaNum: form.parcelaId ? form.parcelaNum : null };
   if (editingTxId) {
     state.transactions = state.transactions.map((t) =>
       t.id === editingTxId
@@ -952,7 +1120,7 @@ function addTransaction(e) {
 }
 
 function emptyForm() {
-  return { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix", bichoIds: [], bichosTocado: false };
+  return { date: todayISO, description: "", type: "despesa", categoryId: "moradia", value: "", isCartao: false, cartaoId: null, dueDate: "", plannedItemId: "", formaPagamento: "pix", bichoIds: [], bichosTocado: false, parcelaId: null, parcelaNum: null };
 }
 
 function startEditTransaction(id) {
@@ -960,7 +1128,7 @@ function startEditTransaction(id) {
   if (!t) return;
   if (isDateLocked(t.date)) { lockedAlert(t.date); return; }
   const formaPagamento = t.cartaoId ? t.cartaoId : (t.isCartao ? "legacy-cartao" : "dinheiro");
-  form = { date: t.date, description: t.description, type: t.type, categoryId: t.categoryId, value: String(t.value), isCartao: !!t.isCartao, cartaoId: t.cartaoId || null, dueDate: t.dueDate || "", plannedItemId: t.plannedItemId || "", formaPagamento, bichoIds: Array.isArray(t.bichoIds) ? t.bichoIds : [], bichosTocado: true };
+  form = { date: t.date, description: t.description, type: t.type, categoryId: t.categoryId, value: String(t.value), isCartao: !!t.isCartao, cartaoId: t.cartaoId || null, dueDate: t.dueDate || "", plannedItemId: t.plannedItemId || "", formaPagamento, bichoIds: Array.isArray(t.bichoIds) ? t.bichoIds : [], bichosTocado: true, parcelaId: t.parcelaId || null, parcelaNum: t.parcelaNum || null };
   editingTxId = id;
   state.showForm = true;
   render();
@@ -1173,6 +1341,7 @@ function exportBackup() {
     reservaAportes: state.reservaAportes,
     bichos: state.bichos,
     grupos: state.grupos,
+    parcelados: state.parcelados,
     exportedAt: new Date().toISOString(),
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -1205,6 +1374,7 @@ function importBackupFile(file) {
       state.reservaAportes = Array.isArray(parsed.reservaAportes) ? parsed.reservaAportes : state.reservaAportes;
       state.bichos = Array.isArray(parsed.bichos) ? parsed.bichos : state.bichos;
       state.grupos = Array.isArray(parsed.grupos) ? parsed.grupos : state.grupos;
+      state.parcelados = Array.isArray(parsed.parcelados) ? parsed.parcelados : state.parcelados;
       persist();
       render();
       alert("Backup importado com sucesso!");
@@ -1226,6 +1396,7 @@ function catById(id) {
 // etiquetada antes (ex: "Ração" sempre virou "Pets"); se não achar, e só existir UMA meta
 // naquela categoria+tipo, sugere ela — sem forçar nada, o campo continua editável.
 function suggestPlannedItemId(description, type, categoryId, dateStr) {
+  if (form && form.parcelaId) return "";
   const ativas = plannedActiveForDate(dateStr, type);
   const activeIds = new Set(ativas.map((p) => p.id));
   const norm = description.trim().toLowerCase();
@@ -1297,7 +1468,9 @@ function getPlannerData(withBalance) {
   return getPlannerMonths().map((pm) => {
     const items = getPlannedItemsForMonth(state.plannedItems, pm.year, pm.month);
     const metaReceitas = items.filter((i) => i.type === "receita").reduce((s, i) => s + i.value, 0);
-    const metaDespesas = items.filter((i) => i.type === "despesa").reduce((s, i) => s + i.value, 0);
+    // parcelas de cartão já assumidas também são compromisso do mês (ver "Parcelas no cartão")
+    const metaDespesas = items.filter((i) => i.type === "despesa").reduce((s, i) => s + i.value, 0)
+      + parcelasDoMes(`${pm.year}-${pad2(pm.month + 1)}`).reduce((s, x) => s + x.valor, 0);
 
     // Se já existe lançamento real neste mês e ele excede a meta, adota o valor real atualizado
     // (pra cima, receita ou despesa), mas nunca reduz abaixo da meta original.
@@ -1327,6 +1500,104 @@ function diasAte(dateStr) {
   const a = new Date(localTodayISO() + "T00:00:00"), b = new Date(dateStr + "T00:00:00");
   return Math.round((b - a) / 86400000);
 }
+// ================= PARCELAS NO CARTÃO =================
+// Um "parcelado" é um compromisso já assumido: N parcelas, uma por fatura. Cada parcela cai no mês do
+// vencimento da fatura e é "prevista" até você registrar a cobrança real (lançamento com parcelaId/parcelaNum).
+function parcelaMonthKey(pc, num) { return addMonthsToKey(pc.primeiraVenc, num - pc.numAtual); }
+function parcelaDueDate(pc, key) {
+  const c = state.cartoes.find((x) => x.id === pc.cartaoId);
+  const dia = c ? Number(c.vencimentoDia) || 10 : 10;
+  const [y, m] = key.split("-").map(Number);
+  const last = new Date(y, m, 0).getDate();
+  return `${key}-${pad2(Math.min(dia, last))}`;
+}
+function parcelaTxs(pc, num) { return state.transactions.filter((t) => t.parcelaId === pc.id && Number(t.parcelaNum) === num); }
+function parcelasDoMes(key) {
+  const out = [];
+  (state.parcelados || []).forEach((pc) => {
+    for (let num = pc.numAtual; num <= pc.total; num++) {
+      if (parcelaMonthKey(pc, num) !== key) continue;
+      const txs = parcelaTxs(pc, num);
+      const lancada = txs.length > 0;
+      const realizado = txs.reduce((s, t) => s + Number(t.value), 0);
+      out.push({ pc, num, valor: Number(pc.valor), dueDate: parcelaDueDate(pc, key), txs, lancada, realizado, atual: lancada ? realizado : Number(pc.valor) });
+    }
+  });
+  return out.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.pc.descricao.localeCompare(b.pc.descricao));
+}
+function parcelaBadge(t) {
+  const pc = t.parcelaId ? (state.parcelados || []).find((x) => x.id === t.parcelaId) : null;
+  return pc ? ` <span class="badge" style="background:var(--badge-gray)">parcela ${t.parcelaNum}/${pc.total}</span>` : "";
+}
+
+function renderParcelasBlock(mc) {
+  if (!state.parcelados || state.parcelados.length === 0) return "";
+  const lista = mc.parcelasMes;
+  const hoje = localTodayISO();
+  const fechado = isMonthKeyClosed(mc.key);
+  const ddmm = (d) => new Date(d + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  let h = `<div class="proj-section parc-section" style="margin-top:16px;">`;
+  h += `<div class="proj-head"><p class="panel-title" style="margin:0;font-size:14px;">💳 Parcelas no cartão <span class="muted" style="font-weight:400;">· ${lista.length} neste mês</span></p><div class="proj-stats">`;
+  h += `<div><span>Previsto</span><b class="muted">${brl(mc.parcPlan)}</b></div><div><span>Realizado</span><b class="red">${brl(mc.parcReal)}</b></div><div><span>A pagar</span><b>${brl(mc.parcPend)}</b></div></div></div>`;
+  if (lista.length === 0) h += `<p class="hint" style="margin:0 0 8px;">Nenhuma parcela cai neste mês.</p>`;
+  lista.forEach((x) => {
+    const c = state.cartoes.find((k) => k.id === x.pc.cartaoId);
+    const rest = x.pc.total - x.num;
+    let st;
+    if (x.lancada) st = { label: "lançada", cor: C.green };
+    else if (x.dueDate < hoje) st = { label: `fatura venceu ${ddmm(x.dueDate)}`, cor: C.red };
+    else st = { label: `prevista · fatura ${ddmm(x.dueDate)}`, cor: C.brass };
+    h += `<div class="parc-row"><div class="parc-main"><span class="dot-cartao" style="background:${c ? c.cor : "var(--ink-soft)"}"></span><strong>${esc(x.pc.descricao)}</strong><span class="muted">parcela ${x.num}/${x.pc.total}${c ? " · " + esc(c.nome) : ""}</span><span class="st-tag" style="color:${st.cor}">${st.label}</span>${rest > 0 ? `<span class="muted" style="font-size:11px;">faltam ${rest} · termina em ${monthLabel(parcelaMonthKey(x.pc, x.pc.total))}</span>` : `<span class="muted" style="font-size:11px;">última parcela</span>`}</div>`;
+    h += `<div class="parc-side"><b class="red">${brl(x.atual)}</b>${!x.lancada && !fechado ? `<button class="btn btn-outline" style="font-size:11px;padding:3px 8px;min-height:0;" data-action="lancar-parcela" data-id="${x.pc.id}" data-num="${x.num}">⚡ Lançar</button>` : ""}</div></div>`;
+  });
+  // compromisso já assumido nos próximos meses
+  const meses = [];
+  for (let i = 0; i < 6; i++) { const k = addMonthsToKey(mc.key, i); meses.push({ k, v: parcelasDoMes(k).reduce((s, x) => s + x.atual, 0) }); }
+  const max = Math.max(1, ...meses.map((m) => m.v));
+  if (meses.some((m) => m.v > 0)) {
+    h += `<p class="panel-title" style="margin:14px 0 6px;font-size:12px;">Já assumido nos próximos meses</p>`;
+    meses.forEach((m) => { h += `<div class="bar-chart-row"><span class="bar-chart-label">${monthLabel(m.k)}</span><span class="bar-chart-track"><span class="bar-chart-fill" style="width:${(m.v / max) * 100}%;background:var(--primary)"></span></span><span class="bar-chart-value">${brl(m.v)}</span></div>`; });
+  }
+  h += `</div>`;
+  return h;
+}
+
+function renderParcManager() {
+  let h = `<div class="panel"><p class="panel-title">💳 Parcelas no cartão</p>`;
+  h += `<p class="hint" style="margin-top:0;">Compras parceladas que já foram assumidas. Cada parcela aparece no planejamento do mês e na fatura prevista do cartão, e deixa de ser "prevista" quando você lança a cobrança real.</p>`;
+  if (state.cartoes.length === 0) {
+    h += `<p class="hint">Cadastre um cartão primeiro (Configurar → Cartões).</p></div>`;
+    return h;
+  }
+  const proxMes = addMonthsToKey(currentMonthKey, 1);
+  h += `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">`;
+  h += `<label class="field-label" style="flex:2;min-width:160px;">Descrição<input type="text" class="field" id="pc-desc" placeholder="ex.: Geladeira" /></label>`;
+  h += `<label class="field-label" style="flex:1;min-width:130px;">Cartão<select class="field" id="pc-cartao">${state.cartoes.map((c) => `<option value="${c.id}">${esc(c.nome)}</option>`).join("")}</select></label>`;
+  h += `<label class="field-label" style="width:110px;">Valor da parcela<input type="number" step="0.01" min="0" class="field" id="pc-valor" /></label>`;
+  h += `<label class="field-label" style="width:90px;">Nº de parcelas<input type="number" min="1" max="60" class="field" id="pc-total" /></label>`;
+  h += `<label class="field-label" style="width:110px;" title="Número da parcela que cai na primeira fatura abaixo (1 se a compra é nova)">Parcela atual<input type="number" min="1" max="60" class="field" id="pc-atual" value="1" /></label>`;
+  h += `<label class="field-label" style="width:150px;">Mês da fatura dessa parcela<input type="month" class="field" id="pc-mes" value="${proxMes}" /></label>`;
+  h += `<label class="field-label" style="flex:1;min-width:130px;">Categoria<select class="field" id="pc-cat">${categoriesForType("despesa").map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></label>`;
+  h += `<button class="btn btn-brass" data-action="add-parcelado">➕ Adicionar</button></div>`;
+  if (state.parcelados.length === 0) h += `<p class="hint">Nenhum compromisso cadastrado.</p>`;
+  state.parcelados.forEach((pc) => {
+    const c = state.cartoes.find((k) => k.id === pc.cartaoId);
+    let pagas = 0; for (let n = pc.numAtual; n <= pc.total; n++) if (parcelaTxs(pc, n).length) pagas++;
+    const restantes = pc.total - pc.numAtual + 1 - pagas;
+    h += `<div class="naoprevisto-row"><span><span class="dot-cartao" style="background:${c ? c.cor : "var(--ink-soft)"}"></span> <strong>${esc(pc.descricao)}</strong> <span class="muted">${c ? esc(c.nome) : "cartão removido"} · parcelas ${pc.numAtual} a ${pc.total} · até ${monthLabel(parcelaMonthKey(pc, pc.total))} · ${restantes} a lançar</span></span><span style="display:flex;align-items:center;gap:8px;">R$ <input type="number" step="0.01" min="0" class="note-input" style="width:90px;text-align:right;" data-action="edit-parc-valor" data-id="${pc.id}" value="${pc.valor}" /><button class="del-btn" data-action="del-parcelado" data-id="${pc.id}" title="Excluir compromisso">🗑️</button></span></div>`;
+  });
+  const grupos = detectarGruposParcela();
+  if (grupos.length > 0) {
+    h += `<p class="panel-title" style="margin-top:16px;">Projeções que parecem parcelas</p>`;
+    h += `<p class="hint" style="margin-top:0;">Estas projeções têm "(parcela n/N)" no nome. Converta para tirá-las da lista de metas e passá-las ao bloco de parcelas e às faturas.</p>`;
+    grupos.forEach((g) => {
+      h += `<div class="naoprevisto-row"><span><strong>${esc(g.base)}</strong> <span class="muted">${g.itens.length} projeções · parcelas ${g.itens[0].num} a ${g.itens[g.itens.length - 1].num} de ${g.total}</span></span><span style="display:flex;align-items:center;gap:6px;"><select class="field" style="width:auto;min-height:32px;padding:3px 8px;" id="conv-cartao-${esc(g.key)}"><option value="">Cartão...</option>${state.cartoes.map((c) => `<option value="${c.id}">${esc(c.nome)}</option>`).join("")}</select><button class="btn btn-outline" style="font-size:12px;min-height:32px;" data-action="conv-parc" data-key="${esc(g.key)}">Converter</button></span></div>`;
+    });
+  }
+  h += `</div>`;
+  return h;
+}
+
 function metaStatus(r) {
   if (r.finalizado) return { id: "fechada", label: "✓ fechada", cor: C.green, ordem: 5 };
   if (r.type === "despesa" && r.excedida) return { id: "estourada", label: "estourada", cor: C.red, ordem: 0 };
@@ -1351,10 +1622,12 @@ function getMonthComparison(yearOverride, monthOverride) {
   const planned = getPlannedItemsForMonth(state.plannedItems, y, m);
   const monthReal = transactionsInPeriod(state.transactions, y, m);
   const usedRealIds = new Set();
+  const parcIds = new Set((state.parcelados || []).map((x) => x.id));
+  const isParc = (t) => !!t.parcelaId && parcIds.has(t.parcelaId);
   const rows = planned.map((p) => {
     // Etiqueta explícita (plannedItemId) tem prioridade; sem etiqueta, cai pro nome idêntico
     // (compatibilidade com lançamentos antigos, que nunca tiveram esse campo).
-    const matches = monthReal.filter((t) => t.type === p.type && (
+    const matches = monthReal.filter((t) => !isParc(t) && t.type === p.type && (
       t.plannedItemId ? t.plannedItemId === p.id : t.description.trim().toLowerCase() === p.description.trim().toLowerCase()
     ));
     matches.forEach((m) => usedRealIds.add(m.id));
@@ -1372,23 +1645,30 @@ function getMonthComparison(yearOverride, monthOverride) {
     const atualizado = finalizado ? realizado : excedida ? realizado : p.value;
     return { ...p, realizado, lancado, diff, favoravel, excedida, finalizado, atualizado, noteKey, lancamentos: matches, dueDate: dueDateFor(p, key) };
   });
+  // Parcelas de cartão: lançamentos vinculados a uma parcela não são "não previstos" — contam na parcela.
+  monthReal.filter(isParc).forEach((t) => usedRealIds.add(t.id));
+  const parcelasMes = parcelasDoMes(key);
+  const parcPlan = parcelasMes.reduce((s, x) => s + x.valor, 0);
+  const parcAtual = parcelasMes.reduce((s, x) => s + x.atual, 0);
+  const parcReal = parcelasMes.reduce((s, x) => s + x.realizado, 0);
+  const parcPend = parcelasMes.reduce((s, x) => s + (x.lancada ? 0 : x.valor), 0);
   const naoPrevistos = monthReal.filter((t) => !usedRealIds.has(t.id));
   const naoPrevistosReceita = naoPrevistos.filter((t) => t.type === "receita").reduce((s, t) => s + Number(t.value), 0);
   const naoPrevistosDespesa = naoPrevistos.filter((t) => t.type === "despesa").reduce((s, t) => s + Number(t.value), 0);
   const totalPlanejadoReceita = planned.filter((p) => p.type === "receita").reduce((s, p) => s + p.value, 0);
-  const totalPlanejadoDespesa = planned.filter((p) => p.type === "despesa").reduce((s, p) => s + p.value, 0);
+  const totalPlanejadoDespesa = planned.filter((p) => p.type === "despesa").reduce((s, p) => s + p.value, 0) + parcPlan;
   const totalRealizadoReceita = rows.filter((r) => r.type === "receita").reduce((s, r) => s + r.realizado, 0) + naoPrevistosReceita;
-  const totalRealizadoDespesa = rows.filter((r) => r.type === "despesa").reduce((s, r) => s + r.realizado, 0) + naoPrevistosDespesa;
+  const totalRealizadoDespesa = rows.filter((r) => r.type === "despesa").reduce((s, r) => s + r.realizado, 0) + naoPrevistosDespesa + parcReal;
   // Atualizado = meta, mas sobe pro valor real quando ele já foi lançado e excedeu a meta,
   // ou trava no valor real quando o item foi marcado como "finalizado".
   // Não previstos entram inteiros, pois são gasto/receita real fora do planejamento original.
   const totalAtualizadoReceita = rows.filter((r) => r.type === "receita").reduce((s, r) => s + r.atualizado, 0) + naoPrevistosReceita;
-  const totalAtualizadoDespesa = rows.filter((r) => r.type === "despesa").reduce((s, r) => s + r.atualizado, 0) + naoPrevistosDespesa;
+  const totalAtualizadoDespesa = rows.filter((r) => r.type === "despesa").reduce((s, r) => s + r.atualizado, 0) + naoPrevistosDespesa + parcAtual;
   // "A pagar" / "a receber" = a diferença entre o Atualizado e o já lançado, por item — ou
   // seja, o que ainda falta pra cada meta bater (0 quando excedida ou finalizada).
-  const aPagar = rows.filter((r) => r.type === "despesa").reduce((s, r) => s + Math.max(0, r.atualizado - r.realizado), 0);
+  const aPagar = rows.filter((r) => r.type === "despesa").reduce((s, r) => s + Math.max(0, r.atualizado - r.realizado), 0) + parcPend;
   const aReceber = rows.filter((r) => r.type === "receita").reduce((s, r) => s + Math.max(0, r.atualizado - r.realizado), 0);
-  return { key, rows, naoPrevistos, naoPrevistosReceita, naoPrevistosDespesa, allReal: monthReal, totalPlanejadoReceita, totalPlanejadoDespesa, totalAtualizadoReceita, totalAtualizadoDespesa, totalRealizadoReceita, totalRealizadoDespesa, aPagar, aReceber };
+  return { key, rows, naoPrevistos, naoPrevistosReceita, naoPrevistosDespesa, allReal: monthReal, totalPlanejadoReceita, totalPlanejadoDespesa, totalAtualizadoReceita, totalAtualizadoDespesa, totalRealizadoReceita, totalRealizadoDespesa, aPagar, aReceber, parcelasMes, parcPlan, parcAtual, parcReal, parcPend };
 }
 
 // Saldo inicial projetado de um mês = soma do líquido "Atualizado" (projetado) de todos os
@@ -1770,7 +2050,16 @@ function reportCalendario() {
 
 function reportCartao() {
   const todayStr = localTodayISO();
-  const compras = state.transactions.filter((t) => t.isCartao && t.dueDate);
+  const reais = state.transactions.filter((t) => t.isCartao && t.dueDate);
+  // parcelas já assumidas e ainda não lançadas entram como "previstas" na fatura do mês delas
+  const previstas = [];
+  (state.parcelados || []).forEach((pc) => {
+    for (let num = pc.numAtual; num <= pc.total; num++) {
+      if (parcelaTxs(pc, num).length) continue;
+      previstas.push({ id: `prev-${pc.id}-${num}`, description: `${pc.descricao} (parcela ${num}/${pc.total})`, value: pc.valor, cartaoId: pc.cartaoId, dueDate: parcelaDueDate(pc, parcelaMonthKey(pc, num)), previsto: true });
+    }
+  });
+  const compras = [...reais, ...previstas];
   if (compras.length === 0) return `<p class="panel-title">💳 Faturas</p><p class="hint">Nenhuma compra no cartão lançada ainda.</p>`;
   const porVenc = {};
   compras.forEach((t) => { (porVenc[t.dueDate] = porVenc[t.dueDate] || []).push(t); });
@@ -1784,10 +2073,11 @@ function reportCartao() {
     lista.forEach((d) => {
       const itens = porVenc[d];
       const total = itens.reduce((s, t) => s + Number(t.value), 0);
-      h += `<div class="panel" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>${new Date(d + "T00:00:00").toLocaleDateString("pt-BR")}</strong><span class="bold red">${brl(total)}</span></div>`;
+      const prevTotal = itens.filter((t) => t.previsto).reduce((s, t) => s + Number(t.value), 0);
+      h += `<div class="panel" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>${new Date(d + "T00:00:00").toLocaleDateString("pt-BR")}</strong><span class="bold red">${prevTotal > 0 ? `<span class="muted" style="font-weight:400;font-size:11px;">inclui ${brl(prevTotal)} previstos · </span>` : ""}${brl(total)}</span></div>`;
       itens.forEach((t) => {
         const cartao = state.cartoes.find((c) => c.id === t.cartaoId);
-        h += `<div class="naoprevisto-row"><span>${cartao ? `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${cartao.cor};margin-right:5px;"></span>` : ""}${esc(t.description)} ${cartao ? `<span class="muted">(${esc(cartao.nome)})</span>` : ""}</span><span class="red">${brl(t.value)}</span></div>`;
+        h += `<div class="naoprevisto-row"><span>${cartao ? `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${cartao.cor};margin-right:5px;"></span>` : ""}${esc(t.description)}${t.previsto ? ` <span class="badge" style="background:${d < todayStr ? "var(--red)" : "var(--badge-brass)"}">${d < todayStr ? "sem lançamento" : "previsto"}</span>` : ""} ${cartao ? `<span class="muted">(${esc(cartao.nome)})</span>` : ""}</span><span class="red">${brl(t.value)}</span></div>`;
       });
       h += `</div>`;
     });
@@ -2002,7 +2292,7 @@ function render() {
   })();
 
   let html = "";
-  html += `<div class="cover"><div><p class="eyebrow">Exercício 2026–2027</p><h1>Livro-Caixa</h1></div><div style="display:flex;align-items:center;gap:12px;"><button data-action="logout" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#F8FAFC;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;">Sair</button><div style="font-size:28px;">💼</div></div></div>`;
+  html += `<div class="cover">${logoFull()}<div class="cover-right"><span class="cover-chip">Exercício 2026–2027</span><button class="cover-btn" data-action="toggle-theme" title="Alternar tema claro/escuro" aria-label="Alternar tema">${iconSVG(effectiveTheme() === "dark" ? "sun" : "moon")}<span>${effectiveTheme() === "dark" ? "Claro" : "Escuro"}</span></button><button class="cover-btn" data-action="logout" title="Sair da conta">${iconSVG("logout")}<span>Sair</span></button></div></div>`;
   if (state.saveError) html += `<div class="save-error">Não foi possível salvar agora. Seus lançamentos podem se perder ao recarregar.</div>`;
 
   // Navegação principal: Planejamento (tela do dia a dia) x Relatórios (análises, sem misturar com o planejamento)
@@ -2068,6 +2358,7 @@ function render() {
     html += `<div class="cfg-panel">`;
     html += `<button class="btn btn-brass" data-action="toggle-goals">🎯 ${state.showGoalsManager ? "Fechar metas" : "Editar metas"}</button>`;
     html += `<button class="btn btn-outline" data-action="toggle-cat">🏷️ Categorias</button>`;
+    html += `<button class="btn btn-outline" data-action="toggle-parc-manager">💳 ${state.showParcManager ? "Fechar parcelas" : "Parcelas"}</button>`;
     html += `<button class="btn btn-outline" data-action="toggle-bicho-manager">🐾 ${state.showBichoManager ? "Fechar bichos" : "Bichos"}</button>`;
     html += `<button class="btn btn-outline" data-action="toggle-card-manager">💳 ${state.showCardManager ? "Fechar cartões" : "Cartões"}</button>`;
     html += `<button class="btn btn-outline" data-action="export-backup">💾 Exportar backup</button>`;
@@ -2081,6 +2372,9 @@ function render() {
     html += `<form class="grid cols-6-md panel" id="tx-form" style="margin-bottom:16px;">`;
     if (editingTxId) {
       html += `<p class="panel-title span-6" style="grid-column:span 6;color:var(--brass-text)">✏️ Editando lançamento</p>`;
+    } else if (form.parcelaId) {
+      const _pcb = (state.parcelados || []).find((x) => x.id === form.parcelaId);
+      html += `<p class="panel-title span-6" style="grid-column:span 6;color:var(--brass-text)">💳 Lançar parcela ${form.parcelaNum}/${_pcb ? _pcb.total : "?"} — confira a data e confirme</p>`;
     } else if (form.fromQuick) {
       html += `<p class="panel-title span-6" style="grid-column:span 6;color:var(--brass-text)">⚡ Lançamento rápido — confira a data e escolha a forma de pagamento</p>`;
     }
@@ -2133,6 +2427,8 @@ function render() {
     }
     html += `</form>`;
   }
+
+  if (state.showParcManager) html += renderParcManager();
 
   // Gerenciador de bichos e grupos
   if (state.showBichoManager) {
@@ -2285,7 +2581,7 @@ function render() {
       html += `<div class="kpi-row">`;
       html += `<div class="kpi-mini"><p class="l">Saldo realizado no mês</p><p class="v" style="color:${saldoReal >= 0 ? C.green : C.red}">${brl(saldoReal)}</p><p class="s">receitas − despesas já lançadas</p></div>`;
       html += `<div class="kpi-mini"><p class="l">A receber</p><p class="v green">${brl(monthComparison.aReceber)}</p><p class="s">falta entrar</p></div>`;
-      html += `<div class="kpi-mini"><p class="l">A pagar</p><p class="v red">${brl(monthComparison.aPagar)}</p><p class="s">${nPend} projeção(ões) sem lançamento${nEst ? ` · ${nEst} estourada(s)` : ""}</p></div>`;
+      html += `<div class="kpi-mini"><p class="l">A pagar</p><p class="v red">${brl(monthComparison.aPagar)}</p><p class="s">${nPend} projeção(ões) sem lançamento${nEst ? ` · ${nEst} estourada(s)` : ""}${monthComparison.parcPend > 0 ? ` · inclui ${brl(monthComparison.parcPend)} em parcelas` : ""}</p></div>`;
       html += `<div class="kpi-mini destaque"><p class="l brass-text">Previsão de fechamento</p><p class="v" style="color:${previsao >= 0 ? C.green : C.red}">${brl(previsao)}</p><p class="s">saldo realizado + a receber − a pagar</p></div>`;
       html += `</div>`;
     }
@@ -2331,11 +2627,11 @@ function render() {
 
     const renderCompTable = (rows, type) => {
       const isReceita = type === "receita";
-      const totalPlanejado = isReceita ? monthComparison.totalPlanejadoReceita : monthComparison.totalPlanejadoDespesa;
-      const totalAtualizado = isReceita ? monthComparison.totalAtualizadoReceita : monthComparison.totalAtualizadoDespesa;
-      const totalRealizado = isReceita ? monthComparison.totalRealizadoReceita : monthComparison.totalRealizadoDespesa;
+      const totalPlanejado = isReceita ? monthComparison.totalPlanejadoReceita : monthComparison.totalPlanejadoDespesa - monthComparison.parcPlan;
+      const totalAtualizado = isReceita ? monthComparison.totalAtualizadoReceita : monthComparison.totalAtualizadoDespesa - monthComparison.parcAtual;
+      const totalRealizado = isReceita ? monthComparison.totalRealizadoReceita : monthComparison.totalRealizadoDespesa - monthComparison.parcReal;
       const naoPrevistoVal = isReceita ? monthComparison.naoPrevistosReceita : monthComparison.naoPrevistosDespesa;
-      const pendente = isReceita ? monthComparison.aReceber : monthComparison.aPagar;
+      const pendente = isReceita ? monthComparison.aReceber : monthComparison.aPagar - monthComparison.parcPend;
       const colorClass = isReceita ? "green" : "red";
       const mesFechado = isMonthKeyClosed(monthComparison.key);
       const rowsFiltradas = rows
@@ -2434,8 +2730,11 @@ function render() {
       return h;
     };
 
+    html += `<div class="proj-cols">`;
     html += renderCompTable(monthComparison.rows.filter((r) => r.type === "receita"), "receita");
     html += renderCompTable(monthComparison.rows.filter((r) => r.type === "despesa"), "despesa");
+    html += `</div>`;
+    html += renderParcelasBlock(monthComparison);
 
     const saldoP = monthComparison.totalPlanejadoReceita - monthComparison.totalPlanejadoDespesa;
     const saldoA = monthComparison.totalAtualizadoReceita - monthComparison.totalAtualizadoDespesa;
@@ -2518,7 +2817,7 @@ function render() {
         itens.forEach((t) => {
           const cat = catById(t.categoryId);
           const meta = t.plannedItemId ? state.plannedItems.find((p) => p.id === t.plannedItemId) : null;
-          html += `<div class="tx-row"><div class="tx-main"><div>${esc(t.description)}${bichoChips(t)}</div><div class="tx-sub"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span>${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>` : ""}</div></div>`;
+          html += `<div class="tx-row"><div class="tx-main"><div>${esc(t.description)}${bichoChips(t)}</div><div class="tx-sub"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span>${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}${parcelaBadge(t)}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>` : ""}</div></div>`;
           html += `<div class="tx-side"><span style="color:${t.type === "receita" ? C.green : C.red};font-weight:600;">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</span>${isDateLocked(t.date)
             ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
             : `<span><button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button><button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></span>`}</div></div>`;
@@ -2702,6 +3001,40 @@ function saveOverrideFromInput() {
 
 let listenersInitialized = false;
 
+// ================= MARCA — LOGO (SVG vetorial) =================
+// Símbolo: livro aberto (geometria simples) + barras ascendentes + seta de crescimento discreta.
+// Usa currentColor no livro e variáveis CSS nas barras/seta; a classe "logo-mono" deixa tudo em uma cor só.
+function logoSymbol(extraClass) {
+  return `<svg class="logo-symbol ${extraClass || ""}" viewBox="0 0 48 48" role="img" aria-label="Livro-Caixa" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path class="lg-book" d="M5 15 23 19V41L5 37Z M43 15 25 19V41L43 37Z" stroke-width="2.6"/>
+    <path class="lg-arrow" d="M28 14 42 5M36.5 5H42V10.5" stroke-width="2.6"/>
+    <g class="lg-bars" stroke="none"><rect x="28.5" y="30" width="3.4" height="6" rx=".8"/><rect x="33.3" y="26" width="3.4" height="10" rx=".8"/><rect x="38.1" y="22" width="3.4" height="14" rx=".8"/></g>
+  </svg>`;
+}
+function logoFull() {
+  return `<div class="brand">${logoSymbol()}<div class="brand-text"><span class="brand-name">Livro-Caixa</span><span class="brand-tag">Sua vida financeira, sob controle.</span></div></div>`;
+}
+
+// ================= TEMA (claro / escuro) =================
+// Sem preferência salva, segue o sistema; o botão do cabeçalho fixa claro ou escuro neste aparelho.
+function effectiveTheme() {
+  const t = document.documentElement.getAttribute("data-theme");
+  if (t === "dark" || t === "light") return t;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function applyTheme(t) {
+  if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  else document.documentElement.removeAttribute("data-theme");
+  try { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", effectiveTheme() === "dark" ? "#0E1A2E" : "#1E293B"); } catch (e) {}
+}
+function toggleTheme() {
+  const next = effectiveTheme() === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try { localStorage.setItem("lc-theme", next); } catch (e) {}
+  render();
+}
+try { const saved = localStorage.getItem("lc-theme"); if (saved === "dark" || saved === "light") applyTheme(saved); } catch (e) {}
+
 // ================= ÍCONES VETORIAIS =================
 // Os textos do sistema usam emojis; depois de cada render, trocamos por ícones SVG de traço
 // (herdam a cor do texto, funcionam no modo escuro e ficam nítidos em qualquer tamanho).
@@ -2740,6 +3073,9 @@ const ICON_PATHS = {
   refresh: '<path d="M20 11a8 8 0 0 0-14-4L4 9"/><path d="M4 4v5h5"/><path d="M4 13a8 8 0 0 0 14 4l2-2"/><path d="M20 20v-5h-5"/>',
   dot: '<circle cx="12" cy="12" r="6"/>',
   ruler: '<path d="M3 17L17 3l4 4L7 21Z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10Z"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/>',
 };
 const EMOJI_ICON = {
   "🗑": "trash", "💳": "card", "📈": "up", "🐾": "paw", "✏": "edit", "✅": "checkc", "🔒": "lock", "📦": "archive",
@@ -2792,6 +3128,7 @@ function attachListeners() {
       else if (action === "toggle-form") { state.showForm = !state.showForm; if (state.showForm) state.area = "lancamentos"; render(); }
       else if (action === "toggle-cat") { state.showCatManager = !state.showCatManager; render(); }
       else if (action === "toggle-goals") { state.showGoalsManager = !state.showGoalsManager; render(); }
+      else if (action === "toggle-theme") { toggleTheme(); }
       else if (action === "logout") { if (confirm("Sair da sua conta?")) doLogout(); }
       else if (action === "toggle-section") { const s = el.dataset.section; const cur = s.startsWith("real-") ? state.expanded[s] !== false : !!state.expanded[s]; state.expanded[s] = !cur; render(); }
       else if (action === "set-area") { state.area = el.dataset.area; render(); }
@@ -2805,6 +3142,11 @@ function attachListeners() {
       else if (action === "toggle-meta-bicho") { toggleMetaBicho(el.dataset.id, el.dataset.bicho); }
       else if (action === "set-cat-tipo") { state.reportCatTipo = el.dataset.value; render(); }
       else if (action === "toggle-form-mais") { state.formMais = !state.formMais; render(); }
+      else if (action === "toggle-parc-manager") { state.showParcManager = !state.showParcManager; render(); }
+      else if (action === "add-parcelado") { addParcelado(); }
+      else if (action === "del-parcelado") { delParcelado(el.dataset.id); }
+      else if (action === "lancar-parcela") { lancarParcela(el.dataset.id, Number(el.dataset.num)); }
+      else if (action === "conv-parc") { const sel = document.getElementById("conv-cartao-" + el.dataset.key); converterGrupoParcela(el.dataset.key, sel ? sel.value : ""); }
       else if (action === "toggle-cfg") { state.showCfg = !state.showCfg; render(); }
       else if (action === "toggle-reconciliado") { toggleReconciliado(el.dataset.key); }
       else if (action === "set-filtro-status") { state.filtroStatus = el.dataset.value; render(); }
@@ -2860,6 +3202,14 @@ function attachListeners() {
   app.querySelectorAll('[data-action="edit-goal-value"]').forEach((inp) => {
     inp.addEventListener("input", (e) => updatePlannedItemValue(inp.dataset.id, e.target.value));
     inp.addEventListener("blur", () => { persist(); });
+  });
+  app.querySelectorAll('[data-action="edit-parc-valor"]').forEach((inp) => {
+    inp.addEventListener("change", (e) => {
+      const v = Number(e.target.value);
+      if (!(v > 0)) { render(); return; }
+      state.parcelados = state.parcelados.map((x) => (x.id === inp.dataset.id ? { ...x, valor: v } : x));
+      persist(); render();
+    });
   });
   app.querySelectorAll('[data-action="edit-goal-dia"]').forEach((inp) => {
     inp.addEventListener("change", (e) => {
