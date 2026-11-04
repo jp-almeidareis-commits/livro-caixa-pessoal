@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Livro-Caixa</title>
 <meta name="theme-color" content="#1E293B" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Livro-Caixa" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%231E293B'/%3E%3Cg transform='translate(4 5) scale(.83)' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 15 23 19V41L5 37Z M43 15 25 19V41L43 37Z' stroke='%23fff' stroke-width='2.6'/%3E%3Cpath d='M28 14 42 5M36.5 5H42V10.5' stroke='%23F59E0B' stroke-width='2.6'/%3E%3Cg fill='%234ADE80' stroke='none'%3E%3Crect x='28.5' y='30' width='3.4' height='6' rx='.8'/%3E%3Crect x='33.3' y='26' width='3.4' height='10' rx='.8'/%3E%3Crect x='38.1' y='22' width='3.4' height='14' rx='.8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E" />
 <style>
   :root {
@@ -1051,6 +1057,44 @@ function delParcelado(id) {
   state.parcelados = state.parcelados.filter((x) => x.id !== id);
   persist(); render();
 }
+// Lança de uma vez todas as parcelas ainda não lançadas do mês, na data de vencimento da fatura do cartão.
+function lancarParcelasMes(key) {
+  if (isMonthKeyClosed(key)) { alert(`${monthLabel(key)} está fechado. Reabra o mês pra poder lançar.`); return; }
+  const pend = parcelasDoMes(key).filter((x) => !x.lancada);
+  if (pend.length === 0) return;
+  const [y, m] = key.split("-").map(Number);
+  const total = pend.reduce((s, x) => s + x.valor, 0);
+  const ddmm = (d) => new Date(d + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  const linhas = pend.map((x) => `• ${x.pc.descricao} (${x.num}/${x.pc.total}) — ${brl(x.valor)} — fatura ${ddmm(x.dueDate)}`).join("\n");
+  if (!confirm(`Lançar ${pend.length} parcela(s) de ${monthLabel(key)}, no total de ${brl(total)}?\n\nCada uma entra na data de vencimento da fatura do cartão.\n\n${linhas}`)) return;
+  pend.forEach((x) => {
+    state.transactions.push({
+      id: uid(), date: clampDateToPeriod(x.dueDate, y, m - 1), description: `${x.pc.descricao} (parcela ${x.num}/${x.pc.total})`,
+      type: "despesa", categoryId: x.pc.categoryId || categoriesForType("despesa")[0]?.id || "", value: x.valor,
+      isCartao: true, cartaoId: x.pc.cartaoId, dueDate: x.dueDate, plannedItemId: null, bichoIds: [],
+      parcelaId: x.pc.id, parcelaNum: x.num,
+    });
+  });
+  persist(); render();
+}
+// Edita descrição, cartão, valor ou total de parcelas de um compromisso (a numeração/mês inicial não muda aqui).
+function editParcelado(id, campo, valor) {
+  const pc = (state.parcelados || []).find((x) => x.id === id); if (!pc) return;
+  if (campo === "descricao") {
+    const v = String(valor || "").trim(); if (!v) { render(); return; }
+    pc.descricao = v;
+  } else if (campo === "cartaoId") {
+    if (!state.cartoes.some((c) => c.id === valor)) { render(); return; }
+    pc.cartaoId = valor;
+    state.transactions = state.transactions.map((t) => (t.parcelaId === id ? { ...t, cartaoId: valor, isCartao: true } : t));
+  } else if (campo === "total") {
+    const v = parseInt(valor, 10);
+    const maxLanc = Math.max(0, ...state.transactions.filter((t) => t.parcelaId === id).map((t) => Number(t.parcelaNum) || 0));
+    if (!(v >= 1) || v < pc.numAtual || v < maxLanc) { alert(`O total precisa ser pelo menos ${Math.max(pc.numAtual, maxLanc)} (parcela atual / última já lançada).`); render(); return; }
+    pc.total = v;
+  }
+  persist(); render();
+}
 function detectarGruposParcela() {
   const re = /^(.*?)\s*\(parcela\s+(\d+)\s*\/\s*(\d+)\)\s*$/i;
   const grupos = {};
@@ -1540,6 +1584,10 @@ function renderParcelasBlock(mc) {
   h += `<div class="proj-head"><p class="panel-title" style="margin:0;font-size:14px;">💳 Parcelas no cartão <span class="muted" style="font-weight:400;">· ${lista.length} neste mês</span></p><div class="proj-stats">`;
   h += `<div><span>Previsto</span><b class="muted">${brl(mc.parcPlan)}</b></div><div><span>Realizado</span><b class="red">${brl(mc.parcReal)}</b></div><div><span>A pagar</span><b>${brl(mc.parcPend)}</b></div></div></div>`;
   if (lista.length === 0) h += `<p class="hint" style="margin:0 0 8px;">Nenhuma parcela cai neste mês.</p>`;
+  const pendentes = lista.filter((x) => !x.lancada);
+  if (pendentes.length > 0 && !fechado) {
+    h += `<div style="margin:0 0 8px;"><button class="btn btn-brass" style="font-size:12px;" data-action="lancar-parcelas-mes" data-key="${mc.key}" title="Lança todas as parcelas pendentes na data de vencimento da fatura">⚡ Lançar todas as pendentes (${pendentes.length} · ${brl(pendentes.reduce((s, x) => s + x.valor, 0))})</button></div>`;
+  }
   lista.forEach((x) => {
     const c = state.cartoes.find((k) => k.id === x.pc.cartaoId);
     const rest = x.pc.total - x.num;
@@ -1584,7 +1632,7 @@ function renderParcManager() {
     const c = state.cartoes.find((k) => k.id === pc.cartaoId);
     let pagas = 0; for (let n = pc.numAtual; n <= pc.total; n++) if (parcelaTxs(pc, n).length) pagas++;
     const restantes = pc.total - pc.numAtual + 1 - pagas;
-    h += `<div class="naoprevisto-row"><span><span class="dot-cartao" style="background:${c ? c.cor : "var(--ink-soft)"}"></span> <strong>${esc(pc.descricao)}</strong> <span class="muted">${c ? esc(c.nome) : "cartão removido"} · parcelas ${pc.numAtual} a ${pc.total} · até ${monthLabel(parcelaMonthKey(pc, pc.total))} · ${restantes} a lançar</span></span><span style="display:flex;align-items:center;gap:8px;">R$ <input type="number" step="0.01" min="0" class="note-input" style="width:90px;text-align:right;" data-action="edit-parc-valor" data-id="${pc.id}" value="${pc.valor}" /><button class="del-btn" data-action="del-parcelado" data-id="${pc.id}" title="Excluir compromisso">🗑️</button></span></div>`;
+    h += `<div class="naoprevisto-row" style="flex-wrap:wrap;gap:6px 10px;"><span style="display:flex;align-items:center;gap:6px;flex:1;min-width:220px;"><span class="dot-cartao" style="background:${c ? c.cor : "var(--ink-soft)"}"></span><input type="text" class="note-input" style="flex:1;min-width:120px;font-weight:600;" data-action="edit-parc-campo" data-campo="descricao" data-id="${pc.id}" value="${esc(pc.descricao)}" /><select class="field" style="width:auto;min-height:32px;padding:3px 8px;" data-action="edit-parc-campo" data-campo="cartaoId" data-id="${pc.id}">${state.cartoes.map((k) => `<option value="${k.id}" ${k.id === pc.cartaoId ? "selected" : ""}>${esc(k.nome)}</option>`).join("")}</select></span><span style="display:flex;align-items:center;gap:6px;">R$ <input type="number" step="0.01" min="0" class="note-input" style="width:80px;text-align:right;" data-action="edit-parc-valor" data-id="${pc.id}" value="${pc.valor}" /> · total <input type="number" min="1" max="60" class="note-input" style="width:52px;text-align:right;" data-action="edit-parc-campo" data-campo="total" data-id="${pc.id}" value="${pc.total}" /><button class="del-btn" data-action="del-parcelado" data-id="${pc.id}" title="Excluir compromisso">🗑️</button></span><span class="muted" style="width:100%;font-size:11px;">parcelas ${pc.numAtual} a ${pc.total} · primeira em ${monthLabel(pc.primeiraVenc)} · até ${monthLabel(parcelaMonthKey(pc, pc.total))} · ${restantes} a lançar</span></div>`;
   });
   const grupos = detectarGruposParcela();
   if (grupos.length > 0) {
@@ -3145,6 +3193,7 @@ function attachListeners() {
       else if (action === "toggle-parc-manager") { state.showParcManager = !state.showParcManager; render(); }
       else if (action === "add-parcelado") { addParcelado(); }
       else if (action === "del-parcelado") { delParcelado(el.dataset.id); }
+      else if (action === "lancar-parcelas-mes") { lancarParcelasMes(el.dataset.key); }
       else if (action === "lancar-parcela") { lancarParcela(el.dataset.id, Number(el.dataset.num)); }
       else if (action === "conv-parc") { const sel = document.getElementById("conv-cartao-" + el.dataset.key); converterGrupoParcela(el.dataset.key, sel ? sel.value : ""); }
       else if (action === "toggle-cfg") { state.showCfg = !state.showCfg; render(); }
@@ -3210,6 +3259,9 @@ function attachListeners() {
       state.parcelados = state.parcelados.map((x) => (x.id === inp.dataset.id ? { ...x, valor: v } : x));
       persist(); render();
     });
+  });
+  app.querySelectorAll('[data-action="edit-parc-campo"]').forEach((inp) => {
+    inp.addEventListener("change", (e) => editParcelado(inp.dataset.id, inp.dataset.campo, e.target.value));
   });
   app.querySelectorAll('[data-action="edit-goal-dia"]').forEach((inp) => {
     inp.addEventListener("change", (e) => {
