@@ -943,6 +943,12 @@ function lockedAlert(dateStr) {
 // ================= BICHOS (etiquetas) =================
 function bichoById(id) { return state.bichos.find((b) => b.id === id) || null; }
 function bichosValidos(ids) { return (Array.isArray(ids) ? ids : []).filter((id) => !!bichoById(id)); }
+// Etiqueta de bicho só faz sentido em despesas da categoria Pets.
+function isCatPet(categoryId) {
+  if (categoryId === "pets") return true;
+  const c = catById(categoryId);
+  return !!(c && /\bpets?\b/i.test(c.name || ""));
+}
 function bichoChips(t) {
   const ids = bichosValidos(t && t.bichoIds);
   if (ids.length === 0) return "";
@@ -950,6 +956,7 @@ function bichoChips(t) {
 }
 // Etiquetas efetivas do formulário: se o usuário ainda não mexeu, herda as da projeção escolhida.
 function formBichoIds() {
+  if (!isCatPet(form.categoryId)) return [];
   if (form.bichosTocado) return bichosValidos(form.bichoIds);
   const pi = state.plannedItems.find((x) => x.id === form.plannedItemId);
   return bichosValidos(pi && pi.bichoIds);
@@ -1871,7 +1878,7 @@ function buildRelatoriosHTML() {
   // "emprestimos" fica de fora da lista visível de propósito — é uma aba discreta, acessada só pelo ponto nas reticências.
   const abas = [
     ["geral", "📋 Visão geral"], ["categorias", "🏷️ Categorias"], ["metas", "🎯 Metas"],
-    ["cartao", "💳 Faturas"], ["calendario", "📅 Calendário"], ["evolucao", "📈 Evolução do saldo"], ["bichos", "🐾 Bichos"],
+    ["cartao", "💳 Faturas"], ["calendario", "📅 Calendário"], ["evolucao", "📈 Evolução do saldo"], ["bichos", "🐾 Bichos"], ["explorar", "🔎 Explorar"],
   ];
   abas.forEach(([id, label]) => { html += `<button class="report-nav-btn ${state.reportTab === id ? "active" : ""}" data-action="set-report-tab" data-report="${id}">${label}</button>`; });
   html += `<button class="report-nav-btn ${state.reportTab === "emprestimos" ? "active" : ""}" data-action="set-report-tab" data-report="emprestimos" title="." style="margin-left:auto;opacity:0.35;padding:6px 10px;">···</button>`;
@@ -1884,6 +1891,7 @@ function buildRelatoriosHTML() {
   else if (state.reportTab === "calendario") html += reportCalendario();
   else if (state.reportTab === "evolucao") html += reportEvolucao();
   else if (state.reportTab === "bichos") html += reportBichos();
+  else if (state.reportTab === "explorar") html += reportExplorar();
   else if (state.reportTab === "emprestimos") html += reportEmprestimos();
 
   html += `</div></div>`;
@@ -2216,6 +2224,138 @@ function reportBichos() {
   return h;
 }
 
+// ---------- Explorar: despesas (ou receitas) filtradas por período, categoria, bicho e projeção ----------
+function periodKeyOfDate(d) {
+  if (d >= "2026-08-27" && d <= "2026-09-30") return "2026-09";
+  if (d >= "2026-08-01" && d <= "2026-08-26") return "2026-08";
+  return String(d).slice(0, 7);
+}
+function projInfoOfTx(t) {
+  if (t.parcelaId) {
+    const pc = (state.parcelados || []).find((x) => x.id === t.parcelaId);
+    return pc ? { key: "parc:" + pc.id, nome: "💳 " + pc.descricao } : { key: "parc:?", nome: "💳 Parcela" };
+  }
+  if (t.plannedItemId) {
+    const p = state.plannedItems.find((x) => x.id === t.plannedItemId);
+    return p ? { key: "d:" + p.description.trim().toLowerCase(), nome: p.description } : { key: "d:(removida)", nome: "(projeção removida)" };
+  }
+  return { key: "nenhuma", nome: "Sem projeção" };
+}
+function rxDefault() { return { de: "", ate: "", tipo: "despesa", cat: "todas", bicho: "todos", proj: "todas" }; }
+function rxFiltrar() {
+  const rx = state.rx || (state.rx = rxDefault());
+  const out = [];
+  state.transactions.forEach((t) => {
+    if (t.type !== rx.tipo) return;
+    const pk = periodKeyOfDate(t.date);
+    if (rx.de && pk < rx.de) return;
+    if (rx.ate && pk > rx.ate) return;
+    if (rx.cat !== "todas" && t.categoryId !== rx.cat) return;
+    const pj = projInfoOfTx(t);
+    if (rx.proj !== "todas" && pj.key !== rx.proj) return;
+    let valor = Number(t.value);
+    if (rx.tipo === "despesa" && rx.bicho !== "todos") {
+      if (rx.bicho === "sem") { if (bichosValidos(t.bichoIds).length > 0) return; }
+      else { const parte = partesPorBicho(t).find((x) => x.bichoId === rx.bicho); if (!parte) return; valor = parte.parte; }
+    }
+    out.push({ t, pk, pj, valor });
+  });
+  return out;
+}
+function reportExplorar() {
+  const rx = state.rx || (state.rx = rxDefault());
+  const meses = mesesComDados();
+  const chaves = meses.map((m) => m.key);
+  if (rx.de && !chaves.includes(rx.de)) rx.de = "";
+  if (rx.ate && !chaves.includes(rx.ate)) rx.ate = "";
+  const cats = categoriesForType(rx.tipo);
+  if (rx.cat !== "todas" && !cats.some((c) => c.id === rx.cat)) rx.cat = "todas";
+  // projeções que realmente aparecem em lançamentos desse tipo
+  const projs = new Map();
+  state.transactions.filter((t) => t.type === rx.tipo).forEach((t) => { const pj = projInfoOfTx(t); if (!projs.has(pj.key)) projs.set(pj.key, pj.nome); });
+  if (rx.proj !== "todas" && !projs.has(rx.proj)) rx.proj = "todas";
+  const projList = [...projs.entries()].sort((a, b) => a[1].localeCompare(b[1], "pt-BR"));
+
+  let h = `<p class="panel-title">🔎 Explorar lançamentos</p>`;
+  h += `<p class="hint" style="margin-top:0;">Combine os filtros para ver quanto foi gasto (ou recebido) em algo específico. O mês segue o período do sistema (set/26 começa em 27/08). Bichos valem só para lançamentos etiquetados a partir de 01/11/2026.</p>`;
+  h += `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end;">`;
+  const sel = (id, label, opts, cur) => `<label class="field-label" style="flex:1;min-width:140px;max-width:220px;">${label}<select class="field" id="${id}">${opts.map(([v, l]) => `<option value="${esc(v)}" ${cur === v ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></label>`;
+  h += sel("rx-tipo", "Tipo", [["despesa", "Despesas"], ["receita", "Receitas"]], rx.tipo);
+  h += sel("rx-de", "De", [["", "Início"], ...meses.map((m) => [m.key, m.label])], rx.de);
+  h += sel("rx-ate", "Até", [["", "Hoje"], ...meses.map((m) => [m.key, m.label])], rx.ate);
+  h += sel("rx-cat", "Categoria", [["todas", "Todas"], ...cats.map((c) => [c.id, c.name])], rx.cat);
+  h += sel("rx-proj", "Projeção", [["todas", "Todas"], ...projList], rx.proj);
+  if (rx.tipo === "despesa") h += sel("rx-bicho", "Bicho", [["todos", "Todos"], ...state.bichos.map((b) => [b.id, b.nome]), ["sem", "Sem etiqueta"]], rx.bicho);
+  h += `<button class="btn btn-outline" style="font-size:12px;" data-action="rx-limpar">Limpar filtros</button>`;
+  h += `</div>`;
+
+  const lista = rxFiltrar();
+  if (lista.length === 0) return h + `<p class="hint">Nenhum lançamento com esses filtros.</p>`;
+  const total = lista.reduce((s, x) => s + x.valor, 0);
+  const cor = rx.tipo === "despesa" ? "var(--red)" : "var(--green)";
+  const mesesNoPeriodo = meses.filter((m) => (!rx.de || m.key >= rx.de) && (!rx.ate || m.key <= rx.ate));
+  const porMes = mesesNoPeriodo.map((m) => ({ ...m, v: lista.filter((x) => x.pk === m.key).reduce((s, x) => s + x.valor, 0) }));
+  const mesesComValor = porMes.filter((m) => m.v > 0).length || 1;
+  const maior = lista.reduce((a, b) => (b.valor > a.valor ? b : a), lista[0]);
+
+  h += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;">`;
+  h += `<div class="kpi-card"><p class="kpi-label">Total</p><p class="kpi-value" style="color:${cor}">${brl(total)}</p></div>`;
+  h += `<div class="kpi-card"><p class="kpi-label">Lançamentos</p><p class="kpi-value">${lista.length}</p></div>`;
+  h += `<div class="kpi-card"><p class="kpi-label">Média por mês</p><p class="kpi-value">${brl(total / mesesComValor)}</p><p class="hint" style="margin:4px 0 0;">nos meses com lançamentos</p></div>`;
+  h += `<div class="kpi-card"><p class="kpi-label">Maior lançamento</p><p class="kpi-value">${brl(maior.valor)}</p><p class="hint" style="margin:4px 0 0;">${esc(maior.t.description)}</p></div>`;
+  h += `</div>`;
+
+  if (porMes.length > 1) h += `<div class="chart-box"><p class="panel-title" style="margin-top:0;">Por mês</p>${svgGroupedBars(porMes.map((m) => ({ label: m.label, vals: [m.v] })), [{ nome: "Total", cor }])}</div>`;
+
+  const grupo = (titulo, fn) => {
+    const mapa = new Map();
+    lista.forEach((x) => { const [k, nome] = fn(x); const o = mapa.get(k) || { nome, v: 0, n: 0 }; o.v += x.valor; o.n++; mapa.set(k, o); });
+    const arr = [...mapa.values()].sort((a, b) => b.v - a.v).slice(0, 10);
+    if (arr.length <= 1) return "";
+    let g = `<p class="panel-title" style="margin:16px 0 6px;">${titulo}</p>`;
+    arr.forEach((o) => { const pct = total > 0 ? (o.v / total) * 100 : 0; g += `<div class="bar-chart-row"><span class="bar-chart-label" title="${esc(o.nome)}">${esc(o.nome)}</span><span class="bar-chart-track"><span class="bar-chart-fill" style="width:${Math.max(2, pct)}%;background:var(--primary)"></span></span><span class="bar-chart-value">${brl(o.v)} (${pct.toFixed(0)}%)</span></div>`; });
+    return g;
+  };
+  if (rx.cat === "todas") h += grupo("Por categoria", (x) => { const c = catById(x.t.categoryId); return [x.t.categoryId, c ? c.name : "Sem categoria"]; });
+  if (rx.proj === "todas") h += grupo("Por projeção", (x) => [x.pj.key, x.pj.nome]);
+  if (rx.tipo === "despesa" && rx.bicho === "todos" && state.bichos.length > 0) {
+    const mapa = new Map();
+    lista.forEach((x) => partesPorBicho(x.t).forEach((p) => mapa.set(p.bichoId, (mapa.get(p.bichoId) || 0) + p.parte)));
+    const arr = [...mapa.entries()].map(([id, v]) => ({ b: bichoById(id), v })).filter((o) => o.b).sort((a, b) => b.v - a.v);
+    if (arr.length > 0) {
+      const tb = arr.reduce((s, o) => s + o.v, 0);
+      h += `<p class="panel-title" style="margin:16px 0 6px;">Por bicho <span class="muted" style="font-weight:400;">(só lançamentos etiquetados)</span></p>`;
+      arr.forEach((o) => { const pct = tb > 0 ? (o.v / tb) * 100 : 0; h += `<div class="bar-chart-row"><span class="bar-chart-label">${esc(o.b.nome)}</span><span class="bar-chart-track"><span class="bar-chart-fill" style="width:${Math.max(2, pct)}%;background:${o.b.cor}"></span></span><span class="bar-chart-value">${brl(o.v)} (${pct.toFixed(0)}%)</span></div>`; });
+    }
+  }
+
+  const ord = [...lista].sort((a, b) => b.t.date.localeCompare(a.t.date));
+  const LIM = 300;
+  h += `<div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 6px;gap:8px;flex-wrap:wrap;"><p class="panel-title" style="margin:0;">Lançamentos (${lista.length})</p><button class="btn btn-outline" style="font-size:12px;" data-action="rx-csv">⬇️ Exportar CSV</button></div>`;
+  h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Data</th><th style="text-align:left">Descrição</th><th style="text-align:left">Categoria</th><th style="text-align:left">Projeção</th><th>Valor</th></tr></thead><tbody>`;
+  ord.slice(0, LIM).forEach((x) => {
+    const c = catById(x.t.categoryId);
+    h += `<tr><td style="text-align:left">${new Date(x.t.date + "T00:00:00").toLocaleDateString("pt-BR")}</td><td style="text-align:left">${esc(x.t.description)}${x.t.isCartao ? " 💳" : ""}${parcelaBadge(x.t)}${bichoChips(x.t)}</td><td style="text-align:left">${esc(c ? c.name : "—")}</td><td style="text-align:left">${esc(x.pj.nome)}</td><td class="bold" style="color:${cor}">${brl(x.valor)}${rx.bicho !== "todos" && rx.tipo === "despesa" && rx.bicho !== "sem" && Math.abs(x.valor - Number(x.t.value)) > 0.005 ? `<span class="muted" style="font-weight:400;display:block;font-size:11px;">de ${brl(x.t.value)}</span>` : ""}</td></tr>`;
+  });
+  h += `</tbody></table></div>`;
+  if (ord.length > LIM) h += `<p class="hint">Mostrando os ${LIM} mais recentes de ${ord.length}. Use os filtros ou exporte o CSV para ver tudo.</p>`;
+  return h;
+}
+function rxExportCSV() {
+  const lista = rxFiltrar().sort((a, b) => a.t.date.localeCompare(b.t.date));
+  const q = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+  const linhas = [["Data", "Descrição", "Categoria", "Projeção", "Bichos", "Valor"].map(q).join(";")];
+  lista.forEach((x) => {
+    const c = catById(x.t.categoryId);
+    linhas.push([x.t.date, x.t.description, c ? c.name : "", x.pj.nome, bichosValidos(x.t.bichoIds).map((id) => bichoById(id).nome).join(", "), String(x.valor.toFixed(2)).replace(".", ",")].map(q).join(";"));
+  });
+  const blob = new Blob(["﻿" + linhas.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `livro-caixa-explorar-${localTodayISO()}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
 // ---------- Empréstimos consignados + Reserva pra quitação ----------
 function reportEmprestimos() {
   const totalDevedor = totalSaldoDevedorEmprestimos();
@@ -2455,7 +2595,7 @@ function render() {
       html += `<p class="hint span-2" style="margin:0;grid-column:span 2;">📇 A Data acima é o dia real da compra — ela impacta a meta/categoria no mês em que você <strong>consumiu</strong>. Já o Vencimento decide o mês em que essa despesa pesa no <strong>saldo/caixa</strong> (Saldo geral e Cartão em aberto). Preenchido automaticamente pelo dia de vencimento cadastrado do cartão — pode ajustar se precisar.</p>`;
     }
     let bichosHtml = "";
-    if (state.bichos.length > 0 && form.type === "despesa") {
+    if (state.bichos.length > 0 && form.type === "despesa" && isCatPet(form.categoryId)) {
       const sel = formBichoIds();
       bichosHtml += `<div class="span-6" style="grid-column:span 6;"><p class="hint" style="margin:0 0 4px;">🐾 Bichos deste gasto${!form.bichosTocado && sel.length ? " (herdado da meta)" : ""} — vários = valor dividido igualmente</p><div class="bicho-row">`;
       state.grupos.forEach((g) => { const gi = bichosValidos(g.bichoIds); const on = gi.length > 0 && gi.every((id) => sel.includes(id)); bichosHtml += `<button type="button" class="bicho-chip grupo ${on ? "on" : ""}" data-action="form-grupo" data-id="${g.id}">${esc(g.nome)}</button>`; });
@@ -2748,7 +2888,7 @@ function render() {
           h += `<button class="del-btn" data-action="archive-goal" data-id="${r.id}" data-month="${monthComparison.key}" title="Arquivar meta (deixa de valer a partir do mês seguinte)">📦 arquivar</button>`;
           h += `</div>`;
           h += `<div class="meta-tools" style="margin-bottom:8px;"><label style="display:inline-flex;align-items:center;gap:6px;">Vence dia <input type="number" min="1" max="31" class="note-input" style="width:56px;" placeholder="—" data-action="edit-goal-dia" data-id="${r.id}" value="${r.diaVencimento || ""}" /> <span class="muted">(vazio = ao longo do mês)</span></label></div>`;
-          if (state.bichos.length > 0 && !isReceita) {
+          if (state.bichos.length > 0 && !isReceita && isCatPet(r.categoryId)) {
             const pb = bichosValidos((state.plannedItems.find((x) => x.id === r.id) || {}).bichoIds);
             h += `<div class="bicho-row" style="margin-bottom:8px;"><span class="hint" style="margin:0;">🐾 Bichos desta projeção (herdados pelos novos lançamentos):</span>`;
             state.bichos.forEach((b) => { h += `<button type="button" class="bicho-chip ${pb.includes(b.id) ? "on" : ""}" style="--bc:${esc(b.cor)}" data-action="toggle-meta-bicho" data-id="${r.id}" data-bicho="${b.id}">${esc(b.nome)}</button>`; });
@@ -3214,6 +3354,8 @@ function attachListeners() {
       else if (action === "unarchive-goal") { unarchivePlannedItem(el.dataset.id); }
       else if (action === "quick-launch") { quickLaunchPlannedItem(el.dataset.id, Number(el.dataset.year), Number(el.dataset.month)); }
       else if (action === "set-tab") { state.activeTab = el.dataset.tab; render(); }
+      else if (action === "rx-limpar") { state.rx = rxDefault(); render(); }
+      else if (action === "rx-csv") { rxExportCSV(); }
       else if (action === "set-report-tab") { state.reportTab = el.dataset.report; render(); }
       else if (action === "toggle-card-manager") { state.showCardManager = !state.showCardManager; render(); }
       else if (action === "toggle-loan-manager") { state.showLoanManager = !state.showLoanManager; render(); }
@@ -3410,6 +3552,17 @@ function attachListeners() {
   if (reportBichoMonthEl) reportBichoMonthEl.addEventListener("change", (e) => { state.reportBichoMonth = e.target.value; render(); });
   const reportBichoSelEl = document.getElementById("report-bicho-sel");
   if (reportBichoSelEl) reportBichoSelEl.addEventListener("change", (e) => { state.reportBichoSel = e.target.value; render(); });
+
+  [["rx-tipo", "tipo"], ["rx-de", "de"], ["rx-ate", "ate"], ["rx-cat", "cat"], ["rx-proj", "proj"], ["rx-bicho", "bicho"]].forEach(([id, campo]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("change", (e) => {
+      state.rx = state.rx || rxDefault();
+      state.rx[campo] = e.target.value;
+      if (campo === "tipo") { state.rx.cat = "todas"; state.rx.proj = "todas"; state.rx.bicho = "todos"; }
+      render();
+    });
+  });
 
   const reportCalMonthEl = document.getElementById("report-cal-month");
   if (reportCalMonthEl) reportCalMonthEl.addEventListener("change", (e) => { state.reportCalMonth = e.target.value; render(); });
