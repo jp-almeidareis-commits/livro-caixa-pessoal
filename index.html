@@ -274,6 +274,9 @@
   .tx-row.agendado { border-left: 3px solid var(--brass); padding-left: 8px; background: var(--brass-bg); }
   tr.agendado td { background: var(--brass-bg); }
   .badge-ag { background: var(--brass-bg); color: var(--brass-text); border: 1px solid var(--brass-border); border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .fatura-bloco { margin-top: 10px; padding: 8px 10px; border: 1px solid var(--brass); border-radius: 8px; }
+  .fatura-bloco.agendado { background: var(--brass-bg); }
+  .fatura-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding-bottom: 4px; border-bottom: 1px solid var(--line); margin-bottom: 2px; }
   .hoje-line { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; font-size: 12px; font-weight: 700; color: var(--brass-text); }
   .hoje-line::before, .hoje-line::after { content: ""; flex: 1; border-top: 2px dashed var(--brass); opacity: .7; }
   .tx-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px solid var(--line); font-size: 13px; }
@@ -538,6 +541,7 @@ let state = {
   notes: {},
   finalizados: {},
   reconciliados: {},
+  faturasFechadas: {},
   selectedMonth: new Date().getMonth(),
   selectedYear: new Date().getFullYear(),
   showAll: false,
@@ -686,6 +690,7 @@ async function loadData() {
       state.notes = parsed.notes && typeof parsed.notes === "object" ? parsed.notes : {};
       state.finalizados = parsed.finalizados && typeof parsed.finalizados === "object" ? parsed.finalizados : {};
       state.reconciliados = parsed.reconciliados && typeof parsed.reconciliados === "object" ? parsed.reconciliados : {};
+      state.faturasFechadas = parsed.faturasFechadas && typeof parsed.faturasFechadas === "object" ? parsed.faturasFechadas : {};
       state.fechamentos = parsed.fechamentos && typeof parsed.fechamentos === "object" ? parsed.fechamentos : {};
       state.cartoes = Array.isArray(parsed.cartoes) ? parsed.cartoes : DEFAULT_CARTOES;
       state.loans = Array.isArray(parsed.loans) ? parsed.loans : [];
@@ -702,6 +707,7 @@ async function loadData() {
       state.notes = {};
       state.finalizados = {};
       state.reconciliados = {};
+      state.faturasFechadas = {};
       state.fechamentos = {};
       state.cartoes = DEFAULT_CARTOES;
       state.loans = [];
@@ -715,6 +721,7 @@ async function loadData() {
     state.notes = {};
     state.finalizados = {};
     state.reconciliados = {};
+    state.faturasFechadas = {};
     state.fechamentos = {};
     state.cartoes = DEFAULT_CARTOES;
     state.loans = [];
@@ -731,7 +738,7 @@ async function persist() {
   try {
     const payload = {
       transactions: state.transactions, categories: state.categories, notes: state.notes,
-      plannedItems: state.plannedItems, finalizados: state.finalizados, reconciliados: state.reconciliados,
+      plannedItems: state.plannedItems, finalizados: state.finalizados, reconciliados: state.reconciliados, faturasFechadas: state.faturasFechadas,
       fechamentos: state.fechamentos, cartoes: state.cartoes, loans: state.loans, reservaAportes: state.reservaAportes,
       bichos: state.bichos, grupos: state.grupos, parcelados: state.parcelados,
     };
@@ -771,6 +778,32 @@ function nextDueDate(vencimentoDia, fromDateStr) {
   if (d > vencimentoDia) { targetM += 1; if (targetM > 12) { targetM = 1; targetY += 1; } }
   const lastDay = new Date(targetY, targetM, 0).getDate();
   return `${targetY}-${pad2(targetM)}-${pad2(Math.min(vencimentoDia, lastDay))}`;
+}
+
+// Vencimento sugerido pra uma compra nova no cartão: o próximo vencimento pelo dia cadastrado,
+// pulando faturas que o usuário marcou como FECHADAS (a compra cai na fatura seguinte).
+function faturaKey(cartaoId, dueDate) { return `${cartaoId || "legacy"}|${dueDate}`; }
+function dueDateCartao(cartao, fromDateStr) {
+  let due = nextDueDate(cartao.vencimentoDia, fromDateStr);
+  for (let i = 0; i < 24 && state.faturasFechadas[faturaKey(cartao.id, due)]; i++) {
+    let [y, m] = due.split("-").map(Number);
+    m += 1; if (m > 12) { m = 1; y += 1; }
+    const last = new Date(y, m, 0).getDate();
+    due = `${y}-${pad2(m)}-${pad2(Math.min(cartao.vencimentoDia, last))}`;
+  }
+  return due;
+}
+function toggleFaturaFechada(cartaoId, dueDate) {
+  const k = faturaKey(cartaoId, dueDate);
+  const c = state.cartoes.find((x) => x.id === cartaoId);
+  const nome = c ? c.nome : "Cartão";
+  if (!state.faturasFechadas[k]) {
+    if (!confirm(`Marcar a fatura ${nome} de ${ddmm(dueDate)} como FECHADA?\n\nCompras novas nesse cartão passam a vir com o vencimento da fatura seguinte. (Os lançamentos que já estão nela não mudam.)`)) return;
+    state.faturasFechadas[k] = true;
+  } else {
+    delete state.faturasFechadas[k];
+  }
+  persist(); render();
 }
 
 // ---------- Empréstimos consignados ----------
@@ -961,6 +994,41 @@ function quandoOk(t) {
 }
 function ddmm(iso) { return new Date(iso + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }); }
 function hojeLinhaHtml() { return `<div class="hoje-line">HOJE · ${ddmm(localTodayISO())} — abaixo, o que ainda vai acontecer</div>`; }
+function txRowHtml(t, futuro, comData) {
+  const cat = catById(t.categoryId);
+  const meta = t.plannedItemId ? state.plannedItems.find((p) => p.id === t.plannedItemId) : null;
+  let h = `<div class="tx-row${futuro ? " agendado" : ""}"><div class="tx-main"><div>${comData ? `<span class="muted">${ddmm(t.date)}</span> ` : ""}${esc(t.description)}${bichoChips(t)}</div><div class="tx-sub"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span>${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}${parcelaBadge(t)}${t.isCartao && !comData ? ` <span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " vence " + ddmm(t.dueDate) : ""}</span>` : ""}</div></div>`;
+  h += `<div class="tx-side"><span style="color:${t.type === "receita" ? C.green : C.red};font-weight:600;">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</span>${isDateLocked(t.date)
+    ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
+    : `<span><button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button><button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></span>`}</div></div>`;
+  return h;
+}
+// Blocos de fatura: um por cartão + vencimento, com total, status (agendada / fechada) e botão de fechar.
+function faturasBlocksHtml(lista) {
+  if (!lista.length) return "";
+  const hoje = localTodayISO();
+  const grupos = {};
+  lista.forEach((t) => {
+    const cid = t.cartaoId || "legacy", due = t.dueDate || "sem-data", k = cid + "|" + due;
+    (grupos[k] = grupos[k] || { cid, due, itens: [] }).itens.push(t);
+  });
+  let h = `<p class="panel-title" style="margin:16px 0 4px;">💳 Faturas do cartão neste período</p>`;
+  Object.values(grupos).sort((a, b) => a.due.localeCompare(b.due) || a.cid.localeCompare(b.cid)).forEach((g) => {
+    const c = state.cartoes.find((x) => x.id === g.cid);
+    const nome = c ? c.nome : "Cartão";
+    const total = g.itens.reduce((s2, t) => s2 + Number(t.value), 0);
+    const fechada = g.due !== "sem-data" && !!state.faturasFechadas[faturaKey(g.cid, g.due)];
+    const agend = g.due !== "sem-data" && g.due > hoje;
+    h += `<div class="fatura-bloco${agend ? " agendado" : ""}">`;
+    h += `<div class="fatura-head"><span class="bold"><span class="dot-cartao" style="background:${c ? c.cor : "var(--ink-soft)"}"></span> Fatura ${esc(nome)} · ${g.due === "sem-data" ? "sem vencimento" : "vence " + ddmm(g.due)}${agend ? ` <span class="badge-ag">⏳ agendada</span>` : ""}${fechada ? ` <span class="badge" style="background:var(--badge-green)">🔒 fechada</span>` : ""} <span class="muted">(${g.itens.length})</span></span><span class="red bold">-${brl(total)}</span></div>`;
+    [...g.itens].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => { h += txRowHtml(t, agend, true); });
+    if (g.due !== "sem-data") {
+      h += `<div style="text-align:right;margin-top:6px;"><button class="btn ${fechada ? "btn-outline" : "btn-primary"}" style="font-size:11px;padding:4px 9px;" data-action="toggle-fatura-fechada" data-cartao="${esc(g.cid)}" data-due="${g.due}">${fechada ? "🔓 Reabrir fatura" : "🔒 Fatura fechada — próximas compras vão pra seguinte"}</button></div>`;
+    }
+    h += `</div>`;
+  });
+  return h;
+}
 function ledgerQuandoBar(list) {
   const ag = list.filter(ehAgendado);
   const q = state.ledgerQuando || "todos";
@@ -1420,6 +1488,7 @@ function exportBackup() {
     plannedItems: state.plannedItems,
     finalizados: state.finalizados,
     reconciliados: state.reconciliados,
+    faturasFechadas: state.faturasFechadas,
     fechamentos: state.fechamentos,
     cartoes: state.cartoes,
     loans: state.loans,
@@ -1453,6 +1522,7 @@ function importBackupFile(file) {
       state.notes = parsed.notes && typeof parsed.notes === "object" ? parsed.notes : state.notes;
       state.finalizados = parsed.finalizados && typeof parsed.finalizados === "object" ? parsed.finalizados : state.finalizados;
       state.reconciliados = parsed.reconciliados && typeof parsed.reconciliados === "object" ? parsed.reconciliados : state.reconciliados;
+      state.faturasFechadas = parsed.faturasFechadas && typeof parsed.faturasFechadas === "object" ? parsed.faturasFechadas : state.faturasFechadas;
       state.fechamentos = parsed.fechamentos && typeof parsed.fechamentos === "object" ? parsed.fechamentos : state.fechamentos;
       state.cartoes = Array.isArray(parsed.cartoes) ? parsed.cartoes : state.cartoes;
       state.loans = Array.isArray(parsed.loans) ? parsed.loans : state.loans;
@@ -3035,7 +3105,8 @@ function render() {
       let divDone = false;
       const listaMes = monthComparison.allReal.filter(quandoOk);
       if (listaMes.length === 0) html += `<p class="hint">Nenhum lançamento nessa seleção.</p>`;
-      [...listaMes].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => { (porDia[t.date] = porDia[t.date] || []).push(t); });
+      const listaCartao = listaMes.filter((t) => t.isCartao);
+      [...listaMes.filter((t) => !t.isCartao)].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => { (porDia[t.date] = porDia[t.date] || []).push(t); });
       Object.keys(porDia).sort().forEach((dia) => {
         const itens = porDia[dia];
         const futuro = dia > hojeISO;
@@ -3043,15 +3114,9 @@ function render() {
         const liq = itens.reduce((s2, t) => s2 + (t.type === "receita" ? Number(t.value) : -Number(t.value)), 0);
         const dd = new Date(dia + "T00:00:00");
         html += `<div class="day-head"><span class="bold">${pad2(dd.getDate())}/${pad2(dd.getMonth() + 1)} <span class="muted">${DIAS_SEMANA[dd.getDay()]}</span>${futuro ? ` <span class="badge-ag">⏳ agendado</span>` : ""}</span><span style="color:${liq >= 0 ? C.green : C.red}">${liq >= 0 ? "+" : ""}${brl(liq)}</span></div>`;
-        itens.forEach((t) => {
-          const cat = catById(t.categoryId);
-          const meta = t.plannedItemId ? state.plannedItems.find((p) => p.id === t.plannedItemId) : null;
-          html += `<div class="tx-row${futuro ? " agendado" : ""}"><div class="tx-main"><div>${esc(t.description)}${bichoChips(t)}</div><div class="tx-sub"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span>${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}${parcelaBadge(t)}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>` : ""}</div></div>`;
-          html += `<div class="tx-side"><span style="color:${t.type === "receita" ? C.green : C.red};font-weight:600;">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</span>${isDateLocked(t.date)
-            ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
-            : `<span><button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button><button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></span>`}</div></div>`;
-        });
+        itens.forEach((t) => { html += txRowHtml(t, futuro); });
       });
+      html += faturasBlocksHtml(listaCartao);
       html += `</div>`;
     }
     html += `</div>`;
@@ -3366,6 +3431,7 @@ function attachListeners() {
       else if (action === "toggle-cat") { state.showCatManager = !state.showCatManager; render(); }
       else if (action === "toggle-goals") { state.showGoalsManager = !state.showGoalsManager; render(); }
       else if (action === "toggle-theme") { toggleTheme(); }
+      else if (action === "toggle-fatura-fechada") { toggleFaturaFechada(el.dataset.cartao, el.dataset.due); }
       else if (action === "logout") { if (confirm("Sair da sua conta?")) doLogout(); }
       else if (action === "toggle-section") { const s = el.dataset.section; const cur = s.startsWith("real-") ? state.expanded[s] !== false : !!state.expanded[s]; state.expanded[s] = !cur; render(); }
       else if (action === "set-area") { state.area = el.dataset.area; render(); }
@@ -3514,7 +3580,7 @@ function attachListeners() {
       if (!form.plannedItemId) form.plannedItemId = suggestPlannedItemId(form.description, form.type, form.categoryId, form.date);
       if (form.isCartao && form.cartaoId) {
         const cartao = state.cartoes.find((c) => c.id === form.cartaoId);
-        if (cartao) form.dueDate = nextDueDate(cartao.vencimentoDia, form.date);
+        if (cartao) form.dueDate = dueDateCartao(cartao, form.date);
       }
       render();
     });
@@ -3541,7 +3607,7 @@ function attachListeners() {
       } else {
         form.isCartao = true; form.cartaoId = e.target.value;
         const cartao = state.cartoes.find((c) => c.id === e.target.value);
-        if (cartao) form.dueDate = nextDueDate(cartao.vencimentoDia, form.date);
+        if (cartao) form.dueDate = dueDateCartao(cartao, form.date);
       }
       render();
     });
