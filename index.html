@@ -271,6 +271,11 @@
   .del-btn .ic { margin-right: 0; }
   .area-btn .ic { width: 1.2em; height: 1.2em; }
   .day-head { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 4px 4px; margin-top: 6px; border-bottom: 1px solid var(--line); color: var(--ink-soft); }
+  .tx-row.agendado { border-left: 3px solid var(--brass); padding-left: 8px; background: var(--brass-bg); }
+  tr.agendado td { background: var(--brass-bg); }
+  .badge-ag { background: var(--brass-bg); color: var(--brass-text); border: 1px solid var(--brass-border); border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .hoje-line { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; font-size: 12px; font-weight: 700; color: var(--brass-text); }
+  .hoje-line::before, .hoje-line::after { content: ""; flex: 1; border-top: 2px dashed var(--brass); opacity: .7; }
   .tx-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px solid var(--line); font-size: 13px; }
   .tx-main { min-width: 0; } .tx-sub { margin-top: 3px; display: flex; gap: 4px; flex-wrap: wrap; }
   .tx-side { display: flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0; }
@@ -558,6 +563,7 @@ let state = {
   formMais: false,
   reportBichoMonth: null,
   reportBichoSel: "todos",
+  ledgerQuando: "todos",
   reportCatTipo: "despesa",
   activeTab: "planejamento",
   area: "projecoes",
@@ -579,7 +585,14 @@ let newLoan = { nome: "", parcela: "", parcelasTotais: "", taxaJurosMensal: "" }
 let newPagamento = {}; // por empréstimo: { [loanId]: { date, valor } }
 let newAporte = { date: localTodayISO(), valor: "", nota: "" };
 
-function localTodayISO() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+// "Hoje" sempre no horário de Brasília, mesmo que o aparelho esteja em outro fuso.
+function localTodayISO() {
+  try {
+    const p = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    if (/^\d{4}-\d{2}-\d{2}$/.test(p)) return p;
+  } catch (e) { /* cai no relógio local */ }
+  const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 const todayISO = localTodayISO();
 const currentMonthKey = todayISO.slice(0, 7);
 
@@ -938,6 +951,27 @@ function isDateLocked(dateStr) {
 function lockedAlert(dateStr) {
   const key = planKeyForDate(dateStr);
   alert(`${monthLabel(key)} está fechado. Reabra o mês (botão "↩️ Reabrir mês") para poder editar, excluir ou lançar algo nessa data.`);
+}
+
+// ================= AGENDADOS (futuro × já aconteceu) =================
+function ehAgendado(t) { return !!t.date && t.date > localTodayISO(); }
+function quandoOk(t) {
+  const q = state.ledgerQuando || "todos";
+  return q === "todos" || (q === "agendados" ? ehAgendado(t) : !ehAgendado(t));
+}
+function ddmm(iso) { return new Date(iso + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }); }
+function hojeLinhaHtml() { return `<div class="hoje-line">HOJE · ${ddmm(localTodayISO())} — abaixo, o que ainda vai acontecer</div>`; }
+function ledgerQuandoBar(list) {
+  const ag = list.filter(ehAgendado);
+  const q = state.ledgerQuando || "todos";
+  const chip = (id, label) => `<button class="report-nav-btn ${q === id ? "active" : ""}" data-action="set-ledger-quando" data-q="${id}">${label}</button>`;
+  let h = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px;">${chip("todos", "Todos")}${chip("passados", "Já aconteceu")}${chip("agendados", `⏳ Agendados (${ag.length})`)}</div>`;
+  if (ag.length > 0) {
+    const rec = ag.filter((t) => t.type === "receita").reduce((s, t) => s + Number(t.value), 0);
+    const des = ag.filter((t) => t.type === "despesa").reduce((s, t) => s + Number(t.value), 0);
+    h += `<p class="hint" style="margin:4px 0 0;">⏳ <strong>${ag.length} agendado(s)</strong> com data depois de hoje (${ddmm(localTodayISO())}, horário de Brasília): receitas <span class="green">+${brl(rec)}</span> · despesas <span class="red">-${brl(des)}</span>. Já entram nos totais do mês.</p>`;
+  }
+  return h;
 }
 
 // ================= BICHOS (etiquetas) =================
@@ -2994,18 +3028,25 @@ function render() {
     if (monthComparison.allReal.length === 0) {
       html += `<p class="hint" style="margin:8px 0 0;">Nenhum lançamento real ainda neste período.</p>`;
     } else if (realExpanded) {
+      html += ledgerQuandoBar(monthComparison.allReal);
       html += `<div style="margin-top:10px;">`;
       const porDia = {};
-      [...monthComparison.allReal].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => { (porDia[t.date] = porDia[t.date] || []).push(t); });
+      const hojeISO = localTodayISO();
+      let divDone = false;
+      const listaMes = monthComparison.allReal.filter(quandoOk);
+      if (listaMes.length === 0) html += `<p class="hint">Nenhum lançamento nessa seleção.</p>`;
+      [...listaMes].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => { (porDia[t.date] = porDia[t.date] || []).push(t); });
       Object.keys(porDia).sort().forEach((dia) => {
         const itens = porDia[dia];
+        const futuro = dia > hojeISO;
+        if (futuro && !divDone && (state.ledgerQuando || "todos") === "todos") { html += hojeLinhaHtml(); divDone = true; }
         const liq = itens.reduce((s2, t) => s2 + (t.type === "receita" ? Number(t.value) : -Number(t.value)), 0);
         const dd = new Date(dia + "T00:00:00");
-        html += `<div class="day-head"><span class="bold">${pad2(dd.getDate())}/${pad2(dd.getMonth() + 1)} <span class="muted">${DIAS_SEMANA[dd.getDay()]}</span></span><span style="color:${liq >= 0 ? C.green : C.red}">${liq >= 0 ? "+" : ""}${brl(liq)}</span></div>`;
+        html += `<div class="day-head"><span class="bold">${pad2(dd.getDate())}/${pad2(dd.getMonth() + 1)} <span class="muted">${DIAS_SEMANA[dd.getDay()]}</span>${futuro ? ` <span class="badge-ag">⏳ agendado</span>` : ""}</span><span style="color:${liq >= 0 ? C.green : C.red}">${liq >= 0 ? "+" : ""}${brl(liq)}</span></div>`;
         itens.forEach((t) => {
           const cat = catById(t.categoryId);
           const meta = t.plannedItemId ? state.plannedItems.find((p) => p.id === t.plannedItemId) : null;
-          html += `<div class="tx-row"><div class="tx-main"><div>${esc(t.description)}${bichoChips(t)}</div><div class="tx-sub"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span>${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}${parcelaBadge(t)}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>` : ""}</div></div>`;
+          html += `<div class="tx-row${futuro ? " agendado" : ""}"><div class="tx-main"><div>${esc(t.description)}${bichoChips(t)}</div><div class="tx-sub"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span>${meta ? ` <span class="badge" style="background:var(--badge-green)">🏷️ ${esc(meta.description)}</span>` : ""}${parcelaBadge(t)}${t.isCartao ? ` <span class="badge" style="background:var(--badge-brass)">💳${t.dueDate ? " vence " + new Date(t.dueDate + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>` : ""}</div></div>`;
           html += `<div class="tx-side"><span style="color:${t.type === "receita" ? C.green : C.red};font-weight:600;">${t.type === "receita" ? "+" : "-"}${brl(t.value)}</span>${isDateLocked(t.date)
             ? `<span class="muted" title="Mês fechado — reabra para editar">🔒</span>`
             : `<span><button class="del-btn" data-action="edit-tx" data-id="${t.id}" title="Editar">✏️</button><button class="del-btn" data-action="del-tx" data-id="${t.id}" title="Excluir">🗑️</button></span>`}</div></div>`;
@@ -3086,10 +3127,18 @@ function render() {
     if (visibleTx.length === 0) {
       html += `<p class="hint" style="margin:8px 0 0;">Nenhum lançamento neste período.</p>`;
     } else if (anoExpanded) {
+      html += ledgerQuandoBar(visibleTx);
       html += `<div class="table-wrap" style="margin-top:10px;"><table><thead><tr><th>Data</th><th style="text-align:left">Descrição</th><th style="text-align:left">Categoria</th><th>Débito</th><th>Crédito</th><th>Saldo</th><th></th></tr></thead><tbody>`;
-      visibleTx.forEach((t) => {
+      // Esta tabela é ordenada pela data de caixa (cartão = vencimento). A linha "HOJE" só aparece quando
+      // todos os agendados ficam juntos no topo; senão, o destaque + ⏳ em cada linha já mostra o que é futuro.
+      const listaAno = visibleTx.filter(quandoOk);
+      const idxUltAg = listaAno.reduce((m, t, i) => (ehAgendado(t) ? i : m), -1);
+      const agJuntos = idxUltAg >= 0 && listaAno.slice(0, idxUltAg + 1).every(ehAgendado);
+      listaAno.forEach((t, iAno) => {
         const cat = catById(t.categoryId);
-        html += `<tr><td>${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</td><td style="text-align:left">${esc(t.description)}</td>`;
+        const ag = ehAgendado(t);
+        if (agJuntos && iAno === idxUltAg + 1 && (state.ledgerQuando || "todos") === "todos") { html += `<tr><td colspan="7" style="text-align:center;font-weight:700;color:var(--brass-text);border-top:2px dashed var(--brass);border-bottom:2px dashed var(--brass);">HOJE · ${ddmm(localTodayISO())} — acima, o que ainda vai acontecer</td></tr>`; }
+        html += `<tr${ag ? ` class="agendado"` : ""}><td>${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}${ag ? ` <span class="badge-ag">⏳</span>` : ""}</td><td style="text-align:left">${esc(t.description)}</td>`;
         html += `<td style="text-align:left"><span class="badge" style="background:${cat ? cat.color : "var(--badge-gray)"}">${cat ? cat.name : "—"}</span></td>`;
         html += `<td class="red">${t.type === "despesa" ? brl(t.value) : ""}</td><td class="green">${t.type === "receita" ? brl(t.value) : ""}</td>`;
         html += `<td class="bold" style="color:${t.balance >= 0 ? C.green : C.red}">${brl(t.balance)}</td>`;
@@ -3354,6 +3403,7 @@ function attachListeners() {
       else if (action === "unarchive-goal") { unarchivePlannedItem(el.dataset.id); }
       else if (action === "quick-launch") { quickLaunchPlannedItem(el.dataset.id, Number(el.dataset.year), Number(el.dataset.month)); }
       else if (action === "set-tab") { state.activeTab = el.dataset.tab; render(); }
+      else if (action === "set-ledger-quando") { state.ledgerQuando = el.dataset.q; render(); }
       else if (action === "rx-limpar") { state.rx = rxDefault(); render(); }
       else if (action === "rx-csv") { rxExportCSV(); }
       else if (action === "set-report-tab") { state.reportTab = el.dataset.report; render(); }
