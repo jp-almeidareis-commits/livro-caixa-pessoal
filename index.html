@@ -3338,8 +3338,11 @@ function render() {
           grupoAtual = gId;
           const gInfo = GRUPOS_PROJ[type].find((x) => x.id === gId) || { nome: gId };
           const so = gSoma[gId];
-          h += `<div class="grupo-head"><span class="bold">${gInfo.nome} <span class="muted" style="font-weight:400;">(${so.n})</span></span><span class="grupo-nums"><span class="muted">prev.</span> <b>${brl(so.prev)}</b> <span class="muted">· real.</span> <b class="${colorClass}">${brl(so.real)}</b></span></div>`;
+          const gcKey = `gc-${type}-${gId}`;
+          const gColapsado = !!state.expanded[gcKey];
+          h += `<div class="grupo-head" style="cursor:pointer;" data-action="toggle-section" data-section="${gcKey}" title="${gColapsado ? "Expandir" : "Recolher"} este grupo"><span class="bold">${gColapsado ? "▸" : "▾"} ${gInfo.nome} <span class="muted" style="font-weight:400;">(${so.n})</span></span><span class="grupo-nums"><span class="muted">prev.</span> <b>${brl(so.prev)}</b> <span class="muted">· real.</span> <b class="${colorClass}">${brl(so.real)}</b></span></div>`;
         }
+        if (state.expanded[`gc-${type}-${gId}`]) return;
         const sid = `meta-${r.noteKey}`;
         const open = !!state.expanded[sid];
         const alvo = r.atualizado > 0 ? r.atualizado : r.value;
