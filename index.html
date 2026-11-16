@@ -280,6 +280,7 @@
   .grupo-nums { font-size: 11px; }
   .fatura-bloco { margin-top: 10px; padding: 8px 10px; border: 1px solid var(--brass); border-radius: 8px; }
   .fatura-bloco.agendado { background: var(--brass-bg); }
+  .fatura-aviso { margin-top: 8px; padding: 7px 9px; border-radius: 6px; background: var(--badge-brass, #f3e6c4); font-size: 12px; line-height: 1.35; }
   .fatura-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding-bottom: 4px; border-bottom: 1px solid var(--line); margin-bottom: 2px; }
   .hoje-line { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; font-size: 12px; font-weight: 700; color: var(--brass-text); }
   .hoje-line::before, .hoje-line::after { content: ""; flex: 1; border-top: 2px dashed var(--brass); opacity: .7; }
@@ -1048,6 +1049,16 @@ function faturasBlocksHtml(lista) {
     h += `<div class="fatura-head"><span class="bold"><span class="dot-cartao" style="background:${c ? c.cor : "var(--ink-soft)"}"></span> Fatura ${esc(nome)} · ${g.due === "sem-data" ? "sem vencimento" : "vence " + ddmm(g.due)}${agend ? ` <span class="badge-ag">⏳ agendada</span>` : ""}${fechada ? ` <span class="badge" style="background:var(--badge-green)">🔒 fechada</span>` : ""} <span class="muted">(${g.itens.length})</span></span><span class="red bold">-${brl(total)}</span></div>`;
     [...g.itens].sort((a, b) => a.date.localeCompare(b.date)).forEach((t) => { h += txRowHtml(t, agend, true); });
     if (g.due !== "sem-data") {
+      // Compras que vencem nesta mesma fatura mas já contam em outro mês (consumo de mês anterior): aviso pra enxergar o caixa real
+      const idsAqui = new Set(g.itens.map((t) => t.id));
+      const fora = (state.transactions || []).filter((t) => t.isCartao && (t.cartaoId || "legacy") === g.cid && t.dueDate === g.due && !idsAqui.has(t.id));
+      if (fora.length > 0) {
+        const somaFora = fora.reduce((s2, t) => s2 + Number(t.value), 0);
+        const detalhe = [...fora].sort((a, b) => a.date.localeCompare(b.date)).map((t) => `${ddmm(t.date)} ${esc(t.description)} ${brl(t.value)}`).join(" · ");
+        h += `<div class="fatura-aviso"><div><b>+ ${brl(somaFora)}</b> de ${fora.length} compra(s) feita(s) em outro mês, que vencem nesta mesma fatura e já pesam no resultado desse outro mês.</div><details style="margin-top:2px;"><summary class="muted" style="font-size:11px;cursor:pointer;">ver quais são</summary><div class="muted" style="font-size:11px;margin-top:2px;">${detalhe}</div></details><div style="margin-top:4px;"><b>Total a pagar em ${ddmm(g.due)}: ${brl(total + somaFora)}</b></div></div>`;
+      }
+    }
+    if (g.due !== "sem-data") {
       h += `<div style="text-align:right;margin-top:6px;"><button class="btn ${fechada ? "btn-outline" : "btn-primary"}" style="font-size:11px;padding:4px 9px;" data-action="toggle-fatura-fechada" data-cartao="${esc(g.cid)}" data-due="${g.due}">${fechada ? "🔓 Reabrir fatura" : "🔒 Fatura fechada — próximas compras vão pra seguinte"}</button></div>`;
     }
     h += `</div>`;
@@ -1069,6 +1080,14 @@ function ledgerQuandoBar(list) {
 
 // ================= BICHOS (etiquetas) =================
 function bichoById(id) { return state.bichos.find((b) => b.id === id) || null; }
+function bichoAtivo(b) { return !!b && !b.arquivado; }
+function bichoNome(b) { return b ? b.nome + (b.arquivado ? " (arquivado)" : "") : ""; }
+function arquivarBicho(id, arq) {
+  const b = bichoById(id); if (!b) return;
+  if (arq && !confirm(`Arquivar "${b.nome}"?\n\nO histórico dele continua nos relatórios de bichos (marcado como arquivado), mas ele deixa de aparecer para etiquetar novos lançamentos. Dá para reativar depois.`)) return;
+  state.bichos = state.bichos.map((x) => (x.id === id ? { ...x, arquivado: !!arq } : x));
+  persist(); render();
+}
 function bichosValidos(ids) { return (Array.isArray(ids) ? ids : []).filter((id) => !!bichoById(id)); }
 // Etiqueta de bicho só faz sentido em despesas da categoria Pets.
 function isCatPet(categoryId) {
@@ -1086,7 +1105,7 @@ function formBichoIds() {
   if (!isCatPet(form.categoryId)) return [];
   if (form.bichosTocado) return bichosValidos(form.bichoIds);
   const pi = state.plannedItems.find((x) => x.id === form.plannedItemId);
-  return bichosValidos(pi && pi.bichoIds);
+  return bichosValidos(pi && pi.bichoIds).filter((id) => bichoAtivo(bichoById(id)));
 }
 // Parte de cada bicho num lançamento: despesa dividida igualmente entre os bichos etiquetados.
 function partesPorBicho(t) {
@@ -2359,17 +2378,17 @@ function reportBichos() {
   h += `<p class="panel-title" style="margin-top:14px;">Acumulado desde novembro/2026 — ${brl(totalAcum)}</p>`;
   acumLinhas.forEach((x) => {
     const pct = totalAcum > 0 ? (x.v / totalAcum) * 100 : 0;
-    h += `<div class="bar-chart-row"><span class="bar-chart-label">${esc(x.b.nome)}</span><span class="bar-chart-track"><span class="bar-chart-fill" style="width:${Math.max(2, pct)}%;background:${x.b.cor}"></span></span><span class="bar-chart-value">${brl(x.v)} (${pct.toFixed(0)}%)</span></div>`;
+    h += `<div class="bar-chart-row"><span class="bar-chart-label">${esc(bichoNome(x.b))}</span><span class="bar-chart-track"><span class="bar-chart-fill" style="width:${Math.max(2, pct)}%;background:${x.b.cor}"></span></span><span class="bar-chart-value">${brl(x.v)} (${pct.toFixed(0)}%)</span></div>`;
   });
 
   // por mês
   const ids = acumLinhas.map((x) => x.b.id);
   if (comDados.length >= 1) {
-    const ser = acumLinhas.map((x) => ({ nome: x.b.nome, cor: x.b.cor }));
+    const ser = acumLinhas.map((x) => ({ nome: bichoNome(x.b), cor: x.b.cor }));
     h += `<div class="chart-box" style="margin-top:14px;"><p class="panel-title" style="margin-top:0;">Gasto por mês, por bicho</p>${chartLegend(ser)}${svgStackedBars(comDados.map((m) => ({ label: m.label, vals: acumLinhas.map((x) => m.tot[x.b.id] || 0) })), ser)}</div>`;
   }
   h += `<p class="panel-title" style="margin-top:20px;">Mês a mês</p>`;
-  h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Mês</th>${ids.map((id) => `<th>${esc(bichoById(id).nome)}</th>`).join("")}<th>Total</th></tr></thead><tbody>`;
+  h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Mês</th>${ids.map((id) => `<th>${esc(bichoNome(bichoById(id)))}</th>`).join("")}<th>Total</th></tr></thead><tbody>`;
   [...comDados].reverse().forEach((m) => {
     h += `<tr><td style="text-align:left">${m.label}</td>${ids.map((id) => `<td>${m.tot[id] ? brl(m.tot[id]) : "—"}</td>`).join("")}<td class="bold red">${brl(m.total)}</td></tr>`;
   });
@@ -2380,7 +2399,7 @@ function reportBichos() {
   h += `<p class="panel-title" style="margin-top:20px;">Detalhe dos lançamentos</p>`;
   h += `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">`;
   h += `<label class="field-label" style="max-width:200px;">Mês<select class="field" id="report-bicho-month">${comDados.map((m) => `<option value="${m.key}" ${state.reportBichoMonth === m.key ? "selected" : ""}>${m.label}</option>`).join("")}</select></label>`;
-  h += `<label class="field-label" style="max-width:200px;">Bicho<select class="field" id="report-bicho-sel"><option value="todos">Todos</option>${state.bichos.map((b) => `<option value="${b.id}" ${state.reportBichoSel === b.id ? "selected" : ""}>${esc(b.nome)}</option>`).join("")}</select></label></div>`;
+  h += `<label class="field-label" style="max-width:200px;">Bicho<select class="field" id="report-bicho-sel"><option value="todos">Todos</option>${state.bichos.map((b) => `<option value="${b.id}" ${state.reportBichoSel === b.id ? "selected" : ""}>${esc(bichoNome(b))}</option>`).join("")}</select></label></div>`;
   const mSel = comDados.find((m) => m.key === state.reportBichoMonth);
   const linhas = [];
   mSel.tx.filter((t) => t.type === "despesa").forEach((t) => {
@@ -2392,7 +2411,7 @@ function reportBichos() {
     h += `<div class="table-wrap"><table><thead><tr><th style="text-align:left">Data</th><th style="text-align:left">Descrição</th><th style="text-align:left">Bicho</th><th>Valor do lançamento</th><th>Parte do bicho</th></tr></thead><tbody>`;
     linhas.forEach(({ t, x }) => {
       const b = bichoById(x.bichoId);
-      h += `<tr><td style="text-align:left">${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</td><td style="text-align:left">${esc(t.description)}</td><td style="text-align:left"><span class="bicho-tag" style="--bc:${esc(b.cor)}">${esc(b.nome)}</span></td><td class="muted">${brl(t.value)}</td><td class="bold red">${brl(x.parte)}</td></tr>`;
+      h += `<tr><td style="text-align:left">${new Date(t.date + "T00:00:00").toLocaleDateString("pt-BR")}</td><td style="text-align:left">${esc(t.description)}</td><td style="text-align:left"><span class="bicho-tag" style="--bc:${esc(b.cor)}">${esc(bichoNome(b))}</span></td><td class="muted">${brl(t.value)}</td><td class="bold red">${brl(x.parte)}</td></tr>`;
     });
     h += `</tbody></table></div>`;
   }
@@ -3070,7 +3089,8 @@ function render() {
       const sel = formBichoIds();
       bichosHtml += `<div class="span-6" style="grid-column:span 6;"><p class="hint" style="margin:0 0 4px;">🐾 Bichos deste gasto${!form.bichosTocado && sel.length ? " (herdado da meta)" : ""} — vários = valor dividido igualmente</p><div class="bicho-row">`;
       state.grupos.forEach((g) => { const gi = bichosValidos(g.bichoIds); const on = gi.length > 0 && gi.every((id) => sel.includes(id)); bichosHtml += `<button type="button" class="bicho-chip grupo ${on ? "on" : ""}" data-action="form-grupo" data-id="${g.id}">${esc(g.nome)}</button>`; });
-      state.bichos.forEach((b) => { bichosHtml += `<button type="button" class="bicho-chip ${sel.includes(b.id) ? "on" : ""}" style="--bc:${esc(b.cor)}" data-action="form-bicho" data-id="${b.id}">${esc(b.nome)}</button>`; });
+      state.bichos.filter((b) => bichoAtivo(b) || state.formArquivados || sel.includes(b.id)).forEach((b) => { bichosHtml += `<button type="button" class="bicho-chip ${sel.includes(b.id) ? "on" : ""}" style="--bc:${esc(b.cor)}${b.arquivado ? ";opacity:.6" : ""}" data-action="form-bicho" data-id="${b.id}">${esc(bichoNome(b))}</button>`; });
+      if (state.bichos.some((b) => b.arquivado)) bichosHtml += `<button type="button" class="bicho-chip" data-action="toggle-form-arq" title="Mostrar ou esconder bichos arquivados">${state.formArquivados ? "esconder arquivados" : "＋ arquivados"}</button>`;
       bichosHtml += `</div></div>`;
     }
     const dicaHtml = `<label class="span-6" style="font-size:11px;color:${C.inkSoft};display:flex;align-items:center;">Dica: várias descrições diferentes (ração, areia, petiscos...) podem apontar pra mesma meta (ex: "Pets") — o sistema sugere sozinho quando reconhece a descrição ou quando só existe uma meta naquela categoria.</label>`;
@@ -3097,8 +3117,14 @@ function render() {
     if (state.bichos.length === 0) html += `<p class="hint">Nenhum bicho cadastrado ainda.</p>`;
     else {
       html += `<div class="bicho-row" style="margin-bottom:10px;">`;
-      state.bichos.forEach((b) => { html += `<span class="bicho-tag" style="--bc:${esc(b.cor)};font-size:12px;padding:3px 10px;">${esc(b.nome)} <button class="del-btn" data-action="del-bicho" data-id="${b.id}" title="Excluir">✕</button></span>`; });
+      state.bichos.filter(bichoAtivo).forEach((b) => { html += `<span class="bicho-tag" style="--bc:${esc(b.cor)};font-size:12px;padding:3px 10px;">${esc(b.nome)} <button class="del-btn" data-action="arq-bicho" data-id="${b.id}" title="Arquivar (mantém o histórico nos relatórios)">📦</button><button class="del-btn" data-action="del-bicho" data-id="${b.id}" title="Excluir">✕</button></span>`; });
       html += `</div>`;
+      const arqs = state.bichos.filter((b) => b.arquivado);
+      if (arqs.length) {
+        html += `<p class="hint" style="margin:0 0 4px;">Arquivados (continuam nos relatórios, não aparecem para etiquetar):</p><div class="bicho-row" style="margin-bottom:10px;">`;
+        arqs.forEach((b) => { html += `<span class="bicho-tag" style="--bc:${esc(b.cor)};font-size:12px;padding:3px 10px;opacity:.7;">${esc(b.nome)} <button class="del-btn" data-action="unarq-bicho" data-id="${b.id}" title="Reativar">↩️</button></span>`; });
+        html += `</div>`;
+      }
     }
     html += `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;"><input type="text" class="field" id="bicho-nome" placeholder="Nome do bicho" style="width:200px;" /><input type="color" id="bicho-cor" value="#7C3AED" style="width:42px;height:34px;border:none;background:none;" /><button class="btn btn-brass" data-action="add-bicho">➕ Adicionar bicho</button></div>`;
     html += `<p class="panel-title" style="font-size:13px;">Grupos</p>`;
@@ -3106,9 +3132,9 @@ function render() {
     state.grupos.forEach((g) => {
       html += `<div class="naoprevisto-row"><span><strong>${esc(g.nome)}</strong> <span class="muted">${bichosValidos(g.bichoIds).map((id) => esc(bichoById(id).nome)).join(", ")}</span></span><button class="del-btn" data-action="del-grupo" data-id="${g.id}" title="Excluir grupo">🗑️</button></div>`;
     });
-    if (state.bichos.length >= 2) {
+    if (state.bichos.filter(bichoAtivo).length >= 2) {
       html += `<div style="margin-top:8px;"><input type="text" class="field" id="grupo-nome" placeholder="Nome do grupo (ex.: Gatas)" style="width:200px;display:inline-block;margin-right:8px;" />`;
-      state.bichos.forEach((b) => { html += `<label style="font-size:12px;margin-right:8px;white-space:nowrap;"><input type="checkbox" class="grupo-bicho" value="${b.id}" /> ${esc(b.nome)}</label>`; });
+      state.bichos.filter(bichoAtivo).forEach((b) => { html += `<label style="font-size:12px;margin-right:8px;white-space:nowrap;"><input type="checkbox" class="grupo-bicho" value="${b.id}" /> ${esc(b.nome)}</label>`; });
       html += `<button class="btn btn-outline" data-action="add-grupo" style="margin-left:4px;">➕ Criar grupo</button></div>`;
     }
     html += `</div>`;
@@ -3379,7 +3405,7 @@ function render() {
           if (state.bichos.length > 0 && !isReceita && isCatPet(r.categoryId)) {
             const pb = bichosValidos((state.plannedItems.find((x) => x.id === r.id) || {}).bichoIds);
             h += `<div class="bicho-row" style="margin-bottom:8px;"><span class="hint" style="margin:0;">🐾 Bichos desta projeção (herdados pelos novos lançamentos):</span>`;
-            state.bichos.forEach((b) => { h += `<button type="button" class="bicho-chip ${pb.includes(b.id) ? "on" : ""}" style="--bc:${esc(b.cor)}" data-action="toggle-meta-bicho" data-id="${r.id}" data-bicho="${b.id}">${esc(b.nome)}</button>`; });
+            state.bichos.filter((b) => bichoAtivo(b) || pb.includes(b.id)).forEach((b) => { h += `<button type="button" class="bicho-chip ${pb.includes(b.id) ? "on" : ""}" style="--bc:${esc(b.cor)}" data-action="toggle-meta-bicho" data-id="${r.id}" data-bicho="${b.id}">${esc(b.nome)}</button>`; });
             h += `</div>`;
           }
           h += `<input type="text" class="note-input" style="margin-bottom:8px;" placeholder="anotar..." data-action="edit-note" data-notekey="${r.noteKey}" value="${esc(state.notes[r.noteKey] || "")}" />`;
@@ -3831,6 +3857,9 @@ function attachListeners() {
       else if (action === "toggle-bicho-manager") { state.showBichoManager = !state.showBichoManager; render(); }
       else if (action === "add-bicho") { addBicho(); }
       else if (action === "del-bicho") { delBicho(el.dataset.id); }
+      else if (action === "arq-bicho") { arquivarBicho(el.dataset.id, true); }
+      else if (action === "unarq-bicho") { arquivarBicho(el.dataset.id, false); }
+      else if (action === "toggle-form-arq") { state.formArquivados = !state.formArquivados; render(); }
       else if (action === "add-grupo") { addGrupo(); }
       else if (action === "del-grupo") { delGrupo(el.dataset.id); }
       else if (action === "form-bicho") { toggleFormBicho(el.dataset.id); }
